@@ -3,62 +3,12 @@ package main
 import (
 	"fmt"
 	"io"
-	"strconv"
-	"strings"
 	"time"
 
 	oto "github.com/hajimehoshi/oto/v2"
 
-	"gitlab.com/gomidi/midi"
-	"gitlab.com/gomidi/midi/reader"
-	"gitlab.com/gomidi/midi/writer"
-	"gitlab.com/gomidi/rtmididrv"
+	"github.com/rbren/midi/pkg/midi"
 )
-
-type MidiNote struct {
-	Action        string
-	Velocity      int64
-	Key           int64
-	Channel       int64
-	AbsoluteValue int64
-}
-
-func ParseMidiNote(s string) MidiNote {
-	note := MidiNote{}
-	parts := strings.Split(s, " ")
-	for idx, val := range parts {
-		if idx == 0 {
-			note.Action = val
-			continue
-		}
-		if idx == len(parts)-1 {
-			break
-		}
-		intVal, intErr := strconv.ParseInt(parts[idx+1], 10, 0)
-		if val == "key" {
-			must(intErr)
-			note.Key = intVal
-		}
-		if val == "velocity" {
-			must(intErr)
-			note.Velocity = intVal
-		}
-		if val == "absValue" {
-			must(intErr)
-			note.AbsoluteValue = intVal
-		}
-		if val == "channel" {
-			must(intErr)
-			note.Channel = intVal
-		}
-	}
-	if strings.Contains(s, "channel.NoteOn") {
-		note.Action = "NoteOn"
-	} else if strings.Contains(s, "channel.NoteOff") {
-		note.Action = "NoteOff"
-	}
-	return note
-}
 
 type MusicPlayer struct {
 	buffer   []byte
@@ -121,55 +71,21 @@ func startOutputBuffer() io.Writer {
 
 // This example reads from the first input and and writes to the first output port
 func main() {
-	drv, err := rtmididrv.New()
-	if err != nil {
-		panic(err)
-	}
-
+	notes := make(chan midi.MidiNote, 1000)
+	done := make(chan bool)
+	go func() {
+		err := midi.StartDriver(notes, done)
+		must(err)
+	}()
 	startOutputBuffer()
 
-	// make sure to close all open ports at the end
-	defer drv.Close()
-
-	ins, err := drv.Ins()
-	must(err)
-
-	outs, err := drv.Outs()
-	must(err)
-
-	in, out := ins[0], outs[0]
-
-	must(in.Open())
-	must(out.Open())
-
-	defer in.Close()
-	defer out.Close()
-
-	// the writer we are writing to
-	wr := writer.New(out)
-
-	// to disable logging, pass mid.NoLogger() as option
-	rd := reader.New(
-		reader.NoLogger(),
-		// write every message to the out port
-		reader.Each(func(pos *reader.Position, msg midi.Message) {
-			note := ParseMidiNote(msg.String())
-			fmt.Printf("got %#v\n", note)
-		}),
-	)
-
-	// listen for MIDI
-	err = rd.ListenTo(in)
-	must(err)
-	fmt.Println("listening...")
-	time.Sleep(100000 * time.Second)
-
-	err = writer.NoteOn(wr, 60, 100)
-	must(err)
-
-	err = writer.NoteOff(wr, 60)
-
-	must(err)
+	for {
+		select {
+		case note := <-notes:
+			fmt.Println("rec note", note)
+		}
+	}
+	time.Sleep(10000 * time.Second)
 	// Output: got channel.NoteOn channel 0 key 60 velocity 100
 	// got channel.NoteOff channel 0 key 60
 }
