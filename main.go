@@ -26,6 +26,7 @@ func main() {
 
 	go musicPlayer.Start()
 	out.Player.Play()
+	fmt.Println("Ready!")
 
 	for {
 		select {
