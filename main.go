@@ -25,9 +25,15 @@ func main() {
 	out.Player.Play()
 
 	startPlaying := func() {
+		fmt.Println("start playing")
+		started := false
 		for {
-			buf := music.GenerateFrequency(440.0, SampleRate, SampleBuffer)
+			buf := music.GenerateFrequency(440.0, SampleRate)
 			out.Line.Write(buf)
+			if !started {
+				fmt.Println("wrote note")
+				started = true
+			}
 		}
 	}
 

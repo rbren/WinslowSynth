@@ -1,6 +1,8 @@
 package output
 
 import (
+	"fmt"
+
 	oto "github.com/hajimehoshi/oto/v2"
 )
 
@@ -57,6 +59,9 @@ func (m *MusicReaderWriter) incrementWritePos() {
 func (m MusicReaderWriter) Read(p []byte) (n int, err error) {
 	numRead := 0
 	for idx := range p {
+		if *m.readPos == *m.writePos {
+			break
+		}
 		p[idx] = m.buffer[*m.readPos]
 		m.incrementReadPos()
 		numRead++

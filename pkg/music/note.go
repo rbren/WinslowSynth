@@ -4,14 +4,9 @@ import (
 	"math"
 )
 
-func GenerateFrequency(hz float64, sampleRate int, samples int) []byte {
-	out := make([]byte, samples)
+func GenerateFrequency(hz float64, sampleRate int) []byte {
 	samplesPerPeriod := int(float64(sampleRate) / hz)
-	period := getSinePeriod(samplesPerPeriod)
-	for idx := range out {
-		out[idx] = period[idx%len(period)]
-	}
-	return out
+	return getSinePeriod(samplesPerPeriod)
 }
 
 func getSinePeriod(numSamples int) []byte {
