@@ -44,27 +44,18 @@ func (m MusicPlayer) Start() {
 }
 
 func (m MusicPlayer) nextBytes() {
-	// byteSeqs := make([][]byte, len(m.ActiveKeys))
-	silence := make([]byte, m.samplesPerTick)
-	byteSeqs := [][]byte{}
 	logger.Log("active keys", len(m.ActiveKeys))
 	logger.Log("  delay", m.Output.GetBufferDelay())
-	idx := 0
+
+	samples := make([]float64, m.samplesPerTick) // silence
 	for _, key := range m.ActiveKeys {
-		byteSeqs = append(byteSeqs, GenerateFrequency(key.Frequency, m.SampleRate, m.samplesPerTick))
-		idx++
+		// TODO: don't just take the last one
+		samples = GenerateFrequency(key.Frequency, m.SampleRate, m.samplesPerTick)
 	}
-	toWrite := silence
-	if len(byteSeqs) > 0 {
-		toWrite = byteSeqs[0]
-		logger.Log("  music")
-	} else {
-		logger.Log("  silence")
-	}
-	n, err := m.Output.Write(toWrite)
+	n, err := m.Output.WriteAudio(samples, samples)
 	if err != nil {
 		panic(err)
 	}
-	logger.Log(fmt.Sprintf("  wrote %d of %d", n, len(toWrite)))
+	logger.Log(fmt.Sprintf("  wrote %d of %d", n, len(samples)*4))
 	logger.Log("  delay", *m.Output.ReadPos, *m.Output.WritePos)
 }

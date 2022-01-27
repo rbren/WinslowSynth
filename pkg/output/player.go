@@ -17,7 +17,7 @@ type OutputLine struct {
 func NewOutputLine(sampleRate int) (*OutputLine, error) {
 	line := NewAudioReaderWriter(sampleRate * 10)
 	logger.Log("create output", sampleRate, len(line.buffer))
-	ctx, _, err := oto.NewContext(sampleRate, 1, 1)
+	ctx, _, err := oto.NewContext(sampleRate, 2, 2)
 	if err != nil {
 		return nil, err
 	}
@@ -91,4 +91,30 @@ func (m AudioReaderWriter) Write(p []byte) (n int, err error) {
 		}
 	}
 	return numWritten, nil
+}
+
+func (m AudioReaderWriter) WriteAudio(left []float64, right []float64) (n int, err error) {
+	if len(left) != len(right) {
+		panic("Two different sized channels!")
+	}
+
+	buf := make([]byte, 2*2*len(left))
+	channels := [][]float64{left, right}
+	for c := range channels {
+		for i := range channels[c] {
+			val := channels[c][i]
+			if val < -1 {
+				val = -1
+			}
+			if val > +1 {
+				val = +1
+			}
+			valInt16 := int16(val * (1<<15 - 1))
+			low := byte(valInt16)
+			high := byte(valInt16 >> 8)
+			buf[i*4+c*2+0] = low
+			buf[i*4+c*2+1] = high
+		}
+	}
+	return m.Write(buf)
 }
