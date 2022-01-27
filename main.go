@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/rbren/midi/pkg/midi"
 	"github.com/rbren/midi/pkg/music"
 	"github.com/rbren/midi/pkg/output"
@@ -24,26 +22,26 @@ func main() {
 	must(err)
 	out.Player.Play()
 
-	startPlaying := func() {
-		fmt.Println("start playing")
-		started := false
-		for {
-			buf := music.GenerateFrequency(440.0, SampleRate)
-			out.Line.Write(buf)
-			if !started {
-				fmt.Println("wrote note")
-				started = true
-			}
-		}
+	musicPlayer := music.MusicPlayer{
+		SampleRate: SampleRate,
+		Output:     out.Line,
+		ActiveKeys: map[int64]music.Note{},
 	}
+	go musicPlayer.Start()
 
 	for {
 		select {
 		case note := <-notes:
 			if note.Action == "channel.NoteOn" {
-				startPlaying()
+				musicPlayer.ActiveKeys[note.Key] = music.Note{
+					Frequency: 440.0,
+					Velocity:  note.Velocity,
+				}
+			} else if note.Action == "channel.NoteOff" {
+				delete(musicPlayer.ActiveKeys, note.Key)
+			} else {
+				panic("No action for " + note.Action)
 			}
-			fmt.Println("rec note", note)
 		}
 	}
 }

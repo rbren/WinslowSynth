@@ -1,8 +1,6 @@
 package output
 
 import (
-	"fmt"
-
 	oto "github.com/hajimehoshi/oto/v2"
 )
 
