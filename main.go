@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/rbren/midi/pkg/midi"
 	"github.com/rbren/midi/pkg/music"
 	"github.com/rbren/midi/pkg/output"
@@ -37,6 +39,10 @@ func main() {
 				delete(musicPlayer.ActiveKeys, note.Key)
 			} else {
 				panic("No action for " + note.Action)
+			}
+			if err := out.Player.Err(); err != nil {
+				fmt.Println("there was an error!", err)
+				//out.Player.Play()
 			}
 		}
 	}

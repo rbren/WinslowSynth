@@ -57,6 +57,7 @@ func (m *AudioReaderWriter) incrementWritePos() {
 }
 
 func (m AudioReaderWriter) Read(p []byte) (n int, err error) {
+	//fmt.Println("try read", len(p))
 	numRead := 0
 	for idx := range p {
 		if *m.readPos == *m.writePos {
@@ -65,6 +66,9 @@ func (m AudioReaderWriter) Read(p []byte) (n int, err error) {
 		p[idx] = m.buffer[*m.readPos]
 		m.incrementReadPos()
 		numRead++
+	}
+	if numRead > 0 {
+		//fmt.Println("read", numRead)
 	}
 	return numRead, nil
 }
