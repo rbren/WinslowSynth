@@ -7,7 +7,7 @@ import (
 	"github.com/rbren/midi/pkg/output"
 )
 
-const msPerTick = 5
+const msPerTick = 100
 
 type Note struct {
 	Frequency float64
@@ -44,17 +44,26 @@ func (m MusicPlayer) Start() {
 
 func (m MusicPlayer) nextBytes() {
 	// byteSeqs := make([][]byte, len(m.ActiveKeys))
+	silence := make([]byte, m.samplesPerTick)
 	byteSeqs := [][]byte{}
 	fmt.Println("active keys", len(m.ActiveKeys))
+	fmt.Println("  delay", m.Output.GetBufferDelay())
 	idx := 0
 	for _, key := range m.ActiveKeys {
 		byteSeqs = append(byteSeqs, GenerateFrequency(key.Frequency, m.SampleRate, m.samplesPerTick))
 		idx++
 	}
+	toWrite := silence
 	if len(byteSeqs) > 0 {
-		m.Output.Write(byteSeqs[0])
+		toWrite = byteSeqs[0]
+		fmt.Println("  music")
 	} else {
-		silence := make([]byte, m.samplesPerTick)
-		m.Output.Write(silence)
+		fmt.Println("  silence")
 	}
+	n, err := m.Output.Write(toWrite)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("  wrote %d of %d", n, len(toWrite))
+	fmt.Println("  delay", *m.Output.ReadPos, *m.Output.WritePos)
 }

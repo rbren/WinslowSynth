@@ -38,7 +38,7 @@ func main() {
 			} else if note.Action == "channel.NoteOff" {
 				delete(musicPlayer.ActiveKeys, note.Key)
 			} else {
-				panic("No action for " + note.Action)
+				fmt.Println("No action for " + note.Action)
 			}
 			if err := out.Player.Err(); err != nil {
 				fmt.Println("there was an error!", err)

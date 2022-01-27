@@ -2,6 +2,7 @@ package output
 
 import (
 	"errors"
+	"fmt"
 
 	oto "github.com/hajimehoshi/oto/v2"
 )
@@ -14,6 +15,7 @@ type OutputLine struct {
 
 func NewOutputLine(sampleRate int) (*OutputLine, error) {
 	line := NewAudioReaderWriter(sampleRate * 10)
+	fmt.Println("create output", sampleRate, len(line.buffer))
 	ctx, _, err := oto.NewContext(sampleRate, 1, 1)
 	if err != nil {
 		return nil, err
@@ -27,32 +29,39 @@ func NewOutputLine(sampleRate int) (*OutputLine, error) {
 
 type AudioReaderWriter struct {
 	buffer   []byte
-	readPos  *int
-	writePos *int
+	ReadPos  *int
+	WritePos *int
 	player   oto.Player
 }
 
 func NewAudioReaderWriter(capacity int) AudioReaderWriter {
-	readPos := 0
-	writePos := 0
+	ReadPos := 0
+	WritePos := 0
 	return AudioReaderWriter{
 		buffer:   make([]byte, capacity),
-		readPos:  &readPos,
-		writePos: &writePos,
+		ReadPos:  &ReadPos,
+		WritePos: &WritePos,
 	}
 }
 
+func (m AudioReaderWriter) GetBufferDelay() int {
+	if *m.ReadPos <= *m.WritePos {
+		return *m.WritePos - *m.ReadPos
+	}
+	return len(m.buffer) - (*m.ReadPos - *m.WritePos)
+}
+
 func (m *AudioReaderWriter) incrementReadPos() {
-	*m.readPos++
-	if *m.readPos >= len(m.buffer) {
-		*m.readPos = 0
+	*m.ReadPos++
+	if *m.ReadPos >= len(m.buffer) {
+		*m.ReadPos = 0
 	}
 }
 
 func (m *AudioReaderWriter) incrementWritePos() {
-	*m.writePos++
-	if *m.writePos >= len(m.buffer) {
-		*m.writePos = 0
+	*m.WritePos++
+	if *m.WritePos >= len(m.buffer) {
+		*m.WritePos = 0
 	}
 }
 
@@ -60,10 +69,10 @@ func (m AudioReaderWriter) Read(p []byte) (n int, err error) {
 	//fmt.Println("try read", len(p))
 	numRead := 0
 	for idx := range p {
-		if *m.readPos == *m.writePos {
+		if *m.ReadPos == *m.WritePos {
 			break
 		}
-		p[idx] = m.buffer[*m.readPos]
+		p[idx] = m.buffer[*m.ReadPos]
 		m.incrementReadPos()
 		numRead++
 	}
@@ -76,10 +85,11 @@ func (m AudioReaderWriter) Read(p []byte) (n int, err error) {
 func (m AudioReaderWriter) Write(p []byte) (n int, err error) {
 	numWritten := 0
 	for _, b := range p {
-		m.buffer[*m.writePos] = b
+		curReadPos := *m.ReadPos
+		m.buffer[*m.WritePos] = b
 		m.incrementWritePos()
 		numWritten++
-		if *m.readPos == *m.writePos {
+		if curReadPos == *m.WritePos {
 			return numWritten, errors.New("Caught up to the reader!")
 		}
 	}
