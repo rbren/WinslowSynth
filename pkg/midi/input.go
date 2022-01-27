@@ -25,6 +25,9 @@ func StartDriver(notes chan MidiNote, done chan bool) error {
 		return err
 	}
 
+	if len(ins) < 1 || len(outs) < 1 {
+		panic("No midi device!")
+	}
 	in, out := ins[0], outs[0]
 
 	err = in.Open()

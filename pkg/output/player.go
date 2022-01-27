@@ -2,9 +2,10 @@ package output
 
 import (
 	"errors"
-	"fmt"
 
 	oto "github.com/hajimehoshi/oto/v2"
+
+	"github.com/rbren/midi/pkg/logger"
 )
 
 type OutputLine struct {
@@ -15,7 +16,7 @@ type OutputLine struct {
 
 func NewOutputLine(sampleRate int) (*OutputLine, error) {
 	line := NewAudioReaderWriter(sampleRate * 10)
-	fmt.Println("create output", sampleRate, len(line.buffer))
+	logger.Log("create output", sampleRate, len(line.buffer))
 	ctx, _, err := oto.NewContext(sampleRate, 1, 1)
 	if err != nil {
 		return nil, err
@@ -66,7 +67,6 @@ func (m *AudioReaderWriter) incrementWritePos() {
 }
 
 func (m AudioReaderWriter) Read(p []byte) (n int, err error) {
-	//fmt.Println("try read", len(p))
 	numRead := 0
 	for idx := range p {
 		if *m.ReadPos == *m.WritePos {
@@ -75,9 +75,6 @@ func (m AudioReaderWriter) Read(p []byte) (n int, err error) {
 		p[idx] = m.buffer[*m.ReadPos]
 		m.incrementReadPos()
 		numRead++
-	}
-	if numRead > 0 {
-		//fmt.Println("read", numRead)
 	}
 	return numRead, nil
 }

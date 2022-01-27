@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/rbren/midi/pkg/logger"
 	"github.com/rbren/midi/pkg/output"
 )
 
@@ -46,8 +47,8 @@ func (m MusicPlayer) nextBytes() {
 	// byteSeqs := make([][]byte, len(m.ActiveKeys))
 	silence := make([]byte, m.samplesPerTick)
 	byteSeqs := [][]byte{}
-	fmt.Println("active keys", len(m.ActiveKeys))
-	fmt.Println("  delay", m.Output.GetBufferDelay())
+	logger.Log("active keys", len(m.ActiveKeys))
+	logger.Log("  delay", m.Output.GetBufferDelay())
 	idx := 0
 	for _, key := range m.ActiveKeys {
 		byteSeqs = append(byteSeqs, GenerateFrequency(key.Frequency, m.SampleRate, m.samplesPerTick))
@@ -56,14 +57,14 @@ func (m MusicPlayer) nextBytes() {
 	toWrite := silence
 	if len(byteSeqs) > 0 {
 		toWrite = byteSeqs[0]
-		fmt.Println("  music")
+		logger.Log("  music")
 	} else {
-		fmt.Println("  silence")
+		logger.Log("  silence")
 	}
 	n, err := m.Output.Write(toWrite)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("  wrote %d of %d", n, len(toWrite))
-	fmt.Println("  delay", *m.Output.ReadPos, *m.Output.WritePos)
+	logger.Log(fmt.Sprintf("  wrote %d of %d", n, len(toWrite)))
+	logger.Log("  delay", *m.Output.ReadPos, *m.Output.WritePos)
 }
