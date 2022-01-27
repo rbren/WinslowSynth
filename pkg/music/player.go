@@ -17,11 +17,11 @@ type Note struct {
 type MusicPlayer struct {
 	SampleRate     int
 	ActiveKeys     map[int64]Note
-	Output         output.MusicReaderWriter
+	Output         output.AudioReaderWriter
 	samplesPerTick int
 }
 
-func NewMusicPlayer(sampleRate int, out output.MusicReaderWriter) MusicPlayer {
+func NewMusicPlayer(sampleRate int, out output.AudioReaderWriter) MusicPlayer {
 	return MusicPlayer{
 		SampleRate:     sampleRate,
 		Output:         out,

@@ -8,12 +8,12 @@ import (
 
 type OutputLine struct {
 	sampleRate int
-	Line       MusicReaderWriter
+	Line       AudioReaderWriter
 	Player     oto.Player
 }
 
 func NewOutputLine(sampleRate int) (*OutputLine, error) {
-	line := NewMusicReaderWriter(sampleRate * 10)
+	line := NewAudioReaderWriter(sampleRate * 10)
 	ctx, _, err := oto.NewContext(sampleRate, 2, 2)
 	if err != nil {
 		return nil, err
@@ -25,38 +25,38 @@ func NewOutputLine(sampleRate int) (*OutputLine, error) {
 	}, nil
 }
 
-type MusicReaderWriter struct {
+type AudioReaderWriter struct {
 	buffer   []byte
 	readPos  *int
 	writePos *int
 	player   oto.Player
 }
 
-func NewMusicReaderWriter(capacity int) MusicReaderWriter {
+func NewAudioReaderWriter(capacity int) AudioReaderWriter {
 	readPos := 0
 	writePos := 0
-	return MusicReaderWriter{
+	return AudioReaderWriter{
 		buffer:   make([]byte, capacity),
 		readPos:  &readPos,
 		writePos: &writePos,
 	}
 }
 
-func (m *MusicReaderWriter) incrementReadPos() {
+func (m *AudioReaderWriter) incrementReadPos() {
 	*m.readPos++
 	if *m.readPos >= len(m.buffer) {
 		*m.readPos = 0
 	}
 }
 
-func (m *MusicReaderWriter) incrementWritePos() {
+func (m *AudioReaderWriter) incrementWritePos() {
 	*m.writePos++
 	if *m.writePos >= len(m.buffer) {
 		*m.writePos = 0
 	}
 }
 
-func (m MusicReaderWriter) Read(p []byte) (n int, err error) {
+func (m AudioReaderWriter) Read(p []byte) (n int, err error) {
 	numRead := 0
 	for idx := range p {
 		if *m.readPos == *m.writePos {
@@ -69,7 +69,7 @@ func (m MusicReaderWriter) Read(p []byte) (n int, err error) {
 	return numRead, nil
 }
 
-func (m MusicReaderWriter) Write(p []byte) (n int, err error) {
+func (m AudioReaderWriter) Write(p []byte) (n int, err error) {
 	numWritten := 0
 	for _, b := range p {
 		m.buffer[*m.writePos] = b
