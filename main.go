@@ -8,7 +8,7 @@ import (
 	"github.com/rbren/midi/pkg/output"
 )
 
-const SampleRate = 48000
+const SampleRate = 4800
 const SampleBuffer = 10000
 const MidiBuffer = 1000
 
@@ -31,6 +31,7 @@ func main() {
 	for {
 		select {
 		case note := <-notes:
+			fmt.Println("note", note)
 			if note.Action == "channel.NoteOn" {
 				musicPlayer.ActiveKeys[note.Key] = music.Note{
 					Frequency: 440.0,
@@ -40,10 +41,6 @@ func main() {
 				delete(musicPlayer.ActiveKeys, note.Key)
 			} else {
 				fmt.Println("No action for " + note.Action)
-			}
-			if err := out.Player.Err(); err != nil {
-				fmt.Println("there was an error!", err)
-				//out.Player.Play()
 			}
 		}
 	}

@@ -2,6 +2,7 @@ package output
 
 import (
 	"errors"
+	"time"
 
 	oto "github.com/hajimehoshi/oto/v2"
 
@@ -15,12 +16,27 @@ type OutputLine struct {
 }
 
 func NewOutputLine(sampleRate int) (*OutputLine, error) {
-	line := NewAudioReaderWriter(sampleRate * 10)
+	line := NewAudioReaderWriter(sampleRate * 1000)
 	logger.Log("create output", sampleRate, len(line.buffer))
 	ctx, _, err := oto.NewContext(sampleRate, 2, 2)
 	if err != nil {
 		return nil, err
 	}
+	player := ctx.NewPlayer(line)
+
+	ticker := time.NewTicker(1 * time.Second)
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				logger.Log("Unplayed:", player.UnplayedBufferSize())
+				if err := player.Err(); err != nil {
+					logger.Log("player had an error:", err)
+				}
+			}
+		}
+	}()
+
 	return &OutputLine{
 		sampleRate: sampleRate,
 		Line:       line,
@@ -70,7 +86,7 @@ func (m AudioReaderWriter) Read(p []byte) (n int, err error) {
 	numRead := 0
 	for idx := range p {
 		if *m.ReadPos == *m.WritePos {
-			break
+			return numRead, errors.New("Caught up to the writer!")
 		}
 		p[idx] = m.buffer[*m.ReadPos]
 		m.incrementReadPos()

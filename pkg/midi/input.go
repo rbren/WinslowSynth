@@ -9,6 +9,7 @@ import (
 )
 
 func StartDriver(notes chan MidiNote, done chan bool) error {
+	fmt.Println("starting driver")
 	drv, err := rtmididrv.New()
 	if err != nil {
 		return err
