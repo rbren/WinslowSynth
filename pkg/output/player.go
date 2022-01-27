@@ -14,7 +14,7 @@ type OutputLine struct {
 
 func NewOutputLine(sampleRate int) (*OutputLine, error) {
 	line := NewAudioReaderWriter(sampleRate * 10)
-	ctx, _, err := oto.NewContext(sampleRate, 2, 2)
+	ctx, _, err := oto.NewContext(sampleRate, 1, 1)
 	if err != nil {
 		return nil, err
 	}
