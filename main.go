@@ -22,11 +22,7 @@ func main() {
 	must(err)
 	out.Player.Play()
 
-	musicPlayer := music.MusicPlayer{
-		SampleRate: SampleRate,
-		Output:     out.Line,
-		ActiveKeys: map[int64]music.Note{},
-	}
+	musicPlayer := music.NewMusicPlayer(SampleRate, out.Line)
 	go musicPlayer.Start()
 
 	for {

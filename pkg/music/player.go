@@ -7,44 +7,54 @@ import (
 	"github.com/rbren/midi/pkg/output"
 )
 
+const msPerTick = 5
+
 type Note struct {
 	Frequency float64
 	Velocity  int64
 }
 
 type MusicPlayer struct {
-	SampleRate int
-	ActiveKeys map[int64]Note
-	Output     output.MusicReaderWriter
+	SampleRate     int
+	ActiveKeys     map[int64]Note
+	Output         output.MusicReaderWriter
+	samplesPerTick int
+}
+
+func NewMusicPlayer(sampleRate int, out output.MusicReaderWriter) MusicPlayer {
+	return MusicPlayer{
+		SampleRate:     sampleRate,
+		Output:         out,
+		ActiveKeys:     map[int64]Note{},
+		samplesPerTick: msPerTick * (sampleRate / 1000),
+	}
 }
 
 func (m MusicPlayer) Start() {
-	samplesPerMillisecond := m.SampleRate / 1000
-	samplesPerGap := 5 * samplesPerMillisecond
-	ticker := time.NewTicker(5 * time.Millisecond)
+	ticker := time.NewTicker(msPerTick * time.Millisecond)
 	go func() {
 		for {
 			select {
 			case <-ticker.C:
-				m.nextBytes(samplesPerGap)
+				m.nextBytes()
 			}
 		}
 	}()
 }
 
-func (m MusicPlayer) nextBytes(samples int) {
+func (m MusicPlayer) nextBytes() {
 	// byteSeqs := make([][]byte, len(m.ActiveKeys))
 	byteSeqs := [][]byte{}
 	fmt.Println("active keys", len(m.ActiveKeys))
 	idx := 0
 	for _, key := range m.ActiveKeys {
-		byteSeqs = append(byteSeqs, GenerateFrequency(key.Frequency, m.SampleRate, samples))
+		byteSeqs = append(byteSeqs, GenerateFrequency(key.Frequency, m.SampleRate, m.samplesPerTick))
 		idx++
 	}
 	if len(byteSeqs) > 0 {
 		m.Output.Write(byteSeqs[0])
 	} else {
-		silence := make([]byte, samples)
+		silence := make([]byte, m.samplesPerTick)
 		m.Output.Write(silence)
 	}
 }
