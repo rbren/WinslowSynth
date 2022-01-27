@@ -8,7 +8,7 @@ import (
 	"github.com/rbren/midi/pkg/output"
 )
 
-const SampleRate = 4800
+const SampleRate = 48000
 const SampleBuffer = 10000
 const MidiBuffer = 1000
 
