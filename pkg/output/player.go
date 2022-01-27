@@ -40,7 +40,7 @@ func NewOutputLine(sampleRate int) (*OutputLine, error) {
 	return &OutputLine{
 		sampleRate: sampleRate,
 		Line:       line,
-		Player:     ctx.NewPlayer(line),
+		Player:     player,
 	}, nil
 }
 
