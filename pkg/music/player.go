@@ -52,8 +52,10 @@ func (m MusicPlayer) nextBytes() {
 		idx++
 	}
 	if len(byteSeqs) > 0 {
+		fmt.Println("  note")
 		m.Output.Write(byteSeqs[0])
 	} else {
+		fmt.Println("  silence")
 		silence := make([]byte, m.samplesPerTick)
 		m.Output.Write(silence)
 	}

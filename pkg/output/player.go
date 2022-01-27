@@ -1,6 +1,8 @@
 package output
 
 import (
+	"errors"
+
 	oto "github.com/hajimehoshi/oto/v2"
 )
 
@@ -73,6 +75,9 @@ func (m MusicReaderWriter) Write(p []byte) (n int, err error) {
 		m.buffer[*m.writePos] = b
 		m.incrementWritePos()
 		numWritten++
+		if *m.readPos == *m.writePos {
+			return numWritten, errors.New("Caught up to the reader!")
+		}
 	}
 	return numWritten, nil
 }

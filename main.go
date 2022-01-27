@@ -20,10 +20,10 @@ func main() {
 
 	out, err := output.NewOutputLine(SampleRate)
 	must(err)
-	out.Player.Play()
-
 	musicPlayer := music.NewMusicPlayer(SampleRate, out.Line)
+
 	go musicPlayer.Start()
+	out.Player.Play()
 
 	for {
 		select {
