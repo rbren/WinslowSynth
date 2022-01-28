@@ -14,21 +14,28 @@ type PortAudioOutput struct {
 	Buffer *CircularAudioBuffer
 }
 
-func (p PortAudioOutput) Start(sampleRate int) error {
+func NewPortAudioOutput(sampleRate int) (*PortAudioOutput, error) {
+	p := PortAudioOutput{}
 	p.Buffer = NewCircularAudioBuffer(sampleRate) // 1 second of samples
 	portaudio.Initialize()
 	var err error
 	p.stream, err = portaudio.OpenDefaultStream(0, 2, float64(sampleRate), 0, p.Buffer.ReadAudio)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return p.stream.Start()
+	err = p.stream.Start()
+	if err != nil {
+		return nil, err
+	}
+	return &p, nil
 }
 
 func (p PortAudioOutput) Close() error {
-	err := p.stream.Stop()
-	if err != nil {
-		return err
+	if p.stream != nil {
+		err := p.stream.Stop()
+		if err != nil {
+			return err
+		}
 	}
 	portaudio.Terminate()
 	return nil

@@ -31,6 +31,7 @@ func NewMusicPlayer(sampleRate int, out *output.CircularAudioBuffer) MusicPlayer
 	samplesPerTick := samplesPerMs * msPerTick
 	fmt.Println("samples per Ms", samplesPerMs)
 	fmt.Println("samples per tick", samplesPerTick)
+	fmt.Println("output", out.GetCapacity())
 	return MusicPlayer{
 		SampleRate:     sampleRate,
 		Output:         out,

@@ -27,6 +27,10 @@ func NewCircularAudioBuffer(capacity int) *CircularAudioBuffer {
 	}
 }
 
+func (m CircularAudioBuffer) GetCapacity() int {
+	return len(m.left)
+}
+
 func (m CircularAudioBuffer) GetBufferDelay() int {
 	if *m.ReadPos <= *m.WritePos {
 		return *m.WritePos - *m.ReadPos

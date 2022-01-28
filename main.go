@@ -16,8 +16,7 @@ func main() {
 	defer inputDevice.Close()
 	must(err)
 
-	out := output.PortAudioOutput{}
-	err = out.Start(SampleRate)
+	out, err := output.NewPortAudioOutput(SampleRate)
 	must(err)
 	defer out.Close()
 	fmt.Println("created output line")
