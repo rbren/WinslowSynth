@@ -1,11 +1,11 @@
-package midi
+package input
 
 import (
 	"strconv"
 	"strings"
 )
 
-type MidiNote struct {
+type InputKey struct {
 	Action        string
 	Velocity      int64
 	Key           int64
@@ -13,8 +13,8 @@ type MidiNote struct {
 	AbsoluteValue int64
 }
 
-func ParseMidiNote(s string) (MidiNote, error) {
-	note := MidiNote{}
+func ParseMidiNote(s string) (InputKey, error) {
+	note := InputKey{}
 	parts := strings.Split(s, " ")
 	for idx, val := range parts {
 		if idx == 0 {

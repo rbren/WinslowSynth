@@ -86,7 +86,8 @@ func (m AudioReaderWriter) Read(p []byte) (n int, err error) {
 	numRead := 0
 	for idx := range p {
 		if *m.ReadPos == *m.WritePos {
-			return numRead, errors.New("Caught up to the writer!")
+			logger.Log("CAUGHT UP TO THE WRITER")
+			break
 		}
 		p[idx] = m.buffer[*m.ReadPos]
 		m.incrementReadPos()

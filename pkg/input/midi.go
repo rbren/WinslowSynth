@@ -1,6 +1,7 @@
-package midi
+package input
 
 import (
+	"errors"
 	"fmt"
 
 	"gitlab.com/gomidi/midi"
@@ -8,44 +9,53 @@ import (
 	"gitlab.com/gomidi/rtmididrv"
 )
 
-func StartDriver(notes chan MidiNote, done chan bool) error {
+type MidiKeyboard struct {
+	closeFunc func() error
+}
+
+func (m MidiKeyboard) StartListening() (chan InputKey, error) {
 	drv, err := rtmididrv.New()
 	if err != nil {
-		return err
+		return nil, err
 	}
-	defer drv.Close()
 
 	ins, err := drv.Ins()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	outs, err := drv.Outs()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if len(ins) < 1 || len(outs) < 1 {
-		panic("No midi device!")
+		return nil, errors.New("No midi device")
 	}
 	in, out := ins[0], outs[0]
 
 	err = in.Open()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	err = out.Open()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	defer in.Close()
-	defer out.Close()
+	m.closeFunc = func() error {
+		drv.Close()
+		in.Close()
+		out.Close()
+		return nil
+	}
+
+	notes := getOutputChannel()
 
 	// to disable logging, pass mid.NoLogger() as option
 	rd := reader.New(
-		reader.NoLogger(),
+		// reader.NoLogger(),
 		reader.Each(func(pos *reader.Position, msg midi.Message) {
 			note, err := ParseMidiNote(msg.String())
 			if err != nil {
@@ -58,8 +68,11 @@ func StartDriver(notes chan MidiNote, done chan bool) error {
 
 	err = rd.ListenTo(in)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	<-done
-	return nil
+	return notes, nil
+}
+
+func (m MidiKeyboard) Close() error {
+	return m.closeFunc()
 }
