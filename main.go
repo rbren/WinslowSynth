@@ -1,10 +1,13 @@
 package main
 
 import (
-	"fmt"
+	"time"
+	/*
+		"fmt"
 
-	"github.com/rbren/midi/pkg/input"
-	"github.com/rbren/midi/pkg/music"
+		"github.com/rbren/midi/pkg/input"
+		"github.com/rbren/midi/pkg/music"
+	*/
 	"github.com/rbren/midi/pkg/output"
 )
 
@@ -12,6 +15,7 @@ const SampleRate = 3000
 
 func main() {
 	output.PlaySine()
+	time.Sleep(10 * time.Second)
 	/*
 		inputDevice, notes, err := input.StartBestInputDevice()
 		fmt.Println("started input")
