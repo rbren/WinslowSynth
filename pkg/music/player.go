@@ -12,20 +12,20 @@ import (
 const msPerTick = 99
 
 type Note struct {
-	Frequency float64
+	Frequency float32
 	Velocity  int64
 }
 
 type MusicPlayer struct {
 	SampleRate     int
 	ActiveKeys     map[int64]Note
-	Output         *output.OutputLine
+	Output         *output.CircularAudioBuffer
 	samplesPerTick int
-	silence        []float64
-	sampleData     []float64
+	silence        []float32
+	sampleData     []float32
 }
 
-func NewMusicPlayer(sampleRate int, out *output.OutputLine) MusicPlayer {
+func NewMusicPlayer(sampleRate int, out *output.CircularAudioBuffer) MusicPlayer {
 	samplesPerSec := sampleRate
 	samplesPerMs := samplesPerSec / 1000
 	samplesPerTick := samplesPerMs * msPerTick
@@ -36,15 +36,12 @@ func NewMusicPlayer(sampleRate int, out *output.OutputLine) MusicPlayer {
 		Output:         out,
 		ActiveKeys:     map[int64]Note{},
 		samplesPerTick: samplesPerTick,
-		silence:        make([]float64, samplesPerTick),
+		silence:        make([]float32, samplesPerTick),
 		sampleData:     GenerateFrequency(440.0, sampleRate, samplesPerTick),
 	}
 }
 
 func (m MusicPlayer) Start(notes chan input.InputKey) {
-	// Start the output reader first, so it's ready to catch anything dumped into the input buffer
-	m.Output.Player.Play()
-
 	go func() {
 		ticker := time.NewTicker(msPerTick * time.Millisecond)
 		for {
@@ -71,10 +68,6 @@ func (m MusicPlayer) Start(notes chan input.InputKey) {
 				} else {
 					fmt.Println("No action for " + note.Action)
 				}
-				if err := m.Output.Player.Err(); err != nil {
-					fmt.Println("there was an error!", err)
-					//out.Player.Play()
-				}
 			}
 		}
 	}()
@@ -82,7 +75,6 @@ func (m MusicPlayer) Start(notes chan input.InputKey) {
 
 func (m MusicPlayer) nextBytes() {
 	logger.Log("active keys", len(m.ActiveKeys))
-	logger.Log("  delay", m.Output.Line.GetBufferDelay())
 
 	samples := m.silence
 	fmt.Println("check keys")
@@ -92,11 +84,10 @@ func (m MusicPlayer) nextBytes() {
 		samples = m.sampleData
 		fmt.Println("  send music!")
 	}
-	n, err := m.Output.Line.WriteAudio(samples, samples)
+	n, err := m.Output.WriteAudio(samples, samples)
 	if err != nil {
 		panic(err)
 	}
 	logger.Log(fmt.Sprintf("  wrote %d of %d", n, len(samples)*4))
-	logger.Log("  delay", m.Output.Line.GetBufferDelay())
 	fmt.Println("done bytes")
 }

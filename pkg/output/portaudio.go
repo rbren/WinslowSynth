@@ -9,10 +9,35 @@ import (
 
 const sampleRate = 44100
 
-func PlaySine() {
+type PortAudioOutput struct {
+	stream *portaudio.Stream
+	Buffer *CircularAudioBuffer
+}
+
+func (p PortAudioOutput) Start(sampleRate int) error {
+	p.Buffer = NewCircularAudioBuffer(sampleRate) // 1 second of samples
 	portaudio.Initialize()
-	defer portaudio.Terminate()
-	s := newStereoSine(256, 320, sampleRate)
+	var err error
+	p.stream, err = portaudio.OpenDefaultStream(0, 2, float64(sampleRate), 0, p.Buffer.ReadAudio)
+	if err != nil {
+		return err
+	}
+	return p.stream.Start()
+}
+
+func (p PortAudioOutput) Close() error {
+	err := p.stream.Stop()
+	if err != nil {
+		return err
+	}
+	portaudio.Terminate()
+	return nil
+}
+
+// Stuff below here gets deleted
+
+func PlaySine() {
+	s := NewStereoSine(256, 320, sampleRate)
 	defer s.Close()
 	chk(s.Start())
 	time.Sleep(2 * time.Second)
@@ -25,10 +50,9 @@ type stereoSine struct {
 	stepR, phaseR float64
 }
 
-func newStereoSine(freqL, freqR, sampleRate float64) *stereoSine {
+func NewStereoSine(freqL, freqR, sampleRate float64) *stereoSine {
 	s := &stereoSine{nil, freqL / sampleRate, 0, freqR / sampleRate, 0}
 	var err error
-	s.Stream, err = portaudio.OpenDefaultStream(0, 2, sampleRate, 0, s.processAudio)
 	chk(err)
 	return s
 }

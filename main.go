@@ -1,39 +1,34 @@
 package main
 
 import (
-	"time"
-	/*
-		"fmt"
+	"fmt"
 
-		"github.com/rbren/midi/pkg/input"
-		"github.com/rbren/midi/pkg/music"
-	*/
+	"github.com/rbren/midi/pkg/input"
+	"github.com/rbren/midi/pkg/music"
 	"github.com/rbren/midi/pkg/output"
 )
 
-const SampleRate = 3000
+const SampleRate = 48000
 
 func main() {
-	output.PlaySine()
-	time.Sleep(10 * time.Second)
-	/*
-		inputDevice, notes, err := input.StartBestInputDevice()
-		fmt.Println("started input")
-		defer inputDevice.Close()
-		must(err)
+	inputDevice, notes, err := input.StartBestInputDevice()
+	fmt.Println("started input")
+	defer inputDevice.Close()
+	must(err)
 
-		out, err := output.NewOutputLine(SampleRate)
-		must(err)
-		fmt.Println("created output line")
+	out := output.PortAudioOutput{}
+	err = out.Start(SampleRate)
+	must(err)
+	defer out.Close()
+	fmt.Println("created output line")
 
-		musicPlayer := music.NewMusicPlayer(SampleRate, out)
-		go musicPlayer.Start(notes)
-		fmt.Println("started music player")
+	musicPlayer := music.NewMusicPlayer(SampleRate, out.Buffer)
+	go musicPlayer.Start(notes)
+	fmt.Println("started music player")
 
-		fmt.Println("Ready!")
-		done := make(chan bool)
-		<-done
-	*/
+	fmt.Println("Ready!")
+	done := make(chan bool)
+	<-done
 }
 
 func must(err error) {
