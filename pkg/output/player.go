@@ -16,7 +16,7 @@ type OutputLine struct {
 }
 
 func NewOutputLine(sampleRate int) (*OutputLine, error) {
-	line := NewAudioReaderWriter(sampleRate * 1000)
+	line := NewAudioReaderWriter(sampleRate * 10)
 	logger.Log("create output", sampleRate, len(line.buffer))
 	ctx, _, err := oto.NewContext(sampleRate, 2, 2)
 	if err != nil {
@@ -83,10 +83,10 @@ func (m *AudioReaderWriter) incrementWritePos() {
 }
 
 func (m AudioReaderWriter) Read(p []byte) (n int, err error) {
+	// oto tries to read up to 2 seconds at a time
 	numRead := 0
 	for idx := range p {
 		if *m.ReadPos == *m.WritePos {
-			logger.Log("CAUGHT UP TO THE WRITER")
 			break
 		}
 		p[idx] = m.buffer[*m.ReadPos]
@@ -97,6 +97,7 @@ func (m AudioReaderWriter) Read(p []byte) (n int, err error) {
 }
 
 func (m AudioReaderWriter) Write(p []byte) (n int, err error) {
+	logger.Log("read", len(p))
 	numWritten := 0
 	for _, b := range p {
 		curReadPos := *m.ReadPos
