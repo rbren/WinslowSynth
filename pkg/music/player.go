@@ -9,7 +9,7 @@ import (
 	"github.com/rbren/midi/pkg/output"
 )
 
-const msPerTick = 99
+const msPerTick = 100
 
 type Note struct {
 	Frequency float32
