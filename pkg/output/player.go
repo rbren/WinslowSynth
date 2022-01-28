@@ -2,6 +2,8 @@ package output
 
 import (
 	"errors"
+	"fmt"
+	"sync"
 	"time"
 
 	oto "github.com/hajimehoshi/oto/v2"
@@ -16,7 +18,7 @@ type OutputLine struct {
 }
 
 func NewOutputLine(sampleRate int) (*OutputLine, error) {
-	line := NewAudioReaderWriter(sampleRate * 10)
+	line := NewAudioReaderWriter(sampleRate * 4 * 10)
 	logger.Log("create output", sampleRate, len(line.buffer))
 	ctx, _, err := oto.NewContext(sampleRate, 2, 2)
 	if err != nil {
@@ -49,6 +51,7 @@ type AudioReaderWriter struct {
 	ReadPos  *int
 	WritePos *int
 	player   oto.Player
+	lock     sync.Mutex
 }
 
 func NewAudioReaderWriter(capacity int) AudioReaderWriter {
@@ -71,6 +74,7 @@ func (m AudioReaderWriter) GetBufferDelay() int {
 func (m *AudioReaderWriter) incrementReadPos() {
 	*m.ReadPos++
 	if *m.ReadPos >= len(m.buffer) {
+		fmt.Println("read full buffer")
 		*m.ReadPos = 0
 	}
 }
@@ -78,26 +82,39 @@ func (m *AudioReaderWriter) incrementReadPos() {
 func (m *AudioReaderWriter) incrementWritePos() {
 	*m.WritePos++
 	if *m.WritePos >= len(m.buffer) {
+		fmt.Println("wrote full buffer")
 		*m.WritePos = 0
 	}
 }
 
 func (m AudioReaderWriter) Read(p []byte) (n int, err error) {
-	// oto tries to read up to 2 seconds at a time
+	m.lock.Lock()
+	defer m.lock.Unlock()
+	// oto tries to read up to .5 seconds at a time
+	// i.e. at 48kHz, 1 chan, 1 deep, 24000 samples
+	// i.e. at 48kHz, 2 chan, 2 deep, 96000 samples
 	numRead := 0
+	numNonZero := 0
 	for idx := range p {
 		if *m.ReadPos == *m.WritePos {
 			break
 		}
 		p[idx] = m.buffer[*m.ReadPos]
+		if p[idx] != 0 {
+			numNonZero++
+		}
 		m.incrementReadPos()
 		numRead++
+	}
+	if numNonZero > 0 {
+		logger.Log("read", numRead, numNonZero)
 	}
 	return numRead, nil
 }
 
 func (m AudioReaderWriter) Write(p []byte) (n int, err error) {
-	logger.Log("read", len(p))
+	m.lock.Lock()
+	defer m.lock.Unlock()
 	numWritten := 0
 	for _, b := range p {
 		curReadPos := *m.ReadPos
@@ -108,6 +125,7 @@ func (m AudioReaderWriter) Write(p []byte) (n int, err error) {
 			return numWritten, errors.New("Caught up to the reader!")
 		}
 	}
+	//logger.Log("write", len(p), numWritten)
 	return numWritten, nil
 }
 

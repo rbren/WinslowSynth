@@ -9,7 +9,7 @@ import (
 	"github.com/rbren/midi/pkg/output"
 )
 
-const msPerTick = 10
+const msPerTick = 99
 
 type Note struct {
 	Frequency float64
@@ -29,6 +29,8 @@ func NewMusicPlayer(sampleRate int, out *output.OutputLine) MusicPlayer {
 	samplesPerSec := sampleRate
 	samplesPerMs := samplesPerSec / 1000
 	samplesPerTick := samplesPerMs * msPerTick
+	fmt.Println("samples per Ms", samplesPerMs)
+	fmt.Println("samples per tick", samplesPerTick)
 	return MusicPlayer{
 		SampleRate:     sampleRate,
 		Output:         out,
@@ -40,12 +42,15 @@ func NewMusicPlayer(sampleRate int, out *output.OutputLine) MusicPlayer {
 }
 
 func (m MusicPlayer) Start(notes chan input.InputKey) {
+	// Start the output reader first, so it's ready to catch anything dumped into the input buffer
 	m.Output.Player.Play()
+
 	go func() {
 		ticker := time.NewTicker(msPerTick * time.Millisecond)
 		for {
 			select {
 			case <-ticker.C:
+				fmt.Println("tick")
 				m.nextBytes()
 			}
 		}
@@ -80,6 +85,7 @@ func (m MusicPlayer) nextBytes() {
 	logger.Log("  delay", m.Output.Line.GetBufferDelay())
 
 	samples := m.silence
+	fmt.Println("check keys")
 	for _, _ = range m.ActiveKeys {
 		// TODO: don't just take the last one
 		//samples = GenerateFrequency(key.Frequency, m.SampleRate, m.samplesPerTick)
@@ -92,4 +98,5 @@ func (m MusicPlayer) nextBytes() {
 	}
 	logger.Log(fmt.Sprintf("  wrote %d of %d", n, len(samples)*4))
 	logger.Log("  delay", m.Output.Line.GetBufferDelay())
+	fmt.Println("done bytes")
 }
