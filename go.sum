@@ -1,3 +1,5 @@
+github.com/gordonklaus/portaudio v0.0.0-20200911161147-bb74aa485641 h1:B7ADnac3Yy6Vtcp2mstnsjUtarYcjy4AL0R6eNEhZAk=
+github.com/gordonklaus/portaudio v0.0.0-20200911161147-bb74aa485641/go.mod h1:HfYnZi/ARQKG0dwH5HNDmPCHdLiFiBf+SI7DbhW7et4=
 github.com/hajimehoshi/oto/v2 v2.0.2 h1:kbMCXhKAZMVyhEEyIqEqmSf4xjfk3HPAf1tMcyKCsN0=
 github.com/hajimehoshi/oto/v2 v2.0.2/go.mod h1:rUKQmwMkqmRxe+IAof9+tuYA2ofm8cAWXFmSfzDN8vQ=
 github.com/mattn/go-runewidth v0.0.9 h1:Lm995f3rfxdpd6TSmuVCHVb/QhupuXlYr8sCI/QdE+0=

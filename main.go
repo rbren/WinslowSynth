@@ -11,22 +11,25 @@ import (
 const SampleRate = 3000
 
 func main() {
-	inputDevice, notes, err := input.StartBestInputDevice()
-	fmt.Println("started input")
-	defer inputDevice.Close()
-	must(err)
+	output.PlaySine()
+	/*
+		inputDevice, notes, err := input.StartBestInputDevice()
+		fmt.Println("started input")
+		defer inputDevice.Close()
+		must(err)
 
-	out, err := output.NewOutputLine(SampleRate)
-	must(err)
-	fmt.Println("created output line")
+		out, err := output.NewOutputLine(SampleRate)
+		must(err)
+		fmt.Println("created output line")
 
-	musicPlayer := music.NewMusicPlayer(SampleRate, out)
-	go musicPlayer.Start(notes)
-	fmt.Println("started music player")
+		musicPlayer := music.NewMusicPlayer(SampleRate, out)
+		go musicPlayer.Start(notes)
+		fmt.Println("started music player")
 
-	fmt.Println("Ready!")
-	done := make(chan bool)
-	<-done
+		fmt.Println("Ready!")
+		done := make(chan bool)
+		<-done
+	*/
 }
 
 func must(err error) {

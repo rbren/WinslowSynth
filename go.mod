@@ -3,6 +3,7 @@ module github.com/rbren/midi
 go 1.16
 
 require (
+	github.com/gordonklaus/portaudio v0.0.0-20200911161147-bb74aa485641
 	github.com/hajimehoshi/oto/v2 v2.0.2
 	github.com/nsf/termbox-go v1.1.1
 	gitlab.com/gomidi/midi v1.23.7
