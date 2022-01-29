@@ -40,7 +40,7 @@ func (k QwertyKeyboard) StartListening() (chan InputKey, error) {
 	if err != nil {
 		return nil, err
 	}
-	onKeys := map[termbox.Key]*pressEvent{}
+	onKeys := map[rune]*pressEvent{}
 	notes := getOutputChannel()
 
 	ticker := time.NewTicker(10 * time.Millisecond)
@@ -49,7 +49,7 @@ func (k QwertyKeyboard) StartListening() (chan InputKey, error) {
 			select {
 			case <-ticker.C:
 				tickTime := time.Now()
-				toDelete := []termbox.Key{}
+				toDelete := []rune{}
 				for key, evt := range onKeys {
 					diff := tickTime.Sub(evt.lastTime)
 					if diff > timeToKeyUp {
@@ -74,7 +74,7 @@ func (k QwertyKeyboard) StartListening() (chan InputKey, error) {
 					k.Close()
 					os.Exit(0)
 				}
-				if press, ok := onKeys[ev.Key]; ok {
+				if press, ok := onKeys[ev.Ch]; ok {
 					press.lastTime = time.Now()
 				} else {
 					midi := QwertyToMidi[string(ev.Ch)]
@@ -87,7 +87,7 @@ func (k QwertyKeyboard) StartListening() (chan InputKey, error) {
 							Frequency: note.Frequency,
 						},
 					}
-					onKeys[ev.Key] = &press
+					onKeys[ev.Ch] = &press
 					notes <- press.inputKey
 				}
 				termbox.Flush()

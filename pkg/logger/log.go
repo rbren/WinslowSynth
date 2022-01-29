@@ -7,6 +7,10 @@ import (
 
 func Log(arg ...interface{}) {
 	if os.Getenv("LOG") == "true" {
-		fmt.Println(arg...)
+		ForceLog(arg...)
 	}
+}
+
+func ForceLog(arg ...interface{}) {
+	fmt.Println(arg...)
 }

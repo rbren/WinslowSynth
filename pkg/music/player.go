@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/rbren/midi/pkg/buffers"
 	"github.com/rbren/midi/pkg/input"
 	"github.com/rbren/midi/pkg/logger"
 	"github.com/rbren/midi/pkg/output"
@@ -76,12 +77,12 @@ func (m MusicPlayer) Start(notes chan input.InputKey) {
 }
 
 func (m *MusicPlayer) nextBytes() {
-	logger.Log("active keys", len(m.ActiveKeys))
+	logger.ForceLog("active keys", len(m.ActiveKeys))
 
 	samples := m.silence
 	for _, key := range m.ActiveKeys {
-		// TODO: don't just take the last one
-		samples = GenerateFrequency(key.Frequency, m.SampleRate, m.samplesPerTick, m.CurrentSample)
+		keySamples := GenerateFrequency(key.Frequency, m.SampleRate, m.samplesPerTick, m.CurrentSample)
+		samples = buffers.MixBuffers([][]float32{samples, keySamples})
 	}
 	_, err := m.Output.WriteAudio(samples, samples)
 	if err != nil {
