@@ -11,14 +11,9 @@ import (
 
 const msPerTick = 10
 
-type Note struct {
-	Frequency float32
-	Velocity  int64
-}
-
 type MusicPlayer struct {
 	SampleRate     int
-	ActiveKeys     map[int64]Note
+	ActiveKeys     map[int64]input.InputKey
 	Output         *output.CircularAudioBuffer
 	CurrentSample  uint64
 	samplesPerTick int
@@ -35,7 +30,7 @@ func NewMusicPlayer(sampleRate int, out *output.CircularAudioBuffer) MusicPlayer
 	return MusicPlayer{
 		SampleRate:     sampleRate,
 		Output:         out,
-		ActiveKeys:     map[int64]Note{},
+		ActiveKeys:     map[int64]input.InputKey{},
 		samplesPerTick: samplesPerTick,
 		silence:        make([]float32, samplesPerTick),
 	}
@@ -69,10 +64,7 @@ func (m MusicPlayer) Start(notes chan input.InputKey) {
 			case note := <-notes:
 				logger.Log("note", note)
 				if note.Action == "channel.NoteOn" {
-					m.ActiveKeys[note.Key] = Note{
-						Frequency: note.Frequency,
-						Velocity:  note.Velocity,
-					}
+					m.ActiveKeys[note.Key] = note
 				} else if note.Action == "channel.NoteOff" {
 					delete(m.ActiveKeys, note.Key)
 				} else {
