@@ -22,11 +22,9 @@ func NewSpinner(a, f, p float32) Spinner {
 }
 
 func (s Spinner) GetValue(time, releasedAt uint64) float32 {
-	if releasedAt != 0 {
-		return 0.0
-	}
 	samplesPerPeriod := float32(config.MainConfig.SampleRate) / s.Frequency.GetValue(time, releasedAt)
 	sampleLoc := int(time % uint64(samplesPerPeriod))
 	pos := 2.0 * math.Pi * (float32(sampleLoc) / samplesPerPeriod) // pos is in [0, 2pi]
-	return s.Amplitude.GetValue(time, releasedAt) * float32(math.Sin(float64(pos)+float64(s.Phase.GetValue(time, releasedAt))))
+	amp := s.Amplitude.GetValue(time, releasedAt)
+	return amp * float32(math.Sin(float64(pos)+float64(s.Phase.GetValue(time, releasedAt))))
 }

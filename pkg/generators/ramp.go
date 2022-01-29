@@ -1,5 +1,9 @@
 package generators
 
+import (
+	_ "github.com/rbren/midi/pkg/logger"
+)
+
 type Ramp struct {
 	RampUp   uint64
 	RampDown uint64

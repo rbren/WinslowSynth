@@ -10,7 +10,7 @@ import (
 var maxReleaseTimeSamples int
 
 func init() {
-	maxReleaseTimeSamples = config.MainConfig.SampleRate * 10
+	maxReleaseTimeSamples = config.MainConfig.SampleRate * 5
 }
 
 type Registry struct {
@@ -38,6 +38,7 @@ const (
 )
 
 func (r Registry) Attack(key input.InputKey, time uint64) {
+	logger.Log("attack", key)
 	g := GetDefaultGenerator(key)
 	r.Events[key.Key] = &Event{
 		Generator:   g,
@@ -47,9 +48,10 @@ func (r Registry) Attack(key input.InputKey, time uint64) {
 }
 
 func (r Registry) Release(key input.InputKey, time uint64) {
+	logger.Log("release", key)
 	existing, ok := r.Events[key.Key]
 	if !ok {
-		logger.Log("Released key without attack!", key)
+		logger.ForceLog("Released key without attack!", key)
 		return
 	}
 	existing.ReleaseTime = time
@@ -72,6 +74,7 @@ func (r Registry) ClearOldEvents(absoluteTime uint64) {
 }
 
 func (r Registry) GetSamples(absoluteTime uint64, numSamples int) []float32 {
+	r.ClearOldEvents(absoluteTime)
 	samples := make([]float32, numSamples)
 	for _, event := range r.Events {
 		eventSamples := make([]float32, numSamples)
