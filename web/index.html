@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <script>
 window.addEventListener("load", function(evt) {
-    var ws = new WebSocket("ws://" + window.location.host + "/echo");
+    var ws = new WebSocket("ws://" + window.location.host + "/connect");
     ws.onopen = function(evt) {
         console.log("OPEN");
     }
