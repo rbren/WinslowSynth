@@ -9,9 +9,11 @@ import (
 	"github.com/rbren/midi/pkg/logger"
 	"github.com/rbren/midi/pkg/music"
 	"github.com/rbren/midi/pkg/output"
+	"github.com/rbren/midi/pkg/server"
 )
 
 func main() {
+	server.StartServer()
 	inputDevice, notes, err := input.StartBestInputDevice()
 	logger.Log("started input")
 	defer inputDevice.Close()
