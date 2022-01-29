@@ -6,11 +6,24 @@ import (
 )
 
 func GetDefaultGenerator(key input.InputKey) Generator {
+	samplesPerMs := config.MainConfig.SampleRate / 1000
+	attackMs := 50
+	decayMs := 1000
+	releaseMs := 1000
 	return SawWave{
 		Frequency: Constant{key.Frequency},
-		Amplitude: Multiply{
-			Generators: []Generator{amplitudeRamp(), Noise{Min: .5, Max: 1.5}},
+		Amplitude: ADSR{
+			PeakLevel:    1.0,
+			SustainLevel: 0.5,
+			AttackTime:   uint64(attackMs * samplesPerMs),
+			DecayTime:    uint64(decayMs * samplesPerMs),
+			ReleaseTime:  uint64(releaseMs * samplesPerMs),
 		},
+		/*
+			Amplitude: Multiply{
+				Generators: []Generator{amplitudeRamp(), Noise{Min: .5, Max: 1.5}},
+			},
+		*/
 	}
 }
 
