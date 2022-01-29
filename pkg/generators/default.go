@@ -6,7 +6,10 @@ import (
 )
 
 func GetDefaultGenerator(key input.InputKey) Generator {
-	return SquareWave{Frequency: key.Frequency}
+	return SawWave{
+		Frequency: Constant{key.Frequency},
+		Amplitude: amplitudeRamp(),
+	}
 }
 
 func harmonicSpinner(key input.InputKey) Generator {
@@ -21,16 +24,20 @@ func harmonicSpinner(key input.InputKey) Generator {
 	}
 }
 
-func simpleRamper(key input.InputKey) Spinner {
+func amplitudeRamp() Ramp {
+	samplesPerMs := config.MainConfig.SampleRate / 1000
 	rampUpMs := 100
 	rampDownMs := 500
-	samplesPerMs := config.MainConfig.SampleRate / 1000
+	return Ramp{
+		RampUp:   uint64(rampUpMs * samplesPerMs),
+		RampDown: uint64(rampDownMs * samplesPerMs),
+		Target:   1.0,
+	}
+}
+
+func simpleRamper(key input.InputKey) Spinner {
 	g := Spinner{
-		Amplitude: Ramp{
-			RampUp:   uint64(rampUpMs * samplesPerMs),
-			RampDown: uint64(rampDownMs * samplesPerMs),
-			Target:   1.0,
-		},
+		Amplitude: amplitudeRamp(),
 		Frequency: Constant{Value: key.Frequency},
 		Phase:     Constant{Value: 0.0},
 	}

@@ -1,18 +1,21 @@
 package generators
 
-import (
-	"github.com/rbren/midi/pkg/config"
-)
-
 type SawWave struct {
-	Frequency float32
+	Amplitude Generator
+	Frequency Generator
+	Phase     Generator
+}
+
+func (s *SawWave) initialize() {
+	if s.Amplitude == nil {
+		s.Amplitude = Constant{Value: 1.0}
+	}
+	if s.Phase == nil {
+		s.Phase = Constant{Value: 0.0}
+	}
 }
 
 func (s SawWave) GetValue(time, releasedAt uint64) float32 {
-	if releasedAt != 0 {
-		return 0.0
-	}
-	samplesPerPeriod := float32(config.MainConfig.SampleRate) / s.Frequency
-	sampleLoc := int(time % uint64(samplesPerPeriod))
-	return float32(sampleLoc) / samplesPerPeriod
+	s.initialize()
+	return s.Amplitude.GetValue(time, releasedAt) * GetPhasePosition(s.Frequency, s.Phase, time, releasedAt)
 }
