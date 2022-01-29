@@ -38,7 +38,7 @@ const (
 )
 
 func (r Registry) Attack(key input.InputKey, time uint64) {
-	g := NewSpinner(1.0, key.Frequency, 0.0)
+	g := GetDefaultGenerator(key)
 	r.Events[key.Key] = &Event{
 		Generator:   g,
 		AttackTime:  time,
