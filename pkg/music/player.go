@@ -15,7 +15,7 @@ import (
 const msPerTick = 10
 
 type MusicPlayer struct {
-	ActiveKeys     map[int64]input.InputKey
+	Generators     map[int64]generators.Generator
 	Output         *output.CircularAudioBuffer
 	CurrentSample  uint64
 	samplesPerTick int
@@ -31,7 +31,7 @@ func NewMusicPlayer(out *output.CircularAudioBuffer) MusicPlayer {
 	logger.Log("output", out.GetCapacity())
 	return MusicPlayer{
 		Output:         out,
-		ActiveKeys:     map[int64]input.InputKey{},
+		Generators:     map[int64]generators.Generator{},
 		samplesPerTick: samplesPerTick,
 		silence:        make([]float32, samplesPerTick),
 	}
@@ -65,9 +65,9 @@ func (m MusicPlayer) Start(notes chan input.InputKey) {
 			case note := <-notes:
 				logger.Log("note", note)
 				if note.Action == "channel.NoteOn" {
-					m.ActiveKeys[note.Key] = note
+					m.Generators[note.Key] = generators.SineWave{Frequency: note.Frequency}
 				} else if note.Action == "channel.NoteOff" {
-					delete(m.ActiveKeys, note.Key)
+					delete(m.Generators, note.Key)
 				} else {
 					logger.Log("No action for " + note.Action)
 				}
@@ -77,11 +77,10 @@ func (m MusicPlayer) Start(notes chan input.InputKey) {
 }
 
 func (m *MusicPlayer) nextBytes() {
-	logger.Log("active keys", len(m.ActiveKeys))
+	logger.Log("active keys", len(m.Generators))
 
 	samples := m.silence
-	for _, key := range m.ActiveKeys {
-		generator := generators.SineWave{Frequency: key.Frequency}
+	for _, generator := range m.Generators {
 		keySamples := make([]float32, m.samplesPerTick)
 		generators.GetSamples(generator, keySamples, m.CurrentSample)
 		samples = buffers.MixBuffers([][]float32{samples, keySamples})
