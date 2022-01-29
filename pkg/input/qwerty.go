@@ -7,6 +7,8 @@ import (
 	"github.com/nsf/termbox-go"
 )
 
+const timeToKeyUp = 250 * time.Millisecond
+
 type pressEvent struct {
 	lastTime time.Time
 	inputKey InputKey
@@ -31,7 +33,7 @@ func (k QwertyKeyboard) StartListening() (chan InputKey, error) {
 				toDelete := []termbox.Key{}
 				for key, evt := range onKeys {
 					diff := tickTime.Sub(evt.lastTime)
-					if diff > 500*time.Millisecond {
+					if diff > timeToKeyUp {
 						evt.inputKey.Action = "channel.NoteOff"
 						notes <- evt.inputKey
 						toDelete = append(toDelete, key)

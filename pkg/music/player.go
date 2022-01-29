@@ -96,5 +96,5 @@ func (m *MusicPlayer) nextBytes() {
 		panic(err)
 	}
 	m.CurrentSample += uint64(m.samplesPerTick)
-	fmt.Println("pos", m.CurrentSample, samples[0], samples[len(samples)-1])
+	logger.Log("pos", m.CurrentSample, samples[0], samples[len(samples)-1])
 }
