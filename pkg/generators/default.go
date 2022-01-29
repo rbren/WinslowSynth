@@ -6,6 +6,22 @@ import (
 )
 
 func GetDefaultGenerator(key input.InputKey) Generator {
+	return harmonicSpinner(key)
+}
+
+func harmonicSpinner(key input.InputKey) Generator {
+	base := simpleRamper(key)
+	return Harmonic{
+		Spinner: base,
+		Modes: []Mode{
+			Mode{Frequency: 1.5, Amplitude: .25},
+			Mode{Frequency: 2.0, Amplitude: .15},
+			Mode{Frequency: 4.0, Amplitude: .1},
+		},
+	}
+}
+
+func simpleRamper(key input.InputKey) Spinner {
 	rampUpMs := 100
 	rampDownMs := 500
 	samplesPerMs := config.MainConfig.SampleRate / 1000
