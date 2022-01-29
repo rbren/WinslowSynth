@@ -44,6 +44,11 @@ func NewMusicPlayer(sampleRate int, out *output.CircularAudioBuffer) MusicPlayer
 
 func (m MusicPlayer) Start(notes chan input.InputKey) {
 	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Printf("PANIC!!! %v \n", r)
+			}
+		}()
 		ticker := time.NewTicker(msPerTick * time.Millisecond)
 		for {
 			select {
@@ -55,6 +60,11 @@ func (m MusicPlayer) Start(notes chan input.InputKey) {
 	}()
 
 	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Printf("PANIC!!! %v \n", r)
+			}
+		}()
 		for {
 			select {
 			case note := <-notes:

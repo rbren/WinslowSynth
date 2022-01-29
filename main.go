@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"os/signal"
 
 	"github.com/rbren/midi/pkg/input"
 	"github.com/rbren/midi/pkg/music"
@@ -22,9 +24,29 @@ func main() {
 	fmt.Println("created output line")
 
 	musicPlayer := music.NewMusicPlayer(SampleRate, out.Buffer)
-	go musicPlayer.Start(notes)
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Printf("PANIC!!! %v \n", r)
+			}
+		}()
+		musicPlayer.Start(notes)
+	}()
 	out.Start()
 	fmt.Println("started music player")
+
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt)
+
+	go func() {
+		select {
+		case sig := <-c:
+			fmt.Printf("Got %s signal. Aborting...\n", sig)
+			inputDevice.Close()
+			out.Close()
+			os.Exit(1)
+		}
+	}()
 
 	fmt.Println("Ready!")
 	done := make(chan bool)
