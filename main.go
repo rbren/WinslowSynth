@@ -12,10 +12,20 @@ import (
 	"github.com/rbren/midi/pkg/server"
 )
 
+const useServer = true
+
 func main() {
-	server.StartServer()
-	inputDevice, notes, err := input.StartBestInputDevice()
-	logger.Log("started input")
+	var inputDevice input.InputDevice
+	var notes chan input.InputKey
+	var err error
+	if useServer {
+		s := server.Server{}
+		notes, err = s.StartListening()
+		inputDevice = s
+	} else {
+		inputDevice, notes, err = input.StartBestInputDevice()
+	}
+	logger.Log("started input", notes)
 	defer inputDevice.Close()
 	must(err)
 
