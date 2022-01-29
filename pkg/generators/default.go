@@ -8,7 +8,9 @@ import (
 func GetDefaultGenerator(key input.InputKey) Generator {
 	return SawWave{
 		Frequency: Constant{key.Frequency},
-		Amplitude: amplitudeRamp(),
+		Amplitude: Multiply{
+			Generators: []Generator{amplitudeRamp(), Noise{Min: .5, Max: 1.5}},
+		},
 	}
 }
 
