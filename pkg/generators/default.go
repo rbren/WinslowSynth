@@ -6,7 +6,7 @@ import (
 )
 
 func GetDefaultGenerator(key input.InputKey) Generator {
-	return harmonicSpinner(key)
+	return SquareWave{Frequency: key.Frequency}
 }
 
 func harmonicSpinner(key input.InputKey) Generator {
