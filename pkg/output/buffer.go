@@ -2,7 +2,6 @@ package output
 
 import (
 	"errors"
-	"fmt"
 	"sync"
 
 	"github.com/rbren/midi/pkg/logger"
@@ -41,7 +40,7 @@ func (m CircularAudioBuffer) GetBufferDelay() int {
 func (m *CircularAudioBuffer) incrementReadPos() {
 	*m.ReadPos++
 	if *m.ReadPos >= len(m.left) {
-		fmt.Println("read full buffer")
+		logger.Log("read full buffer")
 		*m.ReadPos = 0
 	}
 }
@@ -49,7 +48,7 @@ func (m *CircularAudioBuffer) incrementReadPos() {
 func (m *CircularAudioBuffer) incrementWritePos() {
 	*m.WritePos++
 	if *m.WritePos >= len(m.left) {
-		fmt.Println("wrote full buffer")
+		logger.Log("wrote full buffer")
 		*m.WritePos = 0
 	}
 }
@@ -62,13 +61,11 @@ func (m CircularAudioBuffer) Read(p []byte) (n int, err error) {
 func (m CircularAudioBuffer) ReadChannels(p [][]float32) (n int, err error) {
 	m.lock.Lock()
 	defer m.lock.Unlock()
-	// oto tries to read up to .5 seconds at a time
-	// i.e. at 48kHz, 1 chan, 1 deep, 24000 samples
-	// i.e. at 48kHz, 2 chan, 2 deep, 96000 samples
 	numRead := 0
 	numNonZero := 0
 	for idx := range p[0] {
 		if *m.ReadPos == *m.WritePos {
+			logger.Log("CAUGHT UP TO WRITER")
 			break
 		}
 		p[0][idx] = m.left[*m.ReadPos]
@@ -79,8 +76,9 @@ func (m CircularAudioBuffer) ReadChannels(p [][]float32) (n int, err error) {
 		m.incrementReadPos()
 		numRead++
 	}
-	if numNonZero > 0 {
-		logger.Log("read", numRead, numNonZero)
+	for i := numRead; i < len(p[0]); i++ {
+		p[0][i] = 0.0
+		p[1][i] = 0.0
 	}
 	return numRead, nil
 }

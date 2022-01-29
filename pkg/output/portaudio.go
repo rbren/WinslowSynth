@@ -1,9 +1,6 @@
 package output
 
 import (
-	"math"
-	"time"
-
 	"github.com/gordonklaus/portaudio"
 )
 

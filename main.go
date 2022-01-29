@@ -6,6 +6,7 @@ import (
 	"os/signal"
 
 	"github.com/rbren/midi/pkg/input"
+	"github.com/rbren/midi/pkg/logger"
 	"github.com/rbren/midi/pkg/music"
 	"github.com/rbren/midi/pkg/output"
 )
@@ -14,14 +15,14 @@ const SampleRate = 48000
 
 func main() {
 	inputDevice, notes, err := input.StartBestInputDevice()
-	fmt.Println("started input")
+	logger.Log("started input")
 	defer inputDevice.Close()
 	must(err)
 
 	out, err := output.NewPortAudioOutput(SampleRate)
 	must(err)
 	defer out.Close()
-	fmt.Println("created output line")
+	logger.Log("created output line")
 
 	musicPlayer := music.NewMusicPlayer(SampleRate, out.Buffer)
 	go func() {
@@ -31,9 +32,9 @@ func main() {
 			}
 		}()
 		musicPlayer.Start(notes)
+		logger.Log("started music player")
 	}()
 	out.Start()
-	fmt.Println("started music player")
 
 	c := make(chan os.Signal)
 	signal.Notify(c, os.Interrupt)
