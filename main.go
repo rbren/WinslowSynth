@@ -25,8 +25,8 @@ func main() {
 	musicPlayer := music.NewMusicPlayer(out.Buffer)
 	go func() {
 		defer func() {
-			if r := recover(); r != nil {
-				fmt.Printf("PANIC!!! %v \n", r)
+			if e := recover(); e != nil {
+				logger.Recover("main", e)
 			}
 		}()
 		musicPlayer.Start(notes)

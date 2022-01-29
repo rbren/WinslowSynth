@@ -1,7 +1,6 @@
 package music
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/rbren/midi/pkg/config"
@@ -39,8 +38,8 @@ func NewMusicPlayer(out *output.CircularAudioBuffer) MusicPlayer {
 func (m MusicPlayer) Start(notes chan input.InputKey) {
 	go func() {
 		defer func() {
-			if r := recover(); r != nil {
-				fmt.Printf("PANIC!!! %v \n", r)
+			if e := recover(); e != nil {
+				logger.Recover("player tick", e)
 			}
 		}()
 		ticker := time.NewTicker(msPerTick * time.Millisecond)
@@ -55,8 +54,8 @@ func (m MusicPlayer) Start(notes chan input.InputKey) {
 
 	go func() {
 		defer func() {
-			if r := recover(); r != nil {
-				fmt.Printf("PANIC!!! %v \n", r)
+			if e := recover(); e != nil {
+				logger.Recover("player notes", e)
 			}
 		}()
 		for {

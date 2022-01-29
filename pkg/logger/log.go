@@ -3,6 +3,7 @@ package logger
 import (
 	"fmt"
 	"os"
+	"runtime/debug"
 )
 
 func Log(arg ...interface{}) {
@@ -13,4 +14,9 @@ func Log(arg ...interface{}) {
 
 func ForceLog(arg ...interface{}) {
 	fmt.Println(arg...)
+}
+
+func Recover(msg string, r interface{}) {
+	fmt.Printf("PANIC at %s %v \n", msg, r)
+	debug.PrintStack()
 }
