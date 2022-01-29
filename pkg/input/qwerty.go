@@ -3,6 +3,8 @@ package input
 import (
 	"fmt"
 	"os"
+	"strings"
+	"sync"
 	"time"
 
 	"github.com/nsf/termbox-go"
@@ -13,9 +15,14 @@ const timeToKeyUp = 250 * time.Millisecond
 type pressEvent struct {
 	lastTime time.Time
 	inputKey InputKey
+	sustain  bool
 }
 
-type QwertyKeyboard struct{}
+type QwertyKeyboard struct {
+	lock   sync.Mutex
+	onKeys map[rune]*pressEvent
+	notes  chan InputKey
+}
 
 var QwertyToMidi = map[string]int64{
 	"a": 58, // A#
@@ -40,27 +47,15 @@ func (k QwertyKeyboard) StartListening() (chan InputKey, error) {
 	if err != nil {
 		return nil, err
 	}
-	onKeys := map[rune]*pressEvent{}
-	notes := getOutputChannel()
+	k.onKeys = map[rune]*pressEvent{}
+	k.notes = getOutputChannel()
 
 	ticker := time.NewTicker(10 * time.Millisecond)
 	go func() {
 		for {
 			select {
 			case <-ticker.C:
-				tickTime := time.Now()
-				toDelete := []rune{}
-				for key, evt := range onKeys {
-					diff := tickTime.Sub(evt.lastTime)
-					if diff > timeToKeyUp {
-						evt.inputKey.Action = "channel.NoteOff"
-						notes <- evt.inputKey
-						toDelete = append(toDelete, key)
-					}
-				}
-				for _, del := range toDelete {
-					delete(onKeys, del)
-				}
+				k.clearNotes()
 			}
 		}
 	}()
@@ -69,27 +64,7 @@ func (k QwertyKeyboard) StartListening() (chan InputKey, error) {
 		for {
 			switch ev := termbox.PollEvent(); ev.Type {
 			case termbox.EventKey:
-				fmt.Println("Key", string(ev.Ch))
-				if ev.Key == termbox.KeyCtrlC {
-					k.Close()
-					os.Exit(0)
-				}
-				if press, ok := onKeys[ev.Ch]; ok {
-					press.lastTime = time.Now()
-				} else {
-					midi := QwertyToMidi[string(ev.Ch)]
-					note := MidiNotes[midi]
-					press := pressEvent{
-						lastTime: time.Now(),
-						inputKey: InputKey{
-							Action:    "channel.NoteOn",
-							Key:       midi,
-							Frequency: note.Frequency,
-						},
-					}
-					onKeys[ev.Ch] = &press
-					notes <- press.inputKey
-				}
+				k.handleKeyPress(ev)
 				termbox.Flush()
 			case termbox.EventInterrupt:
 				k.Close()
@@ -99,10 +74,65 @@ func (k QwertyKeyboard) StartListening() (chan InputKey, error) {
 			}
 		}
 	}()
-	return notes, nil
+	return k.notes, nil
 }
 
 func (k QwertyKeyboard) Close() error {
 	termbox.Close()
 	return nil
+}
+
+func (k QwertyKeyboard) handleKeyPress(ev termbox.Event) {
+	fmt.Println("Key", string(ev.Ch))
+	k.lock.Lock()
+	defer k.lock.Unlock()
+	if ev.Key == termbox.KeyCtrlC {
+		k.Close()
+		os.Exit(0)
+	}
+	char := strings.ToLower(string(ev.Ch))
+	sustain := string(ev.Ch) != char
+	if !sustain {
+		for _, pressEvent := range k.onKeys {
+			pressEvent.sustain = false
+		}
+	}
+	if press, ok := k.onKeys[ev.Ch]; ok {
+		press.lastTime = time.Now()
+	} else {
+		midi := QwertyToMidi[char]
+		note := MidiNotes[midi]
+		press := pressEvent{
+			lastTime: time.Now(),
+			sustain:  sustain,
+			inputKey: InputKey{
+				Action:    "channel.NoteOn",
+				Key:       midi,
+				Frequency: note.Frequency,
+			},
+		}
+		k.onKeys[ev.Ch] = &press
+		k.notes <- press.inputKey
+	}
+}
+
+func (k QwertyKeyboard) clearNotes() {
+	tickTime := time.Now()
+	toDelete := []rune{}
+	k.lock.Lock()
+	defer k.lock.Unlock()
+	for key, evt := range k.onKeys {
+		if evt.sustain {
+			continue
+		}
+		diff := tickTime.Sub(evt.lastTime)
+		if diff > timeToKeyUp {
+			evt.inputKey.Action = "channel.NoteOff"
+			k.notes <- evt.inputKey
+			toDelete = append(toDelete, key)
+		}
+	}
+	for _, del := range toDelete {
+		delete(k.onKeys, del)
+	}
 }

@@ -77,7 +77,7 @@ func (m MusicPlayer) Start(notes chan input.InputKey) {
 }
 
 func (m *MusicPlayer) nextBytes() {
-	logger.ForceLog("active keys", len(m.ActiveKeys))
+	logger.Log("active keys", len(m.ActiveKeys))
 
 	samples := m.silence
 	for _, key := range m.ActiveKeys {
