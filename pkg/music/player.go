@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/rbren/midi/pkg/buffers"
 	"github.com/rbren/midi/pkg/config"
 	"github.com/rbren/midi/pkg/generators"
 	"github.com/rbren/midi/pkg/input"
@@ -15,7 +14,7 @@ import (
 const msPerTick = 10
 
 type MusicPlayer struct {
-	Generators     map[int64]generators.Generator
+	Generators     generators.Registry
 	Output         *output.CircularAudioBuffer
 	CurrentSample  uint64
 	samplesPerTick int
@@ -31,7 +30,7 @@ func NewMusicPlayer(out *output.CircularAudioBuffer) MusicPlayer {
 	logger.Log("output", out.GetCapacity())
 	return MusicPlayer{
 		Output:         out,
-		Generators:     map[int64]generators.Generator{},
+		Generators:     generators.NewRegistry(),
 		samplesPerTick: samplesPerTick,
 		silence:        make([]float32, samplesPerTick),
 	}
@@ -65,9 +64,9 @@ func (m MusicPlayer) Start(notes chan input.InputKey) {
 			case note := <-notes:
 				logger.Log("note", note)
 				if note.Action == "channel.NoteOn" {
-					m.Generators[note.Key] = generators.NewSpinner(1.0, note.Frequency, 0.0)
+					m.Generators.Attack(note, m.CurrentSample)
 				} else if note.Action == "channel.NoteOff" {
-					delete(m.Generators, note.Key)
+					m.Generators.Release(note, m.CurrentSample)
 				} else {
 					logger.Log("No action for " + note.Action)
 				}
@@ -77,14 +76,8 @@ func (m MusicPlayer) Start(notes chan input.InputKey) {
 }
 
 func (m *MusicPlayer) nextBytes() {
-	logger.Log("active keys", len(m.Generators))
-
-	samples := m.silence
-	for _, generator := range m.Generators {
-		keySamples := make([]float32, m.samplesPerTick)
-		generators.GetSamples(generator, keySamples, m.CurrentSample)
-		samples = buffers.MixBuffers([][]float32{samples, keySamples})
-	}
+	logger.Log("active keys", len(m.Generators.Events))
+	samples := m.Generators.GetSamples(m.CurrentSample, m.samplesPerTick)
 	_, err := m.Output.WriteAudio(samples, samples)
 	if err != nil {
 		panic(err)
