@@ -14,24 +14,45 @@ import (
 
 const useServer = true
 
-func main() {
-	var inputDevice input.InputDevice
-	var notes chan input.InputKey
-	var err error
-	if useServer {
-		s := server.Server{}
-		notes, err = s.StartListening()
-		inputDevice = s
-	} else {
-		inputDevice, notes, err = input.StartBestInputDevice()
-	}
-	logger.Log("started input", notes)
-	defer inputDevice.Close()
+func startServer() {
+	s := server.Server{}
+	s.Initialize()
+	notes, err := s.StartListening()
+	closeOnExit(s)
 	must(err)
+	player, out := startOutput(notes)
+	defer out.Close()
+	s.Player = player
 
+	fmt.Println("Ready!")
+	done := make(chan bool)
+	<-done
+}
+
+func startLocal() {
+	inputDevice, notes, err := input.StartBestInputDevice()
+	defer inputDevice.Close()
+	closeOnExit(inputDevice)
+	must(err)
+	_, out := startOutput(notes)
+	defer out.Close()
+
+	fmt.Println("Ready!")
+	done := make(chan bool)
+	<-done
+}
+
+func main() {
+	if useServer {
+		startServer()
+	} else {
+		startLocal()
+	}
+}
+
+func startOutput(notes chan input.InputKey) (*music.MusicPlayer, *output.PortAudioOutput) {
 	out, err := output.NewPortAudioOutput()
 	must(err)
-	defer out.Close()
 	logger.Log("created output line")
 
 	musicPlayer := music.NewMusicPlayer(out.Buffer)
@@ -45,7 +66,10 @@ func main() {
 		logger.Log("started music player")
 	}()
 	out.Start()
+	return &musicPlayer, out
+}
 
+func closeOnExit(inputDevice input.InputDevice) {
 	c := make(chan os.Signal)
 	signal.Notify(c, os.Interrupt)
 
@@ -54,14 +78,9 @@ func main() {
 		case sig := <-c:
 			fmt.Printf("Got %s signal. Aborting...\n", sig)
 			inputDevice.Close()
-			out.Close()
 			os.Exit(1)
 		}
 	}()
-
-	fmt.Println("Ready!")
-	done := make(chan bool)
-	<-done
 }
 
 func must(err error) {

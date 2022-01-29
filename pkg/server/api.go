@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -12,7 +11,7 @@ import (
 	"github.com/rbren/midi/pkg/music"
 )
 
-var sendInterval = 10 * time.Millisecond
+var sendInterval = 50 * time.Millisecond
 
 var upgrader = websocket.Upgrader{} // use default options
 
@@ -26,44 +25,48 @@ type MessageOut struct {
 }
 
 type Server struct {
+	Name       string
 	notes      chan input.InputKey
 	connection *websocket.Conn
 	Player     *music.MusicPlayer
 }
 
-func (s Server) StartListening() (chan input.InputKey, error) {
+func (s *Server) Initialize() {
 	s.notes = make(chan input.InputKey, 20)
+	go s.startReadLoop()
+	go s.startWriteLoop()
 	http.HandleFunc("/connect", s.connect)
 	http.Handle("/", http.FileServer(http.Dir("web")))
 	go http.ListenAndServe(":8080", nil)
-	go s.startReadLoop()
-	go s.startWriteLoop()
-	fmt.Println("started listening")
+	logger.Log("started listening")
+}
+
+func (s Server) StartListening() (chan input.InputKey, error) {
 	return s.notes, nil
 }
 
 func (s Server) Close() error {
+	s.connection.Close()
 	return nil
 }
 
-func (s Server) connect(w http.ResponseWriter, r *http.Request) {
+func (s *Server) connect(w http.ResponseWriter, r *http.Request) {
 	c, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		logger.ForceLog("upgrade:", err)
 		return
 	}
-	defer c.Close()
 	s.connection = c
+	logger.Log("connected")
 }
 
-func (s Server) startReadLoop() {
+func (s *Server) startReadLoop() {
 	for {
 		if s.connection == nil {
 			continue
 		}
 		msg := MessageIn{}
 		err := s.connection.ReadJSON(&msg)
-		fmt.Println("msg", msg)
 		if err != nil {
 			logger.ForceLog("server read error:", err)
 			break
@@ -83,12 +86,11 @@ func (s Server) startReadLoop() {
 			Key:       midi,
 			Frequency: note.Frequency,
 		}
-		fmt.Println("send", inputKey)
 		s.notes <- inputKey
 	}
 }
 
-func (s Server) startWriteLoop() {
+func (s *Server) startWriteLoop() {
 	ticker := time.NewTicker(sendInterval)
 	for {
 		select {

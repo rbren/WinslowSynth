@@ -35,7 +35,7 @@ func NewMusicPlayer(out *output.CircularAudioBuffer) MusicPlayer {
 	}
 }
 
-func (m MusicPlayer) Start(notes chan input.InputKey) {
+func (m *MusicPlayer) Start(notes chan input.InputKey) {
 	go func() {
 		defer func() {
 			if e := recover(); e != nil {

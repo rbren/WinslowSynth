@@ -19,18 +19,20 @@ window.addEventListener("load", function(evt) {
         console.log("ERROR: " + evt.data);
     }
     document.onkeyup = function(event) {
-        if (!ws) return false;
+        if (!ws) return true;
         ws.send(JSON.stringify({
             "Key": event.key,
             "Action": "up",
           }))
+        return true;
     }
     document.onkeydown = function(event) {
-        if (!ws) return false;
+        if (!ws) return true;
         ws.send(JSON.stringify({
             "Key": event.key,
             "Action": "down",
           }))
+        return true;
     }
 });
 </script>
