@@ -1,6 +1,7 @@
 package input
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -15,6 +16,24 @@ type pressEvent struct {
 }
 
 type QwertyKeyboard struct{}
+
+var QwertyToMidi = map[string]int64{
+	"a": 58, // A#
+	"s": 59, // B
+	"d": 60, // middle C
+	"r": 61, // C#
+	"f": 62, // D
+	"t": 63, // D#
+	"g": 64, // E
+	"h": 65, // F
+	"u": 66, // F#
+	"j": 67, // G
+	"i": 68, // G#
+	"k": 69, // A
+	"o": 70, // A#
+	"l": 71, // B
+	";": 72, // C
+}
 
 func (k QwertyKeyboard) StartListening() (chan InputKey, error) {
 	err := termbox.Init()
@@ -50,6 +69,7 @@ func (k QwertyKeyboard) StartListening() (chan InputKey, error) {
 		for {
 			switch ev := termbox.PollEvent(); ev.Type {
 			case termbox.EventKey:
+				fmt.Println("Key", string(ev.Ch))
 				if ev.Key == termbox.KeyCtrlC {
 					k.Close()
 					os.Exit(0)
@@ -57,9 +77,15 @@ func (k QwertyKeyboard) StartListening() (chan InputKey, error) {
 				if press, ok := onKeys[ev.Key]; ok {
 					press.lastTime = time.Now()
 				} else {
+					midi := QwertyToMidi[string(ev.Ch)]
+					note := MidiNotes[midi]
 					press := pressEvent{
 						lastTime: time.Now(),
-						inputKey: InputKey{Action: "channel.NoteOn"},
+						inputKey: InputKey{
+							Action:    "channel.NoteOn",
+							Key:       midi,
+							Frequency: note.Frequency,
+						},
 					}
 					onKeys[ev.Key] = &press
 					notes <- press.inputKey

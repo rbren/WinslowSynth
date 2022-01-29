@@ -11,6 +11,7 @@ type InputKey struct {
 	Key           int64
 	Channel       int64
 	AbsoluteValue int64
+	Frequency     float32
 }
 
 func ParseMidiNote(s string) (InputKey, error) {

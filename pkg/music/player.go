@@ -70,7 +70,7 @@ func (m MusicPlayer) Start(notes chan input.InputKey) {
 				logger.Log("note", note)
 				if note.Action == "channel.NoteOn" {
 					m.ActiveKeys[note.Key] = Note{
-						Frequency: 440.0,
+						Frequency: note.Frequency,
 						Velocity:  note.Velocity,
 					}
 				} else if note.Action == "channel.NoteOff" {
