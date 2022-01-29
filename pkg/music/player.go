@@ -65,10 +65,7 @@ func (m MusicPlayer) Start(notes chan input.InputKey) {
 			case note := <-notes:
 				logger.Log("note", note)
 				if note.Action == "channel.NoteOn" {
-					m.Generators[note.Key] = generators.Spinner{
-						Amplitude: 1.0,
-						Frequency: note.Frequency,
-					}
+					m.Generators[note.Key] = generators.NewSpinner(1.0, note.Frequency, 0.0)
 				} else if note.Action == "channel.NoteOff" {
 					delete(m.Generators, note.Key)
 				} else {
