@@ -9,7 +9,7 @@ import (
 	"github.com/rbren/midi/pkg/output"
 )
 
-const msPerTick = 100
+const msPerTick = 10
 
 type Note struct {
 	Frequency float32
@@ -20,9 +20,9 @@ type MusicPlayer struct {
 	SampleRate     int
 	ActiveKeys     map[int64]Note
 	Output         *output.CircularAudioBuffer
+	CurrentSample  uint64
 	samplesPerTick int
 	silence        []float32
-	sampleData     []float32
 }
 
 func NewMusicPlayer(sampleRate int, out *output.CircularAudioBuffer) MusicPlayer {
@@ -38,7 +38,6 @@ func NewMusicPlayer(sampleRate int, out *output.CircularAudioBuffer) MusicPlayer
 		ActiveKeys:     map[int64]Note{},
 		samplesPerTick: samplesPerTick,
 		silence:        make([]float32, samplesPerTick),
-		sampleData:     GenerateFrequency(440.0, sampleRate, samplesPerTick),
 	}
 }
 
@@ -84,18 +83,18 @@ func (m MusicPlayer) Start(notes chan input.InputKey) {
 	}()
 }
 
-func (m MusicPlayer) nextBytes() {
+func (m *MusicPlayer) nextBytes() {
 	logger.Log("active keys", len(m.ActiveKeys))
 
 	samples := m.silence
-	for _, _ = range m.ActiveKeys {
+	for _, key := range m.ActiveKeys {
 		// TODO: don't just take the last one
-		//samples = GenerateFrequency(key.Frequency, m.SampleRate, m.samplesPerTick)
-		samples = m.sampleData
+		samples = GenerateFrequency(key.Frequency, m.SampleRate, m.samplesPerTick, m.CurrentSample)
 	}
-	n, err := m.Output.WriteAudio(samples, samples)
+	_, err := m.Output.WriteAudio(samples, samples)
 	if err != nil {
 		panic(err)
 	}
-	logger.Log(fmt.Sprintf("  wrote %d of %d", n, len(samples)*4))
+	m.CurrentSample += uint64(m.samplesPerTick)
+	fmt.Println("pos", m.CurrentSample, samples[0], samples[len(samples)-1])
 }
