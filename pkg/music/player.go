@@ -81,7 +81,9 @@ func (m *MusicPlayer) nextBytes() {
 
 	samples := m.silence
 	for _, key := range m.ActiveKeys {
-		keySamples := generators.GenerateSine(key.Frequency, m.samplesPerTick, m.CurrentSample)
+		generator := generators.SineWave{Frequency: key.Frequency}
+		keySamples := make([]float32, m.samplesPerTick)
+		generators.GetSamples(generator, keySamples, m.CurrentSample)
 		samples = buffers.MixBuffers([][]float32{samples, keySamples})
 	}
 	_, err := m.Output.WriteAudio(samples, samples)
