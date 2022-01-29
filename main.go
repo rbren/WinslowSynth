@@ -23,6 +23,7 @@ func main() {
 
 	musicPlayer := music.NewMusicPlayer(SampleRate, out.Buffer)
 	go musicPlayer.Start(notes)
+	out.Start()
 	fmt.Println("started music player")
 
 	fmt.Println("Ready!")

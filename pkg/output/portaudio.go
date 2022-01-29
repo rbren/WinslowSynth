@@ -23,11 +23,11 @@ func NewPortAudioOutput(sampleRate int) (*PortAudioOutput, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = p.stream.Start()
-	if err != nil {
-		return nil, err
-	}
 	return &p, nil
+}
+
+func (p PortAudioOutput) Start() error {
+	return p.stream.Start()
 }
 
 func (p PortAudioOutput) Close() error {
