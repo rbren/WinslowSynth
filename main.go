@@ -11,20 +11,18 @@ import (
 	"github.com/rbren/midi/pkg/output"
 )
 
-const SampleRate = 48000
-
 func main() {
 	inputDevice, notes, err := input.StartBestInputDevice()
 	logger.Log("started input")
 	defer inputDevice.Close()
 	must(err)
 
-	out, err := output.NewPortAudioOutput(SampleRate)
+	out, err := output.NewPortAudioOutput()
 	must(err)
 	defer out.Close()
 	logger.Log("created output line")
 
-	musicPlayer := music.NewMusicPlayer(SampleRate, out.Buffer)
+	musicPlayer := music.NewMusicPlayer(out.Buffer)
 	go func() {
 		defer func() {
 			if r := recover(); r != nil {

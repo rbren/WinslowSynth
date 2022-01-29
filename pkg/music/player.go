@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"github.com/rbren/midi/pkg/buffers"
+	"github.com/rbren/midi/pkg/config"
+	"github.com/rbren/midi/pkg/generators"
 	"github.com/rbren/midi/pkg/input"
 	"github.com/rbren/midi/pkg/logger"
 	"github.com/rbren/midi/pkg/output"
@@ -13,7 +15,6 @@ import (
 const msPerTick = 10
 
 type MusicPlayer struct {
-	SampleRate     int
 	ActiveKeys     map[int64]input.InputKey
 	Output         *output.CircularAudioBuffer
 	CurrentSample  uint64
@@ -21,15 +22,14 @@ type MusicPlayer struct {
 	silence        []float32
 }
 
-func NewMusicPlayer(sampleRate int, out *output.CircularAudioBuffer) MusicPlayer {
-	samplesPerSec := sampleRate
+func NewMusicPlayer(out *output.CircularAudioBuffer) MusicPlayer {
+	samplesPerSec := config.MainConfig.SampleRate
 	samplesPerMs := samplesPerSec / 1000
 	samplesPerTick := samplesPerMs * msPerTick
 	logger.Log("samples per Ms", samplesPerMs)
 	logger.Log("samples per tick", samplesPerTick)
 	logger.Log("output", out.GetCapacity())
 	return MusicPlayer{
-		SampleRate:     sampleRate,
 		Output:         out,
 		ActiveKeys:     map[int64]input.InputKey{},
 		samplesPerTick: samplesPerTick,
@@ -81,7 +81,7 @@ func (m *MusicPlayer) nextBytes() {
 
 	samples := m.silence
 	for _, key := range m.ActiveKeys {
-		keySamples := GenerateFrequency(key.Frequency, m.SampleRate, m.samplesPerTick, m.CurrentSample)
+		keySamples := generators.GenerateSine(key.Frequency, m.samplesPerTick, m.CurrentSample)
 		samples = buffers.MixBuffers([][]float32{samples, keySamples})
 	}
 	_, err := m.Output.WriteAudio(samples, samples)
