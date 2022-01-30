@@ -14,6 +14,19 @@ function clearState() {
   window.state = null;
 }
 
+function randomize() {
+  $('.constant').each(function(i, div) {
+    const e = $(this);
+    const name = e.find('label').text();
+    console.log('name', name);
+    const inpt = e.find('input[type="number"]');
+    const min = parseFloat(inpt.attr('min'))
+    const max = parseFloat(inpt.attr('max'))
+    const rand = min + Math.random() * (max - min);
+    updateConstant(name, rand);
+  });
+}
+
 function updateConstant(name, val) {
   console.log('update', name, val);
   clearState();
