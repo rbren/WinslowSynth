@@ -2,7 +2,6 @@ package output
 
 import (
 	"errors"
-	"sync"
 
 	"github.com/sirupsen/logrus"
 )
@@ -12,7 +11,6 @@ type CircularAudioBuffer struct {
 	right    []float32
 	ReadPos  *int
 	WritePos *int
-	lock     sync.Mutex
 }
 
 func NewCircularAudioBuffer(capacity int) *CircularAudioBuffer {
@@ -59,8 +57,6 @@ func (m CircularAudioBuffer) Read(p []byte) (n int, err error) {
 }
 
 func (m CircularAudioBuffer) ReadChannels(p [][]float32) (n int, err error) {
-	m.lock.Lock()
-	defer m.lock.Unlock()
 	numRead := 0
 	numNonZero := 0
 	for idx := range p[0] {
@@ -87,8 +83,6 @@ func (m CircularAudioBuffer) Write(left []float32, right []float32) (n int, err 
 	if len(left) != len(right) {
 		panic("Two different sized channels!")
 	}
-	m.lock.Lock()
-	defer m.lock.Unlock()
 	numWritten := 0
 	for idx := range left {
 		curReadPos := *m.ReadPos
