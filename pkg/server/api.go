@@ -7,6 +7,7 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
+	"github.com/thoas/go-funk"
 
 	"github.com/rbren/midi/pkg/generators"
 	"github.com/rbren/midi/pkg/input"
@@ -141,7 +142,9 @@ func (s *Server) startWriteLoop() {
 				Time:        s.Player.CurrentSample,
 				Instrument:  s.Player.Instrument,
 				Instruments: instruments,
-				Constants:   generators.GetConstants(s.Player.Instrument),
+				Constants: funk.Filter(generators.GetConstants(s.Player.Instrument), func(c generators.Constant) bool {
+					return c.Name != "Frequency"
+				}).([]generators.Constant),
 			}
 			err := s.connection.WriteJSON(msg)
 			if err != nil {

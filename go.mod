@@ -8,6 +8,7 @@ require (
 	github.com/nsf/termbox-go v1.1.1
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.7.0
+	github.com/thoas/go-funk v0.9.1
 	gitlab.com/gomidi/midi v1.23.7
 	gitlab.com/gomidi/rtmididrv v0.14.0
 )
