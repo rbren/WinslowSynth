@@ -6,10 +6,10 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/sirupsen/logrus"
 
 	"github.com/rbren/midi/pkg/generators"
 	"github.com/rbren/midi/pkg/input"
-	"github.com/rbren/midi/pkg/logger"
 	"github.com/rbren/midi/pkg/music"
 )
 
@@ -45,7 +45,7 @@ func (s *Server) Initialize() {
 	http.HandleFunc("/connect", s.connect)
 	http.Handle("/", http.FileServer(http.Dir("web")))
 	go http.ListenAndServe(":8080", nil)
-	logger.Log("started listening")
+	logrus.Info("started listening")
 }
 
 func (s Server) StartListening() (chan input.InputKey, error) {
@@ -60,11 +60,11 @@ func (s Server) Close() error {
 func (s *Server) connect(w http.ResponseWriter, r *http.Request) {
 	c, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		logger.ForceLog("upgrade:", err)
+		logrus.Error("upgrade:", err)
 		return
 	}
 	s.connection = c
-	logger.ForceLog("connected")
+	logrus.Error("connected")
 }
 
 func (s *Server) startReadLoop() {
@@ -75,7 +75,7 @@ func (s *Server) startReadLoop() {
 		msg := MessageIn{}
 		err := s.connection.ReadJSON(&msg)
 		if err != nil {
-			logger.ForceLog("server read error:", err)
+			logrus.Error("server read error:", err)
 			s.connection = nil
 			s.Player.Clear()
 			continue
@@ -87,7 +87,7 @@ func (s *Server) startReadLoop() {
 		} else if msg.Action == "choose" {
 			s.ChooseAction(msg)
 		} else {
-			logger.ForceLog("unknown action", msg.Action)
+			logrus.Error("unknown action", msg.Action)
 		}
 	}
 }
@@ -96,17 +96,17 @@ func (s Server) ChooseAction(msg MessageIn) {
 	if inst, ok := generators.Library[msg.Key]; ok {
 		s.Player.Instrument = inst
 	} else {
-		logger.ForceLog("instrument not found:", msg.Key)
+		logrus.Error("instrument not found:", msg.Key)
 	}
 }
 
 func (s Server) SetAction(msg MessageIn) {
-	logger.Log("Set", msg.Key, msg.Value)
+	logrus.Info("Set", msg.Key, msg.Value)
 	s.Player.Instrument = generators.SetInstrumentConstant(s.Player.Instrument, msg.Key, msg.Value)
 }
 
 func (s Server) NoteAction(msg MessageIn) {
-	logger.Log("Note", msg.Key, msg.Action)
+	logrus.Info("Note", msg.Key, msg.Action)
 	midi, ok := input.QwertyToMidi[msg.Key]
 	if !ok {
 		return
@@ -145,7 +145,7 @@ func (s *Server) startWriteLoop() {
 			}
 			err := s.connection.WriteJSON(msg)
 			if err != nil {
-				logger.ForceLog("server write error:", err)
+				logrus.Error("server write error:", err)
 				break
 			}
 		}

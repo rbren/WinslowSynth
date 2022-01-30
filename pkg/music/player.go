@@ -3,6 +3,8 @@ package music
 import (
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/rbren/midi/pkg/config"
 	"github.com/rbren/midi/pkg/generators"
 	"github.com/rbren/midi/pkg/input"
@@ -25,9 +27,9 @@ func NewMusicPlayer(out *output.CircularAudioBuffer) MusicPlayer {
 	samplesPerSec := config.MainConfig.SampleRate
 	samplesPerMs := samplesPerSec / 1000
 	samplesPerTick := samplesPerMs * msPerTick
-	logger.Log("samples per Ms", samplesPerMs)
-	logger.Log("samples per tick", samplesPerTick)
-	logger.Log("output", out.GetCapacity())
+	logrus.Info("samples per Ms", samplesPerMs)
+	logrus.Info("samples per tick", samplesPerTick)
+	logrus.Info("output", out.GetCapacity())
 	return MusicPlayer{
 		Output:         out,
 		Instrument:     generators.GetDefaultInstrument(),
@@ -52,7 +54,7 @@ func (m *MusicPlayer) Start(notes chan input.InputKey) {
 		for {
 			select {
 			case <-ticker.C:
-				logger.Log("tick")
+				logrus.Info("tick")
 				m.nextBytes()
 			}
 		}
@@ -67,14 +69,14 @@ func (m *MusicPlayer) Start(notes chan input.InputKey) {
 		for {
 			select {
 			case note := <-notes:
-				logger.Log("note", note)
+				logrus.Info("note", note)
 				g := m.Instrument.SetFrequency(note.Frequency)
 				if note.Action == "channel.NoteOn" {
 					m.Generators.Attack(note.Key, m.CurrentSample, g)
 				} else if note.Action == "channel.NoteOff" {
 					m.Generators.Release(note.Key, m.CurrentSample, g)
 				} else {
-					logger.Log("No action for " + note.Action)
+					logrus.Info("No action for " + note.Action)
 				}
 			}
 		}
@@ -82,12 +84,12 @@ func (m *MusicPlayer) Start(notes chan input.InputKey) {
 }
 
 func (m *MusicPlayer) nextBytes() {
-	logger.Log("active keys", len(m.Generators.Events))
+	logrus.Info("active keys", len(m.Generators.Events))
 	samples := m.Generators.GetSamples(m.CurrentSample, m.samplesPerTick)
 	_, err := m.Output.WriteAudio(samples, samples)
 	if err != nil {
 		panic(err)
 	}
 	m.CurrentSample += uint64(m.samplesPerTick)
-	logger.Log("pos", m.CurrentSample, samples[0], samples[len(samples)-1])
+	logrus.Info("pos", m.CurrentSample, samples[0], samples[len(samples)-1])
 }

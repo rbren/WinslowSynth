@@ -4,7 +4,7 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/rbren/midi/pkg/logger"
+	"github.com/sirupsen/logrus"
 )
 
 type CircularAudioBuffer struct {
@@ -40,7 +40,7 @@ func (m CircularAudioBuffer) GetBufferDelay() int {
 func (m *CircularAudioBuffer) incrementReadPos() {
 	*m.ReadPos++
 	if *m.ReadPos >= len(m.left) {
-		logger.Log("read full buffer")
+		logrus.Info("read full buffer")
 		*m.ReadPos = 0
 	}
 }
@@ -48,7 +48,7 @@ func (m *CircularAudioBuffer) incrementReadPos() {
 func (m *CircularAudioBuffer) incrementWritePos() {
 	*m.WritePos++
 	if *m.WritePos >= len(m.left) {
-		logger.Log("wrote full buffer")
+		logrus.Info("wrote full buffer")
 		*m.WritePos = 0
 	}
 }
@@ -65,7 +65,7 @@ func (m CircularAudioBuffer) ReadChannels(p [][]float32) (n int, err error) {
 	numNonZero := 0
 	for idx := range p[0] {
 		if *m.ReadPos == *m.WritePos {
-			logger.Log("CAUGHT UP TO WRITER")
+			logrus.Info("CAUGHT UP TO WRITER")
 			break
 		}
 		p[0][idx] = m.left[*m.ReadPos]
@@ -100,7 +100,7 @@ func (m CircularAudioBuffer) Write(left []float32, right []float32) (n int, err 
 			return numWritten, errors.New("Caught up to the reader!")
 		}
 	}
-	//logger.Log("write", len(p), numWritten)
+	//logrus.Info("write", len(p), numWritten)
 	return numWritten, nil
 }
 

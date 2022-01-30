@@ -5,6 +5,8 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/rbren/midi/pkg/input"
 	"github.com/rbren/midi/pkg/logger"
 	"github.com/rbren/midi/pkg/music"
@@ -53,7 +55,7 @@ func main() {
 func startOutput(notes chan input.InputKey) (*music.MusicPlayer, *output.PortAudioOutput) {
 	out, err := output.NewPortAudioOutput()
 	must(err)
-	logger.Log("created output line")
+	logrus.Info("created output line")
 
 	musicPlayer := music.NewMusicPlayer(out.Buffer)
 	go func() {
@@ -63,7 +65,7 @@ func startOutput(notes chan input.InputKey) (*music.MusicPlayer, *output.PortAud
 			}
 		}()
 		musicPlayer.Start(notes)
-		logger.Log("started music player")
+		logrus.Info("started music player")
 	}()
 	out.Start()
 	return &musicPlayer, out

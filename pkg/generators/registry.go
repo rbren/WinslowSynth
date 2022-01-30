@@ -1,9 +1,10 @@
 package generators
 
 import (
+	"github.com/sirupsen/logrus"
+
 	"github.com/rbren/midi/pkg/buffers"
 	"github.com/rbren/midi/pkg/config"
-	"github.com/rbren/midi/pkg/logger"
 )
 
 var maxReleaseTimeSamples int
@@ -37,7 +38,7 @@ const (
 )
 
 func (r Registry) Attack(key int64, time uint64, g Generator) {
-	logger.Log("attack", key)
+	logrus.Info("attack", key)
 	r.Events[key] = &Event{
 		Generator:   g,
 		AttackTime:  time,
@@ -46,10 +47,10 @@ func (r Registry) Attack(key int64, time uint64, g Generator) {
 }
 
 func (r Registry) Release(key int64, time uint64, g Generator) {
-	logger.Log("release", key)
+	logrus.Info("release", key)
 	existing, ok := r.Events[key]
 	if !ok {
-		logger.ForceLog("Released key without attack!", key)
+		logrus.Error("Released key without attack!", key)
 		return
 	}
 	existing.ReleaseTime = time
