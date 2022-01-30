@@ -33,7 +33,7 @@ func GetLFO(name string, amplitude Generator) Instrument {
 			amplitude,
 			Spinner{
 				Bias:      Constant{Value: 1.0},
-				Amplitude: Constant{name, name + " LFO strength", 0.0, 0.0, 100.0},
+				Amplitude: Constant{name, name + " LFO strength", 0.0, 0.0, 2.0},
 				Frequency: Constant{name, name + " LFO frequency", 2.0, 0.0, 20.0},
 			},
 		},
