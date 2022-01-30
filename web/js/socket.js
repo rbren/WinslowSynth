@@ -10,7 +10,7 @@ window.addEventListener("load", function(evt) {
     ws = null;
   }
   ws.onmessage = function(evt) {
-    console.log("RESPONSE: " + evt.data);
+    //console.log("RESPONSE: " + evt.data);
     window.setState(JSON.parse(evt.data))
   }
   ws.onerror = function(evt) {
