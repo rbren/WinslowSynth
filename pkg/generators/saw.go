@@ -19,3 +19,8 @@ func (s SawWave) GetValue(time, releasedAt uint64) float32 {
 	s.initialize()
 	return s.Amplitude.GetValue(time, releasedAt) * GetPhasePosition(s.Frequency, s.Phase, time, releasedAt)
 }
+
+func (s SawWave) SetFrequency(f float32) Generator {
+	s.Frequency = Constant{Value: f}
+	return s
+}

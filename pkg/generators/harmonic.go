@@ -11,8 +11,8 @@ type Mode struct {
 	Frequency float32
 }
 
-func (h *Harmonic) initialize() {
-	if h.Sum != nil {
+func (h *Harmonic) initialize(force bool) {
+	if !force && h.Sum != nil {
 		return
 	}
 	toSum := []Generator{h.Spinner}
@@ -34,6 +34,12 @@ func (h *Harmonic) initialize() {
 }
 
 func (h Harmonic) GetValue(t, r uint64) float32 {
-	h.initialize()
+	h.initialize(false)
 	return h.Sum.GetValue(t, r)
+}
+
+func (h Harmonic) SetFrequency(f float32) Generator {
+	h.Spinner.SetFrequency(f)
+	h.initialize(true)
+	return h
 }

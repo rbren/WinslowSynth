@@ -2,6 +2,7 @@ package server
 
 import (
 	"net/http"
+	"sort"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -23,9 +24,10 @@ type MessageIn struct {
 }
 
 type MessageOut struct {
-	Time       uint64
-	Instrument generators.Instrument
-	Constants  []generators.Constant
+	Time        uint64
+	Instrument  generators.Instrument
+	Instruments []string
+	Constants   []generators.Constant
 }
 
 type Server struct {
@@ -82,9 +84,19 @@ func (s *Server) startReadLoop() {
 			s.NoteAction(msg)
 		} else if msg.Action == "set" {
 			s.SetAction(msg)
+		} else if msg.Action == "choose" {
+			s.ChooseAction(msg)
 		} else {
 			logger.ForceLog("unknown action", msg.Action)
 		}
+	}
+}
+
+func (s Server) ChooseAction(msg MessageIn) {
+	if inst, ok := generators.Library[msg.Key]; ok {
+		s.Player.Instrument = inst
+	} else {
+		logger.ForceLog("instrument not found:", msg.Key)
 	}
 }
 
@@ -120,10 +132,16 @@ func (s *Server) startWriteLoop() {
 			if s.connection == nil {
 				continue
 			}
+			instruments := []string{}
+			for k := range generators.Library {
+				instruments = append(instruments, k)
+			}
+			sort.Strings(instruments)
 			msg := MessageOut{
-				Time:       s.Player.CurrentSample,
-				Instrument: s.Player.Instrument,
-				Constants:  generators.GetConstants(s.Player.Instrument),
+				Time:        s.Player.CurrentSample,
+				Instrument:  s.Player.Instrument,
+				Instruments: instruments,
+				Constants:   generators.GetConstants(s.Player.Instrument),
 			}
 			err := s.connection.WriteJSON(msg)
 			if err != nil {

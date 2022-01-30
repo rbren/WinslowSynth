@@ -4,6 +4,14 @@ import (
 	"github.com/rbren/midi/pkg/config"
 )
 
+var Library = map[string]Instrument{
+	"warbler":  Warbler(),
+	"sine":     BasicSine(),
+	"saw":      BasicSaw(),
+	"dirty":    DirtySawWave(),
+	"harmonic": HarmonicSpinner(),
+}
+
 // Instruments are Generators/Spinners with Frequency=nil
 func Warbler() Spinner {
 	adsr := BasicADSR()
@@ -34,27 +42,27 @@ func BasicADSR() ADSR {
 	}
 }
 
-func BasicSineWave() Spinner {
+func BasicSine() Spinner {
 	return Spinner{
 		Amplitude: BasicADSR(),
 	}
 }
 
-func RampSawWave() SawWave {
+func BasicSaw() SawWave {
 	return SawWave{
 		Amplitude: BasicADSR(),
 	}
 }
 
-func DirtySawWave() Generator {
-	base := RampSawWave()
+func DirtySawWave() Instrument {
+	base := BasicSaw()
 	base.Amplitude = Multiply{
 		Generators: []Generator{base.Amplitude, Noise{Min: .5, Max: 1.5}},
 	}
 	return base
 }
 
-func HarmonicSpinner() Generator {
+func HarmonicSpinner() Instrument {
 	base := SimpleRamper()
 	return Harmonic{
 		Spinner: base,
