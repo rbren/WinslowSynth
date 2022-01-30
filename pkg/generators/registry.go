@@ -1,6 +1,8 @@
 package generators
 
 import (
+	"sync"
+
 	"github.com/sirupsen/logrus"
 
 	"github.com/rbren/midi/pkg/buffers"
@@ -15,6 +17,7 @@ func init() {
 
 type Registry struct {
 	Events map[int64]*Event
+	lock   sync.Mutex
 }
 
 func NewRegistry() Registry {
@@ -38,6 +41,8 @@ const (
 )
 
 func (r Registry) Attack(key int64, time uint64, g Generator) {
+	r.lock.Lock()
+	defer r.lock.Unlock()
 	logrus.Infof("attack %d %d", key, time)
 	r.Events[key] = &Event{
 		Generator:   g,
@@ -47,6 +52,8 @@ func (r Registry) Attack(key int64, time uint64, g Generator) {
 }
 
 func (r Registry) Release(key int64, time uint64, g Generator) {
+	r.lock.Lock()
+	defer r.lock.Unlock()
 	logrus.Infof("release %d %d", key, time)
 	existing, ok := r.Events[key]
 	if !ok {
@@ -57,6 +64,8 @@ func (r Registry) Release(key int64, time uint64, g Generator) {
 }
 
 func (r Registry) ClearOldEvents(absoluteTime uint64) {
+	r.lock.Lock()
+	defer r.lock.Unlock()
 	remove := []int64{}
 	for key, event := range r.Events {
 		if event.ReleaseTime == 0 {
@@ -73,7 +82,7 @@ func (r Registry) ClearOldEvents(absoluteTime uint64) {
 }
 
 func (r Registry) GetSamples(absoluteTime uint64, numSamples int) []float32 {
-	r.ClearOldEvents(absoluteTime)
+	r.ClearOldEvents(absoluteTime) // TODO: put this on its own loop
 	samples := make([]float32, numSamples)
 	for _, event := range r.Events {
 		eventSamples := make([]float32, numSamples)
