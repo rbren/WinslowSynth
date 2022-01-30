@@ -16,7 +16,7 @@ var Library = map[string]Instrument{
 }
 
 func frequencyConst() Constant {
-	return Constant{"Frequency", 440.0, 20.0, 20000.0}
+	return Constant{"", "Frequency", 440.0, 20.0, 20000.0}
 }
 
 func BasicSine() Spinner {
@@ -70,20 +70,20 @@ func NoisySineWave() Instrument {
 	base := BasicSine()
 	return NoiseFilter{
 		Input:  base,
-		Amount: Constant{"Noise", .2, 0.0, 1.0},
+		Amount: Constant{"", "Noise", .2, 0.0, 1.0},
 	}
 }
 
 func Warbler() Spinner {
 	adsr := BasicADSR()
 	adsrInner := adsr
-	adsrInner.SustainLevel = Constant{"Warble Amt", 20.0, 0.0, 100.0}
+	adsrInner.SustainLevel = Constant{"", "Warble Amt", 20.0, 0.0, 100.0}
 	return Spinner{
 		Amplitude:     adsr,
 		DropOnRelease: true,
 		Frequency: Spinner{
 			Amplitude: adsrInner,
-			Frequency: Constant{"Warble Speed", 4, 0.0, 20.0},
+			Frequency: Constant{"", "Warble Speed", 4, 0.0, 20.0},
 			// setting Bias on this sets the overall freq
 			Bias: frequencyConst(),
 		},
@@ -110,7 +110,7 @@ func DirtySawWave() Instrument {
 		Generators: []Generator{
 			base.Amplitude,
 			Noise{
-				Amount: Constant{"Noise", .1, 0.0, 1.0},
+				Amount: Constant{"", "Noise", .1, 0.0, 1.0},
 			},
 		},
 	}

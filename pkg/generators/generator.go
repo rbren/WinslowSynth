@@ -9,5 +9,5 @@ type Instrument interface {
 }
 
 func GetDefaultInstrument() Instrument {
-	return Warbler()
+	return Mega()
 }

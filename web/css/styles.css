@@ -1,3 +1,16 @@
 body {
   padding: 20px;
 }
+
+.constant-group {
+  display: inline-block;
+  width: 400px;
+}
+
+.constant input {
+  display: inline;
+}
+
+.constant input[type="number"] {
+  max-width: 60px;
+}

@@ -16,7 +16,14 @@ function drawInstrument(inst) {
 }
 
 function drawConstants(consts) {
-  return consts.map(drawConstant).join('');
+  const groups = {}
+  consts.forEach(c => {
+    groups[c.Group] = groups[c.Group] || [];
+    groups[c.Group].push(c);
+  });
+  return Object.keys(groups).map(k => {
+    return drawConstantGroup(k, groups[k]);
+  }).join('');
 }
 
 window.drawInstruments = drawInstruments;
@@ -26,6 +33,15 @@ window.drawConstants = drawConstants;
 
 function drawInstrumentChoice(name) {
   return `<li><a href="#" onclick="chooseInstrument('${name}')">${name}</a></li>`;
+}
+
+function drawConstantGroup(name, constants) {
+  return `
+  <div class="constant-group">
+  <h2>${name}</h2>
+  ${constants.map(drawConstant).join('')}
+  </div>
+  `
 }
 
 function drawConstant(constant) {
@@ -38,7 +54,7 @@ function drawConstant(constant) {
       onchange="updateConstant('${constant.Name}', this.value)"
       `;
   return `
-  <div>
+  <div class="constant">
     <label>${constant.Name}</label>
     <br>
     <input

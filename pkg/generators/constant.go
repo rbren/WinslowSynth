@@ -1,6 +1,7 @@
 package generators
 
 type Constant struct {
+	Group string
 	Name  string
 	Value float32
 	Min   float32
