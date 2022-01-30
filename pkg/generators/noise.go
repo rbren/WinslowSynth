@@ -6,8 +6,7 @@ import (
 )
 
 type Noise struct {
-	Max float32
-	Min float32
+	Amount Generator
 }
 
 func init() {
@@ -16,5 +15,8 @@ func init() {
 
 func (n Noise) GetValue(t, r uint64) float32 {
 	random := rand.Float32()
-	return n.Min + random*(n.Max-n.Min)
+	amt := n.Amount.GetValue(t, r)
+	max := 1.0 + amt
+	min := 1.0 - amt
+	return min + random*(max-min)
 }

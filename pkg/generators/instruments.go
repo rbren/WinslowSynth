@@ -57,7 +57,12 @@ func BasicSaw() SawWave {
 func DirtySawWave() Instrument {
 	base := BasicSaw()
 	base.Amplitude = Multiply{
-		Generators: []Generator{base.Amplitude, Noise{Min: .5, Max: 1.5}},
+		Generators: []Generator{
+			base.Amplitude,
+			Noise{
+				Amount: Constant{"Noise", .1, 0.0, 1.0},
+			},
+		},
 	}
 	return base
 }
