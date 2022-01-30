@@ -5,10 +5,11 @@ import (
 )
 
 type Spinner struct {
-	Amplitude Generator
-	Frequency Generator
-	Phase     Generator
-	Bias      Generator
+	Amplitude     Generator
+	Frequency     Generator
+	Phase         Generator
+	Bias          Generator
+	DropOnRelease bool
 }
 
 func (s *Spinner) initialize() {
@@ -24,6 +25,9 @@ func (s *Spinner) initialize() {
 }
 
 func (s Spinner) GetValue(time, releasedAt uint64) float32 {
+	if s.DropOnRelease && releasedAt != 0 {
+		return 0.0
+	}
 	s.initialize()
 	pos := 2.0 * math.Pi * GetPhasePosition(s.Frequency, s.Phase, time, releasedAt)
 	amp := s.Amplitude.GetValue(time, releasedAt)

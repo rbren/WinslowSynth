@@ -7,6 +7,7 @@ import (
 // Instruments are Generators/Spinners with Frequency=nil
 func Warbler() Spinner {
 	return Spinner{
+		DropOnRelease: true,
 		Frequency: Spinner{
 			// setting Bias on this sets the overall freq
 			Amplitude: Constant{"Warble Amt", 20.0, 0.0, 100.0},
