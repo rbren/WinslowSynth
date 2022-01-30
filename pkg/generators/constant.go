@@ -1,6 +1,7 @@
 package generators
 
 type Constant struct {
+	Name  string
 	Value float32
 }
 

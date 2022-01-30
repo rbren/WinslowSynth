@@ -9,8 +9,8 @@ func Warbler() Spinner {
 	return Spinner{
 		Frequency: Spinner{
 			// setting Bias on this sets the overall freq
-			Amplitude: Constant{20.0},
-			Frequency: Constant{4},
+			Amplitude: Constant{"Warble Amt", 20.0},
+			Frequency: Constant{"Warble Speed", 4},
 		},
 	}
 }
