@@ -38,3 +38,28 @@ func (s Spinner) GetValue(time, releasedAt uint64) float32 {
 	amp := s.Amplitude.GetValue(time, releasedAt)
 	return s.Bias.GetValue(time, releasedAt) + amp*float32(math.Sin(float64(pos)))
 }
+
+func (s Spinner) SetFrequency(freq float32) Generator {
+	ret := s
+	if ret.Frequency == nil {
+		ret.Frequency = Constant{freq}
+		return ret
+	} else if f, ok := ret.Frequency.(Spinner); ok {
+		ret.Frequency = f.SetBias(freq)
+	} else {
+		panic("can't set frequency")
+	}
+	return ret
+}
+
+func (s Spinner) SetBias(bias float32) Generator {
+	ret := s
+	if ret.Bias == nil {
+		ret.Bias = Constant{bias}
+	} else if b, ok := ret.Bias.(Spinner); ok {
+		ret.Bias = b.SetBias(bias)
+	} else {
+		panic("can't set bias")
+	}
+	return ret
+}

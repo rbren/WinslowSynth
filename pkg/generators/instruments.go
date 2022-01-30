@@ -5,11 +5,11 @@ import (
 )
 
 // Instruments are Generators/Spinners with Frequency=nil
-func Warbler() Generator {
+func Warbler() Spinner {
 	return Spinner{
 		Frequency: Spinner{
 			// setting Bias on this sets the overall freq
-			Amplitude: Constant{1.0},
+			Amplitude: Constant{20.0},
 			Frequency: Constant{4},
 		},
 	}

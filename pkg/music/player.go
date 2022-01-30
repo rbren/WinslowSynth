@@ -13,7 +13,7 @@ import (
 const msPerTick = 10
 
 type MusicPlayer struct {
-	Instrument     generators.Generator
+	Instrument     generators.Instrument
 	Generators     generators.Registry
 	Output         *output.CircularAudioBuffer
 	CurrentSample  uint64
@@ -30,7 +30,7 @@ func NewMusicPlayer(out *output.CircularAudioBuffer) MusicPlayer {
 	logger.Log("output", out.GetCapacity())
 	return MusicPlayer{
 		Output:         out,
-		Instrument:     generators.GetDefaultGenerator(input.InputKey{}),
+		Instrument:     generators.GetDefaultInstrument(),
 		Generators:     generators.NewRegistry(),
 		samplesPerTick: samplesPerTick,
 		silence:        make([]float32, samplesPerTick),
@@ -68,7 +68,7 @@ func (m *MusicPlayer) Start(notes chan input.InputKey) {
 			select {
 			case note := <-notes:
 				logger.Log("note", note)
-				g := generators.SetFrequency(m.Instrument, note.Frequency)
+				g := m.Instrument.SetFrequency(note.Frequency)
 				if note.Action == "channel.NoteOn" {
 					m.Generators.Attack(note.Key, m.CurrentSample, g)
 				} else if note.Action == "channel.NoteOff" {

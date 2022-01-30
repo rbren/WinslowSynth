@@ -23,7 +23,7 @@ type MessageIn struct {
 
 type MessageOut struct {
 	Time       uint64
-	Instrument generators.Generator
+	Instrument generators.Instrument
 }
 
 type Server struct {
@@ -60,7 +60,6 @@ func (s *Server) connect(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.connection = c
-	s.generator = generators.GetDefaultGenerator(input.InputKey{Frequency: 440.0})
 	logger.ForceLog("connected")
 }
 
