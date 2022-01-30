@@ -40,7 +40,7 @@ func (m CircularAudioBuffer) GetBufferDelay() int {
 func (m *CircularAudioBuffer) incrementReadPos() {
 	*m.ReadPos++
 	if *m.ReadPos >= len(m.left) {
-		logrus.Info("read full buffer")
+		logrus.Debug("read full buffer")
 		*m.ReadPos = 0
 	}
 }
@@ -48,7 +48,7 @@ func (m *CircularAudioBuffer) incrementReadPos() {
 func (m *CircularAudioBuffer) incrementWritePos() {
 	*m.WritePos++
 	if *m.WritePos >= len(m.left) {
-		logrus.Info("wrote full buffer")
+		logrus.Debug("wrote full buffer")
 		*m.WritePos = 0
 	}
 }

@@ -54,7 +54,7 @@ func (m *MusicPlayer) Start(notes chan input.InputKey) {
 		for {
 			select {
 			case <-ticker.C:
-				logrus.Info("tick")
+				logrus.Debug("tick")
 				m.nextBytes()
 			}
 		}
@@ -84,12 +84,12 @@ func (m *MusicPlayer) Start(notes chan input.InputKey) {
 }
 
 func (m *MusicPlayer) nextBytes() {
-	logrus.Info("active keys", len(m.Generators.Events))
+	logrus.Debug("active keys", len(m.Generators.Events))
 	samples := m.Generators.GetSamples(m.CurrentSample, m.samplesPerTick)
 	_, err := m.Output.WriteAudio(samples, samples)
 	if err != nil {
 		panic(err)
 	}
 	m.CurrentSample += uint64(m.samplesPerTick)
-	logrus.Info("pos", m.CurrentSample, samples[0], samples[len(samples)-1])
+	logrus.Debug("pos", m.CurrentSample, samples[0], samples[len(samples)-1])
 }
