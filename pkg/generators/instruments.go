@@ -5,14 +5,22 @@ import (
 )
 
 var Library = map[string]Instrument{
-	"warbler":  Warbler(),
-	"sine":     BasicSine(),
-	"saw":      BasicSaw(),
-	"dirty":    DirtySawWave(),
-	"harmonic": HarmonicSpinner(),
+	"warbler":     Warbler(),
+	"sine":        BasicSine(),
+	"saw":         BasicSaw(),
+	"dirty":       DirtySawWave(),
+	"harmonic":    HarmonicSpinner(),
+	"noiseFilter": NoisySineWave(),
 }
 
-// Instruments are Generators/Spinners with Frequency=nil
+func NoisySineWave() Instrument {
+	base := BasicSine()
+	return NoiseFilter{
+		Input:  base,
+		Amount: Constant{"Noise", .2, 0.0, 1.0},
+	}
+}
+
 func Warbler() Spinner {
 	adsr := BasicADSR()
 	adsrInner := adsr

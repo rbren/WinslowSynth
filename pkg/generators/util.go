@@ -30,6 +30,10 @@ func GetConstants(g Generator) []Constant {
 	t := reflect.TypeOf(g)
 	consts := []Constant{}
 	for i := 0; i < t.NumField(); i++ {
+		if !v.Field(i).CanInterface() {
+			// unexported field
+			continue
+		}
 		intf := v.Field(i).Interface()
 		if gList, ok := intf.([]Generator); ok {
 			for _, g2 := range gList {
@@ -66,21 +70,26 @@ func SetConstant(g Generator, name string, value float32) Generator {
 
 	for i := 0; i < t.NumField(); i++ {
 		tField := t.Field(i)
-		curVal := gTmp.FieldByName(tField.Name).Interface()
+		vField := gTmp.Field(i)
+		if !vField.CanInterface() {
+			// unexported field
+			continue
+		}
+		curVal := vField.Interface()
 		if curVal == nil {
 			continue
 		}
 		if tField.Type.Implements(genType) {
 			g2 := curVal.(Generator)
 			newVal := SetConstant(g2, name, value)
-			gTmp.FieldByName(tField.Name).Set(reflect.ValueOf(newVal))
+			vField.Set(reflect.ValueOf(newVal))
 		} else if tField.Type.Implements(listType) {
 			if gList, ok := curVal.([]Generator); ok {
 				newVal := []Generator{}
 				for _, g2 := range gList {
 					newVal = append(newVal, SetConstant(g2.(Generator), name, value))
 				}
-				gTmp.FieldByName(tField.Name).Set(reflect.ValueOf(newVal))
+				vField.Set(reflect.ValueOf(newVal))
 			}
 		}
 	}

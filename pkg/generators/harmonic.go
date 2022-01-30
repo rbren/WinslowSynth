@@ -38,7 +38,7 @@ func (h Harmonic) GetValue(t, r uint64) float32 {
 	return h.Sum.GetValue(t, r)
 }
 
-func (h Harmonic) SetFrequency(f float32) Generator {
+func (h Harmonic) SetFrequency(f float32) Instrument {
 	h.Spinner.SetFrequency(f)
 	h.initialize(true)
 	return h

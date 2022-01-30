@@ -6,7 +6,7 @@ type Generator interface {
 
 type Instrument interface {
 	Generator
-	SetFrequency(freq float32) Generator
+	SetFrequency(freq float32) Instrument
 }
 
 func GetDefaultInstrument() Instrument {

@@ -34,7 +34,7 @@ func (s Spinner) GetValue(time, releasedAt uint64) float32 {
 	return s.Bias.GetValue(time, releasedAt) + amp*float32(math.Sin(float64(pos)))
 }
 
-func (s Spinner) SetFrequency(freq float32) Generator {
+func (s Spinner) SetFrequency(freq float32) Instrument {
 	ret := s
 	if ret.Frequency == nil {
 		ret.Frequency = Constant{Value: freq}
