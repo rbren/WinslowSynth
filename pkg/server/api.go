@@ -60,11 +60,11 @@ func (s Server) Close() error {
 func (s *Server) connect(w http.ResponseWriter, r *http.Request) {
 	c, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		logrus.Error("upgrade:", err)
+		logrus.Errorf("error connecting: %v", err)
 		return
 	}
 	s.connection = c
-	logrus.Error("connected")
+	logrus.Info("connected")
 }
 
 func (s *Server) startReadLoop() {
@@ -75,7 +75,7 @@ func (s *Server) startReadLoop() {
 		msg := MessageIn{}
 		err := s.connection.ReadJSON(&msg)
 		if err != nil {
-			logrus.Error("server read error:", err)
+			logrus.Errorf("server read error: %v", err)
 			s.connection = nil
 			s.Player.Clear()
 			continue
