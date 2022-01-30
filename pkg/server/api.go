@@ -69,7 +69,9 @@ func (s *Server) startReadLoop() {
 		err := s.connection.ReadJSON(&msg)
 		if err != nil {
 			logger.ForceLog("server read error:", err)
-			break
+			s.connection = nil
+			s.Player.Clear()
+			continue
 		}
 
 		midi, ok := input.QwertyToMidi[msg.Key]

@@ -35,6 +35,10 @@ func NewMusicPlayer(out *output.CircularAudioBuffer) MusicPlayer {
 	}
 }
 
+func (m *MusicPlayer) Clear() {
+	m.Generators = generators.NewRegistry()
+}
+
 func (m *MusicPlayer) Start(notes chan input.InputKey) {
 	go func() {
 		defer func() {
