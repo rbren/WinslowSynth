@@ -53,6 +53,7 @@ function drawConstant(constant) {
       value="${constant.Value}"
       onchange="updateConstant('${constant.Name}', this.value)"
       `;
+  console.log('draw', constant.Name, window.freeze, window.freeze[constant.Name]);
   return `
   <div class="constant">
     <label>${constant.Name}</label>
@@ -66,6 +67,7 @@ function drawConstant(constant) {
       type="number"
       ${props}
       >
+    <input type="checkbox" onchange="toggleFreeze('${constant.Name}', this.value)" ${window.freeze[constant.Name] ? 'checked' : ''}>
   </div>
   `
 }
