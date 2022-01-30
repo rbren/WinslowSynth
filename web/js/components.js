@@ -29,6 +29,7 @@ function drawInstrumentChoice(name) {
 }
 
 function drawConstant(constant) {
+  step = (constant.Max - constant.Min) / 100.0
   return `
   <div>
   <label>${constant.Name}</label>
@@ -36,6 +37,7 @@ function drawConstant(constant) {
   <input
     class="slider"
     type="range"
+    step="${step}"
     min="${constant.Min}"
     max="${constant.Max}"
     value="${constant.Value}"
