@@ -40,22 +40,29 @@ func BasicSquare() SquareWave {
 	}
 }
 
-func GetHarmonicConstant(name string, freq Generator) Instrument {
-	return Multiply{
-		Generators: []Generator{
-			frequencyConst(),
-			Constant{name + " Harmonic", 1.0, .5, 4.0},
-		},
-	}
-}
-
 func Mega() Instrument {
-	wave1 := BasicSine()
-	wave1.Frequency = GetHarmonicConstant("Sine", wave1.Frequency)
-	wave2 := BasicSaw()
-	wave3 := BasicSquare()
+	oscSin := BasicSine()
+	oscSaw := BasicSaw()
+	oscSqr := BasicSquare()
+
+	oscSin.Frequency = GetHarmonicConstant("Sine")
+	oscSaw.Frequency = GetHarmonicConstant("Saw")
+	oscSqr.Frequency = GetHarmonicConstant("Square")
+
+	oscSin.Amplitude = GetADSR("Sine")
+	oscSaw.Amplitude = GetADSR("Saw")
+	oscSqr.Amplitude = GetADSR("Square")
+
+	oscSin.Amplitude = GetLFO("Sine", oscSin.Amplitude)
+	oscSaw.Amplitude = GetLFO("Saw", oscSaw.Amplitude)
+	oscSqr.Amplitude = GetLFO("Square", oscSqr.Amplitude)
+
 	return Sum{
-		Generators: []Generator{wave1, wave2, wave3},
+		Generators: []Generator{
+			AddNoise("Sine", oscSin),
+			AddNoise("Saw", oscSaw),
+			AddNoise("Square", oscSqr),
+		},
 	}
 }
 
