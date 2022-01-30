@@ -3,7 +3,6 @@ package generators
 import (
 	"github.com/rbren/midi/pkg/buffers"
 	"github.com/rbren/midi/pkg/config"
-	"github.com/rbren/midi/pkg/input"
 	"github.com/rbren/midi/pkg/logger"
 )
 
@@ -37,19 +36,18 @@ const (
 	ReleaseEvent
 )
 
-func (r Registry) Attack(key input.InputKey, time uint64) {
+func (r Registry) Attack(key int64, time uint64, g Generator) {
 	logger.Log("attack", key)
-	g := GetDefaultGenerator(key)
-	r.Events[key.Key] = &Event{
+	r.Events[key] = &Event{
 		Generator:   g,
 		AttackTime:  time,
 		ReleaseTime: 0,
 	}
 }
 
-func (r Registry) Release(key input.InputKey, time uint64) {
+func (r Registry) Release(key int64, time uint64, g Generator) {
 	logger.Log("release", key)
-	existing, ok := r.Events[key.Key]
+	existing, ok := r.Events[key]
 	if !ok {
 		logger.ForceLog("Released key without attack!", key)
 		return

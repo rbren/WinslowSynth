@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/websocket"
 
+	"github.com/rbren/midi/pkg/generators"
 	"github.com/rbren/midi/pkg/input"
 	"github.com/rbren/midi/pkg/logger"
 	"github.com/rbren/midi/pkg/music"
@@ -21,13 +22,15 @@ type MessageIn struct {
 }
 
 type MessageOut struct {
-	Time uint64
+	Time       uint64
+	Instrument generators.Generator
 }
 
 type Server struct {
 	Name       string
 	notes      chan input.InputKey
 	connection *websocket.Conn
+	generator  generators.Generator
 	Player     *music.MusicPlayer
 }
 
@@ -57,7 +60,8 @@ func (s *Server) connect(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.connection = c
-	logger.Log("connected")
+	s.generator = generators.GetDefaultGenerator(input.InputKey{Frequency: 440.0})
+	logger.ForceLog("connected")
 }
 
 func (s *Server) startReadLoop() {
@@ -101,7 +105,8 @@ func (s *Server) startWriteLoop() {
 				continue
 			}
 			msg := MessageOut{
-				Time: s.Player.CurrentSample,
+				Time:       s.Player.CurrentSample,
+				Instrument: s.Player.Instrument,
 			}
 			err := s.connection.WriteJSON(msg)
 			if err != nil {

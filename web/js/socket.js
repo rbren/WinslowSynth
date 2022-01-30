@@ -1,4 +1,6 @@
+console.log("socket");
 window.addEventListener("load", function(evt) {
+  console.log("load");
   var ws = new WebSocket("ws://" + window.location.host + "/connect");
   ws.onopen = function(evt) {
     console.log("OPEN");
@@ -8,7 +10,8 @@ window.addEventListener("load", function(evt) {
     ws = null;
   }
   ws.onmessage = function(evt) {
-    //console.log("RESPONSE: " + evt.data);
+    console.log("RESPONSE: " + evt.data);
+    window.setState(JSON.parse(evt.data))
   }
   ws.onerror = function(evt) {
     console.log("ERROR: " + evt.data);
@@ -17,6 +20,7 @@ window.addEventListener("load", function(evt) {
   const pressedKeys = {}
 
   document.onkeydown = function(event) {
+    console.log("keydown", event.key);
     if (!ws) return true;
     if (pressedKeys[event.key]) return true;
     pressedKeys[event.key] = true;
