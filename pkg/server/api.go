@@ -101,12 +101,12 @@ func (s Server) ChooseAction(msg MessageIn) {
 }
 
 func (s Server) SetAction(msg MessageIn) {
-	logrus.Info("Set", msg.Key, msg.Value)
+	logrus.Infof("Set %s to %f", msg.Key, msg.Value)
 	s.Player.Instrument = generators.SetInstrumentConstant(s.Player.Instrument, msg.Key, msg.Value)
 }
 
 func (s Server) NoteAction(msg MessageIn) {
-	logrus.Info("Note", msg.Key, msg.Action)
+	logrus.Infof("Note %s %s", msg.Key, msg.Action)
 	midi, ok := input.QwertyToMidi[msg.Key]
 	if !ok {
 		return

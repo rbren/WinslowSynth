@@ -38,7 +38,7 @@ const (
 )
 
 func (r Registry) Attack(key int64, time uint64, g Generator) {
-	logrus.Info("attack", key)
+	logrus.Infof("attack %d %d", key, time)
 	r.Events[key] = &Event{
 		Generator:   g,
 		AttackTime:  time,
@@ -47,7 +47,7 @@ func (r Registry) Attack(key int64, time uint64, g Generator) {
 }
 
 func (r Registry) Release(key int64, time uint64, g Generator) {
-	logrus.Info("release", key)
+	logrus.Infof("release %d %d", key, time)
 	existing, ok := r.Events[key]
 	if !ok {
 		logrus.Error("Released key without attack!", key)
