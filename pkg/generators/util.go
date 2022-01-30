@@ -17,6 +17,15 @@ func GetPhasePosition(freq Generator, phase Generator, time, releasedAt uint64) 
 	return float32(sampleLoc) / samplesPerPeriod
 }
 
+func SetFrequency(i Instrument, f float32) Instrument {
+	return SetInstrumentConstant(i, "Frequency", f)
+}
+
+func SetInstrumentConstant(i Instrument, name string, value float32) Instrument {
+	g := SetConstant(i, name, value)
+	return g.(Instrument)
+}
+
 func GetConstants(g Generator) []Constant {
 	if g == nil {
 		return []Constant{}
@@ -49,11 +58,6 @@ func GetConstants(g Generator) []Constant {
 	}
 
 	return consts
-}
-
-func SetInstrumentConstant(i Instrument, name string, value float32) Instrument {
-	g := SetConstant(i, name, value)
-	return g.(Instrument)
 }
 
 func SetConstant(g Generator, name string, value float32) Generator {

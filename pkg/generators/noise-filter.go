@@ -33,8 +33,3 @@ func (n NoiseFilter) GetValue(t, r uint64) float32 {
 	n.buffer[0] = val
 	return val
 }
-
-func (n NoiseFilter) SetFrequency(f float32) Instrument {
-	n.Input = n.Input.SetFrequency(f)
-	return n
-}

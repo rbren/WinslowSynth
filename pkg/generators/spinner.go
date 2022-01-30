@@ -1,7 +1,6 @@
 package generators
 
 import (
-	"fmt"
 	"math"
 )
 
@@ -33,25 +32,6 @@ func (s Spinner) GetValue(time, releasedAt uint64) float32 {
 	pos := 2.0 * math.Pi * GetPhasePosition(s.Frequency, s.Phase, time, releasedAt)
 	amp := s.Amplitude.GetValue(time, releasedAt)
 	return s.Bias.GetValue(time, releasedAt) + amp*float32(math.Sin(float64(pos)))
-}
-
-func (s Spinner) SetFrequency(freq float32) Instrument {
-	ret := s
-	if ret.Frequency == nil {
-		ret.Frequency = Constant{Value: freq}
-		return ret
-	} else if c, ok := ret.Frequency.(Constant); ok {
-		c.Value = freq
-		ret.Frequency = c
-	} else if f, ok := ret.Frequency.(Spinner); ok {
-		ret.Frequency = f.SetBias(freq)
-	} else if i, ok := ret.Frequency.(Instrument); ok {
-		ret.Frequency = i.SetFrequency(freq)
-	} else {
-		fmt.Printf("tried to set frequency %#v\n", ret.Frequency)
-		panic("can't set frequency")
-	}
-	return ret
 }
 
 func (s Spinner) SetBias(bias float32) Generator {

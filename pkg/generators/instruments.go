@@ -15,20 +15,27 @@ var Library = map[string]Instrument{
 	"mega":        Mega(),
 }
 
+func frequencyConst() Constant {
+	return Constant{"Frequency", 440.0, 20.0, 20000.0}
+}
+
 func BasicSine() Spinner {
 	return Spinner{
+		Frequency: frequencyConst(),
 		Amplitude: BasicADSR(),
 	}
 }
 
 func BasicSaw() SawWave {
 	return SawWave{
+		Frequency: frequencyConst(),
 		Amplitude: BasicADSR(),
 	}
 }
 
 func BasicSquare() SquareWave {
 	return SquareWave{
+		Frequency: frequencyConst(),
 		Amplitude: BasicADSR(),
 	}
 }
@@ -36,7 +43,7 @@ func BasicSquare() SquareWave {
 func GetHarmonicConstant(name string, freq Generator) Instrument {
 	return Multiply{
 		Generators: []Generator{
-			Constant{},
+			frequencyConst(),
 			Constant{name + " Harmonic", 1.0, .5, 4.0},
 		},
 	}
@@ -68,9 +75,10 @@ func Warbler() Spinner {
 		Amplitude:     adsr,
 		DropOnRelease: true,
 		Frequency: Spinner{
-			// setting Bias on this sets the overall freq
 			Amplitude: adsrInner,
 			Frequency: Constant{"Warble Speed", 4, 0.0, 20.0},
+			// setting Bias on this sets the overall freq
+			Bias: frequencyConst(),
 		},
 	}
 }
@@ -127,6 +135,7 @@ func AmplitudeRamp() Ramp {
 
 func SimpleRamper() Spinner {
 	g := Spinner{
+		Frequency: frequencyConst(),
 		Amplitude: AmplitudeRamp(),
 		Phase:     Constant{Value: 0.0},
 	}

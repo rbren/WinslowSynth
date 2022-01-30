@@ -70,7 +70,7 @@ func (m *MusicPlayer) Start(notes chan input.InputKey) {
 			select {
 			case note := <-notes:
 				logrus.Info("note", note)
-				g := m.Instrument.SetFrequency(note.Frequency)
+				g := generators.SetFrequency(m.Instrument, note.Frequency)
 				if note.Action == "channel.NoteOn" {
 					m.Generators.Attack(note.Key, m.CurrentSample, g)
 				} else if note.Action == "channel.NoteOff" {

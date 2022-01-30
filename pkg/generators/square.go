@@ -24,8 +24,3 @@ func (s SquareWave) GetValue(time, releasedAt uint64) float32 {
 	}
 	return val * s.Amplitude.GetValue(time, releasedAt)
 }
-
-func (s SquareWave) SetFrequency(f float32) Instrument {
-	s.Frequency = Constant{Value: f}
-	return s
-}
