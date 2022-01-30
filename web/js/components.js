@@ -30,20 +30,27 @@ function drawInstrumentChoice(name) {
 
 function drawConstant(constant) {
   step = (constant.Max - constant.Min) / 100.0
+  props = `
+      step="${step}"
+      min="${constant.Min}"
+      max="${constant.Max}"
+      value="${constant.Value}"
+      onchange="updateConstant('${constant.Name}', this.value)"
+      `;
   return `
   <div>
-  <label>${constant.Name}</label>
-  <br>
-  <input
-    class="slider"
-    type="range"
-    step="${step}"
-    min="${constant.Min}"
-    max="${constant.Max}"
-    value="${constant.Value}"
-    onchange="updateConstant('${constant.Name}', this.value)"
-    >
-    </div>
+    <label>${constant.Name}</label>
+    <br>
+    <input
+      class="slider"
+      type="range"
+      ${props}
+      >
+    <input
+      type="number"
+      ${props}
+      >
+  </div>
   `
 }
 
