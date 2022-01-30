@@ -8,9 +8,48 @@ var Library = map[string]Instrument{
 	"warbler":     Warbler(),
 	"sine":        BasicSine(),
 	"saw":         BasicSaw(),
+	"square":      BasicSquare(),
 	"dirty":       DirtySawWave(),
 	"harmonic":    HarmonicSpinner(),
 	"noiseFilter": NoisySineWave(),
+	"mega":        Mega(),
+}
+
+func BasicSine() Spinner {
+	return Spinner{
+		Amplitude: BasicADSR(),
+	}
+}
+
+func BasicSaw() SawWave {
+	return SawWave{
+		Amplitude: BasicADSR(),
+	}
+}
+
+func BasicSquare() SquareWave {
+	return SquareWave{
+		Amplitude: BasicADSR(),
+	}
+}
+
+func GetHarmonicConstant(name string, freq Generator) Instrument {
+	return Multiply{
+		Generators: []Generator{
+			Constant{},
+			Constant{name + " Harmonic", 1.0, .5, 4.0},
+		},
+	}
+}
+
+func Mega() Instrument {
+	wave1 := BasicSine()
+	wave1.Frequency = GetHarmonicConstant("Sine", wave1.Frequency)
+	wave2 := BasicSaw()
+	wave3 := BasicSquare()
+	return Sum{
+		Generators: []Generator{wave1, wave2, wave3},
+	}
 }
 
 func NoisySineWave() Instrument {
@@ -47,18 +86,6 @@ func BasicADSR() ADSR {
 		AttackTime:   uint64(attackMs * samplesPerMs),
 		DecayTime:    uint64(decayMs * samplesPerMs),
 		ReleaseTime:  uint64(releaseMs * samplesPerMs),
-	}
-}
-
-func BasicSine() Spinner {
-	return Spinner{
-		Amplitude: BasicADSR(),
-	}
-}
-
-func BasicSaw() SawWave {
-	return SawWave{
-		Amplitude: BasicADSR(),
 	}
 }
 

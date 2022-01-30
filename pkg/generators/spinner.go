@@ -1,6 +1,7 @@
 package generators
 
 import (
+	"fmt"
 	"math"
 )
 
@@ -39,9 +40,15 @@ func (s Spinner) SetFrequency(freq float32) Instrument {
 	if ret.Frequency == nil {
 		ret.Frequency = Constant{Value: freq}
 		return ret
+	} else if c, ok := ret.Frequency.(Constant); ok {
+		c.Value = freq
+		ret.Frequency = c
 	} else if f, ok := ret.Frequency.(Spinner); ok {
 		ret.Frequency = f.SetBias(freq)
+	} else if i, ok := ret.Frequency.(Instrument); ok {
+		ret.Frequency = i.SetFrequency(freq)
 	} else {
+		fmt.Printf("tried to set frequency %#v\n", ret.Frequency)
 		panic("can't set frequency")
 	}
 	return ret
