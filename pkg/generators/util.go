@@ -27,8 +27,9 @@ func GetConstants(g Generator) []Constant {
 	}
 
 	v := reflect.ValueOf(g)
+	t := reflect.TypeOf(g)
 	consts := []Constant{}
-	for i := 0; i < v.NumField(); i++ {
+	for i := 0; i < t.NumField(); i++ {
 		intf := v.Field(i).Interface()
 		if g2, ok := intf.(Generator); ok {
 			consts = append(consts, GetConstants(g2)...)

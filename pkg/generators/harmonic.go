@@ -3,7 +3,7 @@ package generators
 type Harmonic struct {
 	Modes   []Mode
 	Spinner Spinner
-	Sum     *Sum
+	Sum     Sum
 }
 
 type Mode struct {
@@ -12,7 +12,7 @@ type Mode struct {
 }
 
 func (h *Harmonic) initialize(force bool) {
-	if !force && h.Sum != nil {
+	if !force && len(h.Sum.Generators) == len(h.Modes) {
 		return
 	}
 	toSum := []Generator{h.Spinner}
@@ -30,7 +30,7 @@ func (h *Harmonic) initialize(force bool) {
 		}
 		toSum = append(toSum, modeGenerator)
 	}
-	h.Sum = &Sum{Generators: toSum}
+	h.Sum = Sum{Generators: toSum}
 }
 
 func (h Harmonic) GetValue(t, r uint64) float32 {
