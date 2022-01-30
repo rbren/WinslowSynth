@@ -6,33 +6,43 @@ import (
 
 // Instruments are Generators/Spinners with Frequency=nil
 func Warbler() Spinner {
+	adsr := BasicADSR()
+	adsrInner := adsr
+	adsrInner.SustainLevel = Constant{"Warble Amt", 20.0, 0.0, 100.0}
 	return Spinner{
+		Amplitude:     adsr,
 		DropOnRelease: true,
 		Frequency: Spinner{
 			// setting Bias on this sets the overall freq
-			Amplitude: Constant{"Warble Amt", 20.0, 0.0, 100.0},
+			Amplitude: adsrInner,
 			Frequency: Constant{"Warble Speed", 4, 0.0, 20.0},
 		},
 	}
 }
 
-func BasicSineWave() Spinner {
-	return Spinner{}
-}
-
-func RampSawWave() SawWave {
+func BasicADSR() ADSR {
 	samplesPerMs := config.MainConfig.SampleRate / 1000
 	attackMs := 50
 	decayMs := 1000
 	releaseMs := 1000
+	return ADSR{
+		PeakLevel:    Constant{Value: 1.0},
+		SustainLevel: Constant{"Sustain", 0.5, 0.0, 1.0},
+		AttackTime:   uint64(attackMs * samplesPerMs),
+		DecayTime:    uint64(decayMs * samplesPerMs),
+		ReleaseTime:  uint64(releaseMs * samplesPerMs),
+	}
+}
+
+func BasicSineWave() Spinner {
+	return Spinner{
+		Amplitude: BasicADSR(),
+	}
+}
+
+func RampSawWave() SawWave {
 	return SawWave{
-		Amplitude: ADSR{
-			PeakLevel:    1.0,
-			SustainLevel: 0.5,
-			AttackTime:   uint64(attackMs * samplesPerMs),
-			DecayTime:    uint64(decayMs * samplesPerMs),
-			ReleaseTime:  uint64(releaseMs * samplesPerMs),
-		},
+		Amplitude: BasicADSR(),
 	}
 }
 

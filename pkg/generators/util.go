@@ -19,7 +19,11 @@ func GetPhasePosition(freq Generator, phase Generator, time, releasedAt uint64) 
 
 func GetConstants(g Generator) []Constant {
 	if c, ok := g.(Constant); ok {
-		return []Constant{c}
+		if c.Name != "" {
+			return []Constant{c}
+		} else {
+			return []Constant{}
+		}
 	}
 
 	v := reflect.ValueOf(g)
