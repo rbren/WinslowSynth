@@ -35,7 +35,7 @@ func BasicADSR() ADSR {
 	releaseMs := 1000
 	return ADSR{
 		PeakLevel:    Constant{Value: 1.0},
-		SustainLevel: Constant{"Sustain", 0.5, 0.0, 1.0},
+		SustainLevel: Constant{Value: 0.5},
 		AttackTime:   uint64(attackMs * samplesPerMs),
 		DecayTime:    uint64(decayMs * samplesPerMs),
 		ReleaseTime:  uint64(releaseMs * samplesPerMs),
