@@ -41,7 +41,9 @@ func SetInstrumentConstant(i Instrument, name string, value float32) Instrument 
 
 func SetConstant(g Generator, name string, value float32) Generator {
 	if c, ok := g.(Constant); ok {
-		c.Value = value
+		if c.Name == name {
+			c.Value = value
+		}
 		return c
 	}
 	gCopy := g
