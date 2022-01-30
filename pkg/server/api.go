@@ -19,11 +19,13 @@ var upgrader = websocket.Upgrader{} // use default options
 type MessageIn struct {
 	Key    string
 	Action string
+	Value  float32
 }
 
 type MessageOut struct {
 	Time       uint64
 	Instrument generators.Instrument
+	Constants  []generators.Constant
 }
 
 type Server struct {
@@ -76,23 +78,38 @@ func (s *Server) startReadLoop() {
 			s.Player.Clear()
 			continue
 		}
-
-		midi, ok := input.QwertyToMidi[msg.Key]
-		if !ok {
-			continue
+		if msg.Action == "up" || msg.Action == "down" {
+			s.NoteAction(msg)
+		} else if msg.Action == "set" {
+			s.SetAction(msg)
+		} else {
+			logger.ForceLog("unknown action", msg.Action)
 		}
-		note := input.MidiNotes[midi]
-		action := "channel.NoteOn"
-		if msg.Action == "up" {
-			action = "channel.NoteOff"
-		}
-		inputKey := input.InputKey{
-			Action:    action,
-			Key:       midi,
-			Frequency: note.Frequency,
-		}
-		s.notes <- inputKey
 	}
+}
+
+func (s Server) SetAction(msg MessageIn) {
+	logger.Log("Set", msg.Key, msg.Value)
+	s.Player.Instrument = generators.SetInstrumentConstant(s.Player.Instrument, msg.Key, msg.Value)
+}
+
+func (s Server) NoteAction(msg MessageIn) {
+	logger.Log("Note", msg.Key, msg.Action)
+	midi, ok := input.QwertyToMidi[msg.Key]
+	if !ok {
+		return
+	}
+	note := input.MidiNotes[midi]
+	action := "channel.NoteOn"
+	if msg.Action == "up" {
+		action = "channel.NoteOff"
+	}
+	inputKey := input.InputKey{
+		Action:    action,
+		Key:       midi,
+		Frequency: note.Frequency,
+	}
+	s.notes <- inputKey
 }
 
 func (s *Server) startWriteLoop() {
@@ -106,6 +123,7 @@ func (s *Server) startWriteLoop() {
 			msg := MessageOut{
 				Time:       s.Player.CurrentSample,
 				Instrument: s.Player.Instrument,
+				Constants:  generators.GetConstants(s.Player.Instrument),
 			}
 			err := s.connection.WriteJSON(msg)
 			if err != nil {

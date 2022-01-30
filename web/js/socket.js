@@ -1,7 +1,7 @@
 console.log("socket");
 window.addEventListener("load", function(evt) {
   console.log("load");
-  var ws = new WebSocket("ws://" + window.location.host + "/connect");
+  var ws = window.ws = new WebSocket("ws://" + window.location.host + "/connect");
   ws.onopen = function(evt) {
     console.log("OPEN");
   }

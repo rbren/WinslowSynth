@@ -34,6 +34,11 @@ func GetConstants(g Generator) []Constant {
 	return consts
 }
 
+func SetInstrumentConstant(i Instrument, name string, value float32) Instrument {
+	g := SetConstant(i, name, value)
+	return g.(Instrument)
+}
+
 func SetConstant(g Generator, name string, value float32) Generator {
 	if c, ok := g.(Constant); ok {
 		c.Value = value
