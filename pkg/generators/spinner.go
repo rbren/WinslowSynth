@@ -33,7 +33,7 @@ func (s Spinner) GetValue(time, releasedAt uint64) float32 {
 func (s Spinner) SetFrequency(freq float32) Generator {
 	ret := s
 	if ret.Frequency == nil {
-		ret.Frequency = Constant{"Frequency", freq}
+		ret.Frequency = Constant{Value: freq}
 		return ret
 	} else if f, ok := ret.Frequency.(Spinner); ok {
 		ret.Frequency = f.SetBias(freq)
@@ -46,7 +46,7 @@ func (s Spinner) SetFrequency(freq float32) Generator {
 func (s Spinner) SetBias(bias float32) Generator {
 	ret := s
 	if ret.Bias == nil {
-		ret.Bias = Constant{"Bias", bias}
+		ret.Bias = Constant{Value: bias}
 	} else if b, ok := ret.Bias.(Spinner); ok {
 		ret.Bias = b.SetBias(bias)
 	} else {
