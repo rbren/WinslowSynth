@@ -18,8 +18,8 @@ function drawInstrument(inst) {
 function drawConstants(consts) {
   const groups = {}
   consts.forEach(c => {
-    groups[c.Group] = groups[c.Group] || [];
-    groups[c.Group].push(c);
+    groups[c.Info.Group] = groups[c.Info.Group] || [];
+    groups[c.Info.Group].push(c);
   });
   return Object.keys(groups).map(k => {
     return drawConstantGroup(k, groups[k]);
@@ -51,12 +51,12 @@ function drawConstant(constant) {
       min="${constant.Min}"
       max="${constant.Max}"
       value="${constant.Value}"
-      onchange="updateConstant('${constant.Name}', this.value)"
+      onchange="updateConstant('${constant.Info.Name}', this.value)"
       `;
-  console.log('draw', constant.Name, window.freeze, window.freeze[constant.Name]);
+  console.log('draw', constant.Info.Name, window.freeze, window.freeze[constant.Info.Name]);
   return `
   <div class="constant">
-    <label>${constant.Name}</label>
+    <label>${constant.Info.Name}</label>
     <br>
     <input
       class="slider"
@@ -67,7 +67,7 @@ function drawConstant(constant) {
       type="number"
       ${props}
       >
-    <input type="checkbox" onchange="toggleFreeze('${constant.Name}', this.value)" ${window.freeze[constant.Name] ? 'checked' : ''}>
+    <input type="checkbox" onchange="toggleFreeze('${constant.Info.Name}', this.value)" ${window.freeze[constant.Info.Name] ? 'checked' : ''}>
   </div>
   `
 }

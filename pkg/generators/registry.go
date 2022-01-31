@@ -106,6 +106,9 @@ func (r Registry) GetSamples(absoluteTime uint64, numSamples int) []float32 {
 
 func addHistory(g Generator, val float32) {
 	i := g.GetInfo()
+	if i == nil {
+		return
+	}
 	if i.History == nil {
 		i.History = list.New()
 	}
