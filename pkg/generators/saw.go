@@ -1,6 +1,7 @@
 package generators
 
 type SawWave struct {
+	Info      *Info
 	Amplitude Generator
 	Frequency Generator
 	Phase     Generator
@@ -19,3 +20,5 @@ func (s SawWave) GetValue(time, releasedAt uint64) float32 {
 	s.initialize()
 	return s.Amplitude.GetValue(time, releasedAt) * GetPhasePosition(s.Frequency, s.Phase, time, releasedAt)
 }
+
+func (s SawWave) GetInfo() *Info { return s.Info }

@@ -1,6 +1,7 @@
 package generators
 
 import (
+	"container/list"
 	"sync"
 
 	"github.com/sirupsen/logrus"
@@ -10,9 +11,11 @@ import (
 )
 
 var maxReleaseTimeSamples int
+var historyLength int
 
 func init() {
-	maxReleaseTimeSamples = config.MainConfig.SampleRate * 5
+	historyLength = config.MainConfig.SampleRate // store 1 second
+	maxReleaseTimeSamples = config.MainConfig.SampleRate * 3
 }
 
 type Registry struct {
@@ -94,8 +97,20 @@ func (r Registry) GetSamples(absoluteTime uint64, numSamples int) []float32 {
 		}
 		for idx := range eventSamples {
 			eventSamples[idx] = event.Generator.GetValue(elapsed+uint64(idx), releasedAt)
+			addHistory(event.Generator, eventSamples[idx])
 		}
 		samples = buffers.MixBuffers([][]float32{samples, eventSamples})
 	}
 	return samples
+}
+
+func addHistory(g Generator, val float32) {
+	i := g.GetInfo()
+	if i.History == nil {
+		i.History = list.New()
+	}
+	i.History.PushBack(val)
+	if i.History.Len() > historyLength {
+		i.History.Remove(i.History.Front())
+	}
 }

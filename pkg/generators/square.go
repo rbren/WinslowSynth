@@ -1,6 +1,7 @@
 package generators
 
 type SquareWave struct {
+	Info      *Info
 	Amplitude Generator
 	Frequency Generator
 	Phase     Generator
@@ -24,3 +25,5 @@ func (s SquareWave) GetValue(time, releasedAt uint64) float32 {
 	}
 	return val * s.Amplitude.GetValue(time, releasedAt)
 }
+
+func (s SquareWave) GetInfo() *Info { return s.Info }

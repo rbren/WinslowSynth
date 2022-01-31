@@ -31,7 +31,7 @@ func GetConstants(g Generator) []Constant {
 		return []Constant{}
 	}
 	if c, ok := g.(Constant); ok {
-		if c.Name != "" {
+		if c.Info != nil && c.Info.Name != "" {
 			return []Constant{c}
 		} else {
 			return []Constant{}
@@ -62,7 +62,7 @@ func GetConstants(g Generator) []Constant {
 
 func SetConstant(g Generator, name string, value float32) Generator {
 	if c, ok := g.(Constant); ok {
-		if c.Name == name {
+		if c.Info != nil && c.Info.Name == name {
 			c.Value = value
 		}
 		return c

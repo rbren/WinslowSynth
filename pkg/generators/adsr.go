@@ -1,6 +1,7 @@
 package generators
 
 type ADSR struct {
+	Info         *Info
 	PeakLevel    Constant
 	SustainLevel Constant
 	AttackTime   uint64
@@ -47,3 +48,5 @@ func (a ADSR) Release(t, r uint64) float32 {
 	percentDone := float32(timeSinceRelease) / float32(a.ReleaseTime)
 	return baseVal * (1.0 - percentDone)
 }
+
+func (a ADSR) GetInfo() *Info { return a.Info }

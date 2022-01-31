@@ -5,6 +5,7 @@ import (
 )
 
 type Ramp struct {
+	Info     *Info
 	RampUp   uint64
 	RampDown uint64
 	Target   float32
@@ -38,3 +39,5 @@ func (r Ramp) RampDownVal(t, releasedAt uint64) float32 {
 	percentDone := float32(timeSinceRelease) / float32(r.RampDown)
 	return startVal * (1.0 - percentDone)
 }
+
+func (r Ramp) GetInfo() *Info { return r.Info }

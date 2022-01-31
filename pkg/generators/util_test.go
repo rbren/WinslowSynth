@@ -10,8 +10,8 @@ func TestGetConstants(t *testing.T) {
 	i := Warbler()
 	cs := GetConstants(i)
 	assert.Equal(t, 2, len(cs))
-	assert.Equal(t, "Warble Amt", cs[0].Name)
-	assert.Equal(t, "Warble Speed", cs[1].Name)
+	assert.Equal(t, "Warble Amt", cs[0].Info.Name)
+	assert.Equal(t, "Warble Speed", cs[1].Info.Name)
 }
 
 func TestSetConstant(t *testing.T) {

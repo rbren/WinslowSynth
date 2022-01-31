@@ -1,8 +1,7 @@
 package generators
 
 type Constant struct {
-	Group string
-	Name  string
+	Info  *Info
 	Value float32
 	Min   float32
 	Max   float32
@@ -11,3 +10,5 @@ type Constant struct {
 func (c Constant) GetValue(t, r uint64) float32 {
 	return c.Value
 }
+
+func (c Constant) GetInfo() *Info { return c.Info }

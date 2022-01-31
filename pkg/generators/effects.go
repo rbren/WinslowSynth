@@ -10,11 +10,21 @@ func GetADSR(name string) ADSR {
 	decayMs := 1000
 	releaseMs := 1000
 	return ADSR{
-		PeakLevel:    Constant{name, name + " Level", 1.0, 0.0, 1.0},
-		SustainLevel: Constant{name, name + " Sustain", 0.8, 0.0, 1.0},
-		AttackTime:   uint64(attackMs * samplesPerMs),
-		DecayTime:    uint64(decayMs * samplesPerMs),
-		ReleaseTime:  uint64(releaseMs * samplesPerMs),
+		PeakLevel: Constant{
+			Info:  &Info{Group: name, Name: name + " Level"},
+			Value: 1.0,
+			Min:   0.0,
+			Max:   1.0,
+		},
+		SustainLevel: Constant{
+			Info:  &Info{Group: name, Name: name + " Sustain"},
+			Value: 0.8,
+			Min:   0.0,
+			Max:   1.0,
+		},
+		AttackTime:  uint64(attackMs * samplesPerMs),
+		DecayTime:   uint64(decayMs * samplesPerMs),
+		ReleaseTime: uint64(releaseMs * samplesPerMs),
 	}
 }
 
@@ -22,7 +32,12 @@ func GetHarmonicConstant(name string) Instrument {
 	return Multiply{
 		Generators: []Generator{
 			frequencyConst(),
-			Constant{name, name + " Harmonic", 1.0, .5, 4.0},
+			Constant{
+				Info:  &Info{Group: name, Name: name + " Harmonic"},
+				Value: 1.0,
+				Min:   .5,
+				Max:   4.0,
+			},
 		},
 	}
 }
@@ -32,9 +47,19 @@ func GetLFO(name string, amplitude Generator) Instrument {
 		Generators: []Generator{
 			amplitude,
 			Spinner{
-				Bias:      Constant{Value: 1.0},
-				Amplitude: Constant{name, name + " LFO strength", 0.0, 0.0, 2.0},
-				Frequency: Constant{name, name + " LFO frequency", 2.0, 0.0, 20.0},
+				Bias: Constant{Value: 1.0},
+				Amplitude: Constant{
+					Info:  &Info{Group: name, Name: name + " LFO strength"},
+					Value: 0.0,
+					Min:   0.0,
+					Max:   2.0,
+				},
+				Frequency: Constant{
+					Info:  &Info{Group: name, Name: name + " LFO frequency"},
+					Value: 2.0,
+					Min:   0.0,
+					Max:   20.0,
+				},
 			},
 		},
 	}
@@ -42,7 +67,12 @@ func GetLFO(name string, amplitude Generator) Instrument {
 
 func AddNoise(name string, base Generator) Instrument {
 	return NoiseFilter{
-		Input:  base,
-		Amount: Constant{name, name + " Noise", 0.0, 0.0, 1.0},
+		Input: base,
+		Amount: Constant{
+			Info:  &Info{Group: name, Name: name + " Noise"},
+			Value: 0.0,
+			Min:   0.0,
+			Max:   1.0,
+		},
 	}
 }
