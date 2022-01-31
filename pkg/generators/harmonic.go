@@ -1,6 +1,7 @@
 package generators
 
 type Harmonic struct {
+	Info    *Info
 	Modes   []Mode
 	Spinner Spinner
 	Sum     Sum
@@ -37,3 +38,5 @@ func (h Harmonic) GetValue(t, r uint64) float32 {
 	h.initialize(false)
 	return h.Sum.GetValue(t, r)
 }
+
+func (h Harmonic) GetInfo() *Info { return h.Info }

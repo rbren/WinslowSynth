@@ -6,6 +6,7 @@ import (
 )
 
 type NoiseFilter struct {
+	Info   *Info
 	Amount Generator
 	Input  Instrument
 	buffer []float32
@@ -33,3 +34,4 @@ func (n NoiseFilter) GetValue(t, r uint64) float32 {
 	n.buffer[0] = val
 	return val
 }
+func (n NoiseFilter) GetInfo() *Info { return n.Info }

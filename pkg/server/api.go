@@ -143,7 +143,7 @@ func (s *Server) startWriteLoop() {
 				Instrument:  s.Player.Instrument,
 				Instruments: instruments,
 				Constants: funk.Filter(generators.GetConstants(s.Player.Instrument), func(c generators.Constant) bool {
-					return c.Name != "Frequency"
+					return c.Info != nil && c.Info.Name != "Frequency"
 				}).([]generators.Constant),
 			}
 			err := s.connection.WriteJSON(msg)

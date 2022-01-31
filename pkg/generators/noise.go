@@ -6,6 +6,7 @@ import (
 )
 
 type Noise struct {
+	Info   *Info
 	Amount Generator
 }
 
@@ -20,3 +21,5 @@ func (n Noise) GetValue(t, r uint64) float32 {
 	min := 1.0 - amt
 	return min + random*(max-min)
 }
+
+func (n Noise) GetInfo() *Info { return n.Info }
