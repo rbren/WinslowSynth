@@ -3,6 +3,7 @@ package server
 import (
 	"net/http"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -105,7 +106,11 @@ func (s Server) ChooseAction(msg MessageIn) {
 
 func (s Server) SetAction(msg MessageIn) {
 	logrus.Infof("Set %s to %f", msg.Key, msg.Value)
-	s.Player.Instrument = generators.SetInstrumentConstant(s.Player.Instrument, msg.Key, msg.Value)
+	panic("need group")
+	parts := strings.Split(msg.Key, "/")
+	group := parts[0]
+	name := parts[1]
+	s.Player.Instrument = generators.SetInstrumentConstant(s.Player.Instrument, group, name, msg.Value)
 	generators.SetUpInstrument(s.Player.Instrument)
 }
 

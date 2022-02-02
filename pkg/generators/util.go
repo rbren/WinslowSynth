@@ -18,11 +18,11 @@ func GetPhasePosition(freq Generator, phase Generator, time, releasedAt uint64) 
 }
 
 func SetFrequency(i Instrument, f float32) Instrument {
-	return SetInstrumentConstant(i, "Frequency", f)
+	return SetInstrumentConstant(i, "", "Frequency", f)
 }
 
-func SetInstrumentConstant(i Instrument, name string, value float32) Instrument {
-	g := SetConstant(i, name, value)
+func SetInstrumentConstant(i Instrument, group, name string, value float32) Instrument {
+	g := SetConstant(i, group, name, value)
 	return g.(Instrument)
 }
 
@@ -60,9 +60,9 @@ func GetConstants(g Generator) []Constant {
 	return consts
 }
 
-func SetConstant(g Generator, name string, value float32) Generator {
+func SetConstant(g Generator, group, name string, value float32) Generator {
 	if c, ok := g.(Constant); ok {
-		if c.Info != nil && c.Info.Name == name {
+		if c.Info != nil && c.Info.Name == name && (group == "" || c.Info.Group == group) {
 			c.Value = value
 		}
 		return c
@@ -88,13 +88,13 @@ func SetConstant(g Generator, name string, value float32) Generator {
 		}
 		if tField.Type.Implements(genType) {
 			g2 := curVal.(Generator)
-			newVal := SetConstant(g2, name, value)
+			newVal := SetConstant(g2, group, name, value)
 			vField.Set(reflect.ValueOf(newVal))
 		} else if tField.Type.Implements(listType) {
 			if gList, ok := curVal.([]Generator); ok {
 				newVal := []Generator{}
 				for _, g2 := range gList {
-					newVal = append(newVal, SetConstant(g2.(Generator), name, value))
+					newVal = append(newVal, SetConstant(g2.(Generator), group, name, value))
 				}
 				vField.Set(reflect.ValueOf(newVal))
 			}

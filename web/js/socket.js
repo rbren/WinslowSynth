@@ -44,11 +44,11 @@ window.addEventListener("load", function(evt) {
   }
 });
 
-function updateConstant(name, val) {
-  console.log('update', name, val);
+function updateConstant(group, name, val) {
+  console.log('update', group, name, val);
   clearState();
   ws.send(JSON.stringify({
-    Key: name,
+    Key: group + "/" + name,
     Value: parseFloat(val),
     Action: "set",
   }));
