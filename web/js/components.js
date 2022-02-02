@@ -15,6 +15,20 @@ function drawInstrument(inst) {
   `;
 }
 
+function drawHistories(hists) {
+  console.log('draw hists');
+  return `
+  <div class="history">
+    ${hists.map(drawHistory).join('')}
+  </div>
+    `;
+}
+
+function drawHistory(hist) {
+  console.log('draw hists', hist);
+  window.drawGraph("#Graphs", hist.History);
+}
+
 function drawConstants(consts) {
   const groups = {}
   consts.forEach(c => {

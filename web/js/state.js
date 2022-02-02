@@ -1,14 +1,15 @@
-const STATE_KEYS = ["Time", "Instrument", "Instruments", "Constants"];
+const STATE_KEYS = ["Time", "Instrument", "Instruments", "Constants", "Histories"];
+
 function setState(state) {
   window.freeze = window.freeze || {};
+  state.Histories = findHistories(state.Instrument);
   STATE_KEYS.forEach(key => {
     if (!window.state || JSON.stringify(window.state[key]) !== JSON.stringify(state[key])) {
       var drawKey = "draw" + key;
       console.log('draw',drawKey)
       $("#" + key).html(window[drawKey](state[key]));
     }
-  })
-  findHistories(state.Instrument);
+  });
   window.state = state;
 }
 
@@ -37,12 +38,14 @@ function randomize() {
 }
 
 function findHistories(inst) {
-  if (typeof inst !== 'object') return [];
+  if (!inst || typeof inst !== 'object') return [];
+  let allHistories = [];
   if (inst.Info?.History) {
-    console.log('hist', inst.Info.Name, inst.Info.Group, inst.Info.History);
+    allHistories.push(inst.Info);
   }
   for (let key in inst) {
     if (key === 'Info') continue;
-    return findHistories(inst[key]);
+    allHistories = allHistories.concat(findHistories(inst[key]));
   }
+  return allHistories;
 }
