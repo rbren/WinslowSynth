@@ -1,5 +1,13 @@
 function drawInstruments(names) {
-  return `<ul>${names.map(drawInstrumentChoice).join('')}</ul>`;
+  return `
+    <select onchange="chooseInstrument(this.value)">
+    <option value="">Instruments</option>
+    ${names.map(drawInstrumentChoice).join('')}
+    </select>`;
+}
+
+function drawInstrumentChoice(name) {
+  return `<option value="${name}">${name}</option>`;
 }
 
 function drawTime(t) {
@@ -7,12 +15,8 @@ function drawTime(t) {
 }
 
 function drawInstrument(inst) {
-  const fields = ['Amplitude', 'Frequency', 'Phase', 'Bias'];
-  return `
-    <table>
-    ${fields.map(f => drawField(f, inst[f])).join('')}
-    </table>
-  `;
+  $('h1').html(inst.Info?.Name || "Synthesizer");
+  return "";
 }
 
 function drawHistories(hists) {
@@ -44,10 +48,6 @@ window.drawInstruments = drawInstruments;
 window.drawTime = drawTime;
 window.drawInstrument = drawInstrument;
 window.drawConstants = drawConstants;
-
-function drawInstrumentChoice(name) {
-  return `<li><a href="#" onclick="chooseInstrument('${name}')">${name}</a></li>`;
-}
 
 function drawConstantGroup(name, constants) {
   return `

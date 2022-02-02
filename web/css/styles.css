@@ -2,13 +2,28 @@ body {
   padding: 20px;
 }
 
+#Time {
+  display: none;
+}
+
+#MainControls * {
+  display: inline-block;
+}
+
+#MainControls #Instruments select,
+#MainControls button {
+  width: 200px;
+  height: 30px;
+}
+
 .constant-group {
   display: inline-block;
-  width: 400px;
+  width: 300px;
+  padding: 10px;
 }
 
 .constant {
-  width: 400px;
+  width: 100%;
 }
 
 .constant label {
@@ -36,6 +51,7 @@ body {
 
 .constant .slider {
   height: 12px;
+  width: 120px;
 }
 
 .constant label {
