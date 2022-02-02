@@ -24,7 +24,6 @@ console.log('graph.js');
         .attr("transform",
               "translate(" + margin.left + "," + margin.top + ")");
 
-    /*
     // Add the x Axis
     svg.append("g")
         .attr("transform", "translate(0," + height + ")")
@@ -37,25 +36,25 @@ console.log('graph.js');
     // The eventual data
     svg.append("path")
         .attr("class", "line")
-    */
   }
 
   window.drawGraph = function(id, data) {
     var svg = d3.select(id + " svg");
-    svg.selectAll("*").remove();
-    console.log('draw graph', id, data.length);
-    svg.append("g")
-        .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(x));
 
-    // Add the y Axis
-    svg.append("g")
-        .call(d3.axisLeft(y));
-
-    // The eventual data
-    svg.append("path")
+    svg.selectAll(".line")
         .data([data])
-        .attr("class", "line")
+        .join(
+          enter => {
+            console.log('enter', enter);
+            return enter.append("path").attr("class", "line");
+          },
+          update => {
+            console.log('update', update);
+            return update.attr("d", valueline);
+          },
+          exit => {
+            console.log('exit', exit);
+          })
         .attr("d", valueline);
   }
 
