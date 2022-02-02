@@ -51,5 +51,6 @@ func ParseMidiNote(s string) (InputKey, error) {
 			note.Channel = intVal
 		}
 	}
+	note.Frequency = MidiNotes[note.Key].Frequency
 	return note, nil
 }
