@@ -26,4 +26,5 @@ func (s SquareWave) GetValue(time, releasedAt uint64) float32 {
 	return val * s.Amplitude.GetValue(time, releasedAt)
 }
 
-func (s SquareWave) GetInfo() *Info { return s.Info }
+func (s SquareWave) GetInfo() *Info    { return s.Info }
+func (s SquareWave) SetInfo(info Info) { copyInfo(s.Info, info) }

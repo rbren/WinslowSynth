@@ -40,4 +40,5 @@ func (r Ramp) RampDownVal(t, releasedAt uint64) float32 {
 	return startVal * (1.0 - percentDone)
 }
 
-func (r Ramp) GetInfo() *Info { return r.Info }
+func (r Ramp) GetInfo() *Info    { return r.Info }
+func (r Ramp) SetInfo(info Info) { copyInfo(r.Info, info) }

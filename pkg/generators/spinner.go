@@ -47,4 +47,5 @@ func (s Spinner) SetBias(bias float32) Generator {
 	return ret
 }
 
-func (s Spinner) GetInfo() *Info { return s.Info }
+func (s Spinner) GetInfo() *Info    { return s.Info }
+func (s Spinner) SetInfo(info Info) { copyInfo(s.Info, info) }

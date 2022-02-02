@@ -39,4 +39,5 @@ func (h Harmonic) GetValue(t, r uint64) float32 {
 	return h.Sum.GetValue(t, r)
 }
 
-func (h Harmonic) GetInfo() *Info { return h.Info }
+func (h Harmonic) GetInfo() *Info    { return h.Info }
+func (h Harmonic) SetInfo(info Info) { copyInfo(h.Info, info) }

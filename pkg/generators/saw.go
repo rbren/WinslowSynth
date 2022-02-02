@@ -21,4 +21,5 @@ func (s SawWave) GetValue(time, releasedAt uint64) float32 {
 	return s.Amplitude.GetValue(time, releasedAt) * GetPhasePosition(s.Frequency, s.Phase, time, releasedAt)
 }
 
-func (s SawWave) GetInfo() *Info { return s.Info }
+func (s SawWave) GetInfo() *Info    { return s.Info }
+func (s SawWave) SetInfo(info Info) { copyInfo(s.Info, info) }

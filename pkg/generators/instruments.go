@@ -18,14 +18,14 @@ func BasicSine() Spinner {
 		Frequency: frequencyConst(),
 		Info: &Info{
 			Name: "Basic Sine",
-			//History: getEmptyHistory(),
 		},
-		//Amplitude: BasicADSR(),
+		Amplitude: BasicADSR(),
 	}
 }
 
 func BasicSaw() SawWave {
 	return SawWave{
+		Info:      &Info{Name: "Basic Saw"},
 		Frequency: frequencyConst(),
 		Amplitude: BasicADSR(),
 	}
@@ -33,6 +33,7 @@ func BasicSaw() SawWave {
 
 func BasicSquare() SquareWave {
 	return SquareWave{
+		Info:      &Info{Name: "Basic Square"},
 		Frequency: frequencyConst(),
 		Amplitude: BasicADSR(),
 	}
@@ -71,6 +72,7 @@ func Mega() Instrument {
 func NoisySineWave() Instrument {
 	base := BasicSine()
 	return NoiseFilter{
+		Info:  &Info{Name: "Noisy Sine"},
 		Input: base,
 		Amount: Constant{
 			Info:  &Info{Group: "", Name: "Noise"},
@@ -91,6 +93,7 @@ func Warbler() Spinner {
 		Max:   100.0,
 	}
 	return Spinner{
+		Info:          &Info{Name: "Warbler"},
 		Amplitude:     adsr,
 		DropOnRelease: true,
 		Frequency: Spinner{
@@ -113,6 +116,7 @@ func BasicADSR() ADSR {
 	decayMs := 1000
 	releaseMs := 1000
 	return ADSR{
+		Info:         &Info{Name: "ADSR"},
 		PeakLevel:    Constant{Value: 1.0},
 		SustainLevel: Constant{Value: 0.5},
 		AttackTime:   uint64(attackMs * samplesPerMs),
@@ -124,6 +128,7 @@ func BasicADSR() ADSR {
 func DirtySawWave() Instrument {
 	base := BasicSaw()
 	base.Amplitude = Multiply{
+		Info: &Info{Name: "Dirty Saw"},
 		Generators: []Generator{
 			base.Amplitude,
 			Noise{
@@ -142,6 +147,7 @@ func DirtySawWave() Instrument {
 func HarmonicSpinner() Instrument {
 	base := SimpleRamper()
 	return Harmonic{
+		Info:    &Info{Name: "Harmonic"},
 		Spinner: base,
 		Modes: []Mode{
 			Mode{Frequency: 1.5, Amplitude: .25},
@@ -156,6 +162,7 @@ func AmplitudeRamp() Ramp {
 	rampUpMs := 100
 	rampDownMs := 500
 	return Ramp{
+		Info:     &Info{Name: "Ramper"},
 		RampUp:   uint64(rampUpMs * samplesPerMs),
 		RampDown: uint64(rampDownMs * samplesPerMs),
 		Target:   1.0,
@@ -164,6 +171,7 @@ func AmplitudeRamp() Ramp {
 
 func SimpleRamper() Spinner {
 	g := Spinner{
+		Info:      &Info{Name: "Simple Ramper"},
 		Frequency: frequencyConst(),
 		Amplitude: AmplitudeRamp(),
 		Phase:     Constant{Value: 0.0},

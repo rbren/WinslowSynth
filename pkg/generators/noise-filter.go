@@ -35,4 +35,5 @@ func (n NoiseFilter) GetValue(t, r uint64) float32 {
 	return val
 }
 
-func (n NoiseFilter) GetInfo() *Info { return n.Info }
+func (n NoiseFilter) GetInfo() *Info    { return n.Info }
+func (n NoiseFilter) SetInfo(info Info) { copyInfo(n.Info, info) }

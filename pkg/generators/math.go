@@ -28,6 +28,7 @@ func (m Multiply) GetValue(t, releasedAt uint64) float32 {
 	return val
 }
 
-func (s Sum) GetInfo() *Info { return s.Info }
-
-func (m Multiply) GetInfo() *Info { return m.Info }
+func (s Sum) GetInfo() *Info         { return s.Info }
+func (s Sum) SetInfo(info Info)      { copyInfo(s.Info, info) }
+func (m Multiply) GetInfo() *Info    { return m.Info }
+func (m Multiply) SetInfo(info Info) { copyInfo(m.Info, info) }

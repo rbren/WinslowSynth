@@ -1,6 +1,9 @@
 package generators
 
-import ()
+import (
+	"fmt"
+	"github.com/sirupsen/logrus"
+)
 
 type Info struct {
 	Name            string
@@ -11,6 +14,7 @@ type Info struct {
 
 type Generator interface {
 	GetInfo() *Info
+	SetInfo(Info)
 	GetValue(elapsed uint64, releasedAt uint64) float32
 }
 
@@ -20,4 +24,28 @@ type Instrument interface {
 
 func GetDefaultInstrument() Instrument {
 	return Mega()
+}
+
+func SetUpInstrument(i Instrument) {
+	name := ""
+	if info := i.GetInfo(); info != nil {
+		name = info.Name
+	}
+	fmt.Println("set up", name)
+	i.SetInfo(Info{
+		Name:    name,
+		History: getEmptyHistory(),
+	})
+	fmt.Println("set up", name, i.GetInfo().History)
+}
+
+func copyInfo(dest *Info, src Info) {
+	if dest == nil {
+		logrus.Error("Tried to set info on a nil instrument")
+		return
+	}
+	dest.Name = src.Name
+	dest.Group = src.Group
+	dest.History = src.History
+	dest.HistoryPosition = src.HistoryPosition
 }

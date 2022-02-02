@@ -48,5 +48,5 @@ func (a ADSR) Release(t, r uint64) float32 {
 	percentDone := float32(timeSinceRelease) / float32(a.ReleaseTime)
 	return baseVal * (1.0 - percentDone)
 }
-
-func (a ADSR) GetInfo() *Info { return a.Info }
+func (a ADSR) GetInfo() *Info    { return a.Info }
+func (a ADSR) SetInfo(info Info) { copyInfo(a.Info, info) }

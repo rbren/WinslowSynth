@@ -97,6 +97,7 @@ func (s *Server) startReadLoop() {
 func (s Server) ChooseAction(msg MessageIn) {
 	if inst, ok := generators.Library[msg.Key]; ok {
 		s.Player.Instrument = inst
+		generators.SetUpInstrument(s.Player.Instrument)
 	} else {
 		logrus.Error("instrument not found:", msg.Key)
 	}
@@ -105,6 +106,7 @@ func (s Server) ChooseAction(msg MessageIn) {
 func (s Server) SetAction(msg MessageIn) {
 	logrus.Infof("Set %s to %f", msg.Key, msg.Value)
 	s.Player.Instrument = generators.SetInstrumentConstant(s.Player.Instrument, msg.Key, msg.Value)
+	generators.SetUpInstrument(s.Player.Instrument)
 }
 
 func (s Server) NoteAction(msg MessageIn) {
