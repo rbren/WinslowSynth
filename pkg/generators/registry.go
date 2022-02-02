@@ -13,7 +13,7 @@ var maxReleaseTimeSamples int
 var historyLength int
 
 func init() {
-	historyLength = config.MainConfig.SampleRate / 1000 // store 1 second
+	historyLength = config.MainConfig.SampleRate / 100 // store 1 second
 	maxReleaseTimeSamples = config.MainConfig.SampleRate * 3
 }
 

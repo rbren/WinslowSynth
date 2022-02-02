@@ -27,7 +27,11 @@ func frequencyConst() Constant {
 func BasicSine() Spinner {
 	return Spinner{
 		Frequency: frequencyConst(),
-		Amplitude: BasicADSR(),
+		Info: &Info{
+			Name:    "Basic Sine",
+			History: getEmptyHistory(),
+		},
+		//Amplitude: BasicADSR(),
 	}
 }
 

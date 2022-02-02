@@ -7,7 +7,7 @@ console.log('graph.js');
 
   var x = d3.scaleLinear().range([0, width]);
   var y = d3.scaleLinear().range([height, 0]);
-  x.domain([0, 48]); // TODO: dynamic number of samples
+  x.domain([0, 480]); // TODO: dynamic number of samples
   y.domain([-5.0, 5.0]);
 
   var valueline = d3.line()
