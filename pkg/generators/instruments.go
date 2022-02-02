@@ -65,14 +65,13 @@ func Mega() Instrument {
 	wave1 := AddNoise("Sine", oscSin)
 	wave2 := AddNoise("Saw", oscSaw)
 	wave3 := AddNoise("Square", oscSaw)
-	nf := wave1.(NoiseFilter)
-	nf.Info = &Info{
-		Name: "Sine",
-		//History: getEmptyHistory(),
-	}
 
 	return Sum{
-		Generators: []Generator{nf, wave2, wave3},
+		Info: &Info{
+			Name:    "Mega",
+			History: getEmptyHistory(),
+		},
+		Generators: []Generator{wave1, wave2, wave3},
 	}
 }
 

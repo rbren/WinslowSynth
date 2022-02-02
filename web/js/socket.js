@@ -43,3 +43,22 @@ window.addEventListener("load", function(evt) {
     return true;
   }
 });
+
+function updateConstant(name, val) {
+  console.log('update', name, val);
+  clearState();
+  ws.send(JSON.stringify({
+    Key: name,
+    Value: parseFloat(val),
+    Action: "set",
+  }));
+}
+
+function chooseInstrument(name) {
+  console.log("choose", name);
+  clearState();
+  ws.send(JSON.stringify({
+    Key: name,
+    Action: "choose"
+  }));
+}

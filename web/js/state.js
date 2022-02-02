@@ -8,6 +8,7 @@ function setState(state) {
       $("#" + key).html(window[drawKey](state[key]));
     }
   })
+  findHistories(state.Instrument);
   window.state = state;
 }
 
@@ -35,21 +36,13 @@ function randomize() {
   });
 }
 
-function updateConstant(name, val) {
-  console.log('update', name, val);
-  clearState();
-  ws.send(JSON.stringify({
-    Key: name,
-    Value: parseFloat(val),
-    Action: "set",
-  }));
-}
-
-function chooseInstrument(name) {
-  console.log("choose", name);
-  clearState();
-  ws.send(JSON.stringify({
-    Key: name,
-    Action: "choose"
-  }));
+function findHistories(inst) {
+  if (typeof inst !== 'object') return [];
+  if (inst.Info?.History) {
+    console.log('hist', inst.Info.Name, inst.Info.Group, inst.Info.History);
+  }
+  for (let key in inst) {
+    if (key === 'Info') continue;
+    return findHistories(inst[key]);
+  }
 }

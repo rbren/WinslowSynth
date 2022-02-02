@@ -14,7 +14,7 @@ import (
 	"github.com/rbren/midi/pkg/music"
 )
 
-var sendInterval = 50 * time.Millisecond
+var sendInterval = 500 * time.Millisecond
 
 var upgrader = websocket.Upgrader{} // use default options
 
