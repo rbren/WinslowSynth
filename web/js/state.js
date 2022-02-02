@@ -1,8 +1,7 @@
-const STATE_KEYS = ["Time", "Instrument", "Instruments", "Constants", "Histories"];
+const STATE_KEYS = ["Time", "Instrument", "Instruments", "Constants"];
 
 function setState(state) {
   window.freeze = window.freeze || {};
-  state.Histories = findHistories(state.Instrument);
   state.Constants = findConstants(state.Instrument);
   STATE_KEYS.forEach(key => {
     if (!window.state || JSON.stringify(window.state[key]) !== JSON.stringify(state[key])) {
@@ -10,6 +9,10 @@ function setState(state) {
       $("#" + key).html(window[drawKey](state[key]));
     }
   });
+  const instInfo = state.Instrument.Info;
+  if (instInfo && instInfo.History) {
+    drawHistory(instInfo);
+  }
   window.state = state;
 }
 

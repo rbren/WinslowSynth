@@ -19,18 +19,13 @@ function drawInstrument(inst) {
   return "";
 }
 
-function drawHistories(hists) {
-  console.log('draw hists');
-  return `
-  <div class="history">
-    ${hists.map(drawHistory).join('')}
-  </div>
-    `;
-}
-
 function drawHistory(hist) {
-  console.log('draw hists', hist);
-  window.drawGraph("#Graphs", hist.History);
+  const firstPos = hist.HistoryPosition % hist.History.length;
+  const reordered = hist.History
+    .slice(firstPos, hist.History.length)
+    .concat(hist.History.slice(0, firstPos));
+
+  window.drawGraph("#Graphs", reordered);
 }
 
 function drawConstants(consts) {
