@@ -1,14 +1,6 @@
 package generators
 
-import (
-	"github.com/rbren/midi/pkg/config"
-)
-
 func GetADSR(name string) ADSR {
-	samplesPerMs := config.MainConfig.SampleRate / 1000
-	attackMs := 50
-	decayMs := 1000
-	releaseMs := 1000
 	return ADSR{
 		PeakLevel: Constant{
 			Info:  &Info{Group: name, Name: "Level"},
@@ -22,9 +14,27 @@ func GetADSR(name string) ADSR {
 			Min:   0.0,
 			Max:   1.0,
 		},
-		AttackTime:  uint64(attackMs * samplesPerMs),
-		DecayTime:   uint64(decayMs * samplesPerMs),
-		ReleaseTime: uint64(releaseMs * samplesPerMs),
+		AttackTime: Constant{
+			Info:  &Info{Group: name, Name: "Attack"},
+			Value: 500,
+			Min:   0.0,
+			Max:   10000,
+			Step:  1.0,
+		},
+		DecayTime: Constant{
+			Info:  &Info{Group: name, Name: "Decay"},
+			Value: 1000,
+			Min:   0.0,
+			Max:   10000,
+			Step:  1.0,
+		},
+		ReleaseTime: Constant{
+			Info:  &Info{Group: name, Name: "Release"},
+			Value: 1000,
+			Min:   0.0,
+			Max:   10000,
+			Step:  1.0,
+		},
 	}
 }
 

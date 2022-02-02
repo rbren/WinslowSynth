@@ -19,7 +19,7 @@ func BasicSine() Spinner {
 		Info: &Info{
 			Name: "Basic Sine",
 		},
-		Amplitude: BasicADSR(),
+		Amplitude: GetADSR("adsr"),
 	}
 }
 
@@ -27,7 +27,7 @@ func BasicSaw() SawWave {
 	return SawWave{
 		Info:      &Info{Name: "Basic Saw"},
 		Frequency: frequencyConst(),
-		Amplitude: BasicADSR(),
+		Amplitude: GetADSR("adsr"),
 	}
 }
 
@@ -35,7 +35,7 @@ func BasicSquare() SquareWave {
 	return SquareWave{
 		Info:      &Info{Name: "Basic Square"},
 		Frequency: frequencyConst(),
-		Amplitude: BasicADSR(),
+		Amplitude: GetADSR("adsr"),
 	}
 }
 
@@ -84,7 +84,7 @@ func NoisySineWave() Instrument {
 }
 
 func Warbler() Spinner {
-	adsr := BasicADSR()
+	adsr := GetADSR("adsr")
 	adsrInner := adsr
 	adsrInner.SustainLevel = Constant{
 		Info:  &Info{Group: "", Name: "Warble Amt"},
@@ -107,21 +107,6 @@ func Warbler() Spinner {
 			// setting Bias on this sets the overall freq
 			Bias: frequencyConst(),
 		},
-	}
-}
-
-func BasicADSR() ADSR {
-	samplesPerMs := config.MainConfig.SampleRate / 1000
-	attackMs := 50
-	decayMs := 1000
-	releaseMs := 1000
-	return ADSR{
-		Info:         &Info{Name: "ADSR"},
-		PeakLevel:    Constant{Value: 1.0},
-		SustainLevel: Constant{Value: 0.5},
-		AttackTime:   uint64(attackMs * samplesPerMs),
-		DecayTime:    uint64(decayMs * samplesPerMs),
-		ReleaseTime:  uint64(releaseMs * samplesPerMs),
 	}
 }
 

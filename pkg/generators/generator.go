@@ -1,7 +1,6 @@
 package generators
 
 import (
-	"fmt"
 	"github.com/sirupsen/logrus"
 )
 
@@ -31,12 +30,10 @@ func SetUpInstrument(i Instrument) {
 	if info := i.GetInfo(); info != nil {
 		name = info.Name
 	}
-	fmt.Println("set up", name)
 	i.SetInfo(Info{
 		Name:    name,
 		History: getEmptyHistory(),
 	})
-	fmt.Println("set up", name, i.GetInfo().History)
 }
 
 func copyInfo(dest *Info, src Info) {

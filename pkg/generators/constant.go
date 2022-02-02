@@ -5,6 +5,7 @@ type Constant struct {
 	Value float32
 	Min   float32
 	Max   float32
+	Step  float32
 }
 
 func (c Constant) GetValue(t, r uint64) float32 {
