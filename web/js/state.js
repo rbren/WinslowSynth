@@ -20,16 +20,17 @@ function clearState() {
   window.state = null;
 }
 
-function toggleFreeze(name, val) {
-  console.log('freeze', name, val);
-  window.freeze[name] = !window.freeze[name];
+function toggleFreeze(group, name, val) {
+  console.log('freeze', group, name, val);
+  window.freeze[group + '/' + name] = val;
 }
 
 function randomize() {
   $('.constant').each(function(i, div) {
     const e = $(this);
     const [group, name] = e.find('label').attr('title').split('/');
-    const freeze = window.freeze[name];
+    const key = group + '/' + name;
+    const freeze = window.freeze[key];
     if (freeze) return;
     const inpt = e.find('input[type="number"]');
     console.log('name', name, inpt.val(), freeze);

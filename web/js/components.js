@@ -84,7 +84,7 @@ function drawConstant(constant) {
         ${props}
         >
       <input type="checkbox"
-        onchange="toggleFreeze('${constant.Info.Name}', this.value)"
+        onchange="toggleFreeze('${constant.Info.Group}', '${constant.Info.Name}', this.checked)"
         ${window.freeze[constant.Info.Name] ? 'checked' : ''}>
     </div>
   </div>
