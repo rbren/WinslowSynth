@@ -1,9 +1,5 @@
 package generators
 
-import (
-	"fmt"
-)
-
 type ADSR struct {
 	Info         *Info
 	PeakLevel    Constant
@@ -17,7 +13,7 @@ func (a ADSR) GetValue(t, r uint64) float32 {
 	if t < a.AttackTime {
 		return a.Attack(t, r)
 	}
-	if t < a.DecayTime {
+	if t < a.AttackTime+a.DecayTime {
 		return a.Decay(t, r)
 	}
 	if r == 0 {
