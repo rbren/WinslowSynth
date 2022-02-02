@@ -60,7 +60,7 @@ func Mega() Instrument {
 	wave2 := AddNoise("Saw", oscSaw)
 	wave3 := AddNoise("Square", oscSqr)
 
-	return Sum{
+	return Average{
 		Info: &Info{
 			Name:    "Mega",
 			History: getEmptyHistory(),

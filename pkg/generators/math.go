@@ -2,7 +2,7 @@ package generators
 
 import ()
 
-type Sum struct {
+type Average struct {
 	Info       *Info
 	Generators []Generator
 }
@@ -12,12 +12,15 @@ type Multiply struct {
 	Generators []Generator
 }
 
-func (s Sum) GetValue(t, releasedAt uint64) float32 {
+func (s Average) GetValue(t, releasedAt uint64) float32 {
+	if len(s.Generators) == 0 {
+		return 0.0
+	}
 	var val float32 = 0.0
 	for _, gen := range s.Generators {
 		val += gen.GetValue(t, releasedAt)
 	}
-	return val
+	return val / float32(len(s.Generators))
 }
 
 func (m Multiply) GetValue(t, releasedAt uint64) float32 {
@@ -28,7 +31,7 @@ func (m Multiply) GetValue(t, releasedAt uint64) float32 {
 	return val
 }
 
-func (s Sum) GetInfo() *Info         { return s.Info }
-func (s Sum) SetInfo(info Info)      { copyInfo(s.Info, info) }
+func (s Average) GetInfo() *Info     { return s.Info }
+func (s Average) SetInfo(info Info)  { copyInfo(s.Info, info) }
 func (m Multiply) GetInfo() *Info    { return m.Info }
 func (m Multiply) SetInfo(info Info) { copyInfo(m.Info, info) }

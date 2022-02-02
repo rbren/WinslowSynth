@@ -4,7 +4,7 @@ type Harmonic struct {
 	Info    *Info
 	Modes   []Mode
 	Spinner Spinner
-	Sum     Sum
+	Average     Average
 }
 
 type Mode struct {
@@ -13,10 +13,10 @@ type Mode struct {
 }
 
 func (h *Harmonic) initialize(force bool) {
-	if !force && len(h.Sum.Generators) == len(h.Modes) {
+	if !force && len(h.Average.Generators) == len(h.Modes) {
 		return
 	}
-	toSum := []Generator{h.Spinner}
+	toAverage := []Generator{h.Spinner}
 	for _, mode := range h.Modes {
 		amp := Multiply{
 			Generators: []Generator{h.Spinner.Amplitude, Constant{Value: mode.Amplitude}},
@@ -29,14 +29,14 @@ func (h *Harmonic) initialize(force bool) {
 			Frequency: freq,
 			Phase:     h.Spinner.Phase,
 		}
-		toSum = append(toSum, modeGenerator)
+		toAverage = append(toAverage, modeGenerator)
 	}
-	h.Sum = Sum{Generators: toSum}
+	h.Average = Average{Generators: toAverage}
 }
 
 func (h Harmonic) GetValue(t, r uint64) float32 {
 	h.initialize(false)
-	return h.Sum.GetValue(t, r)
+	return h.Average.GetValue(t, r)
 }
 
 func (h Harmonic) GetInfo() *Info    { return h.Info }

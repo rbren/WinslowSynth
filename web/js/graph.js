@@ -1,12 +1,12 @@
 (function() {
-  const margin = {top: 20, right: 0, bottom: 20, left: 20},
+  const margin = {top: 20, right: 0, bottom: 20, left: 30},
       width = 400 - margin.left - margin.right,
       height = 200 - margin.top - margin.bottom;
 
   var x = d3.scaleLinear().range([0, width]);
   var y = d3.scaleLinear().range([height, 0]);
   x.domain([0, 480]); // TODO: dynamic number of samples
-  y.domain([-5.0, 5.0]);
+  y.domain([-1.0, 1.0]);
 
   var valueline = d3.line()
       .x(function(d, idx) { return x(idx); })
