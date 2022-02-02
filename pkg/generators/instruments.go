@@ -4,17 +4,6 @@ import (
 	"github.com/rbren/midi/pkg/config"
 )
 
-var Library = map[string]Instrument{
-	"warbler":     Warbler(),
-	"sine":        BasicSine(),
-	"saw":         BasicSaw(),
-	"square":      BasicSquare(),
-	"dirty":       DirtySawWave(),
-	"harmonic":    HarmonicSpinner(),
-	"noiseFilter": NoisySineWave(),
-	"mega":        Mega(),
-}
-
 func frequencyConst() Constant {
 	return Constant{
 		Info:  &Info{Group: "", Name: "Frequency"},
@@ -28,8 +17,8 @@ func BasicSine() Spinner {
 	return Spinner{
 		Frequency: frequencyConst(),
 		Info: &Info{
-			Name:    "Basic Sine",
-			History: getEmptyHistory(),
+			Name: "Basic Sine",
+			//History: getEmptyHistory(),
 		},
 		//Amplitude: BasicADSR(),
 	}

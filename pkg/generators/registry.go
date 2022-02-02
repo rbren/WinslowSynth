@@ -11,10 +11,21 @@ import (
 
 var maxReleaseTimeSamples int
 var historyLength int
+var Library = map[string]Instrument{}
 
 func init() {
 	historyLength = config.MainConfig.SampleRate / 100 // store 1 second
 	maxReleaseTimeSamples = config.MainConfig.SampleRate * 3
+	Library = map[string]Instrument{
+		"warbler":     Warbler(),
+		"sine":        BasicSine(),
+		"saw":         BasicSaw(),
+		"square":      BasicSquare(),
+		"dirty":       DirtySawWave(),
+		"harmonic":    HarmonicSpinner(),
+		"noiseFilter": NoisySineWave(),
+		"mega":        Mega(),
+	}
 }
 
 type Registry struct {
