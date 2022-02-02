@@ -57,7 +57,7 @@ func Mega() Instrument {
 
 	wave1 := AddNoise("Sine", oscSin)
 	wave2 := AddNoise("Saw", oscSaw)
-	wave3 := AddNoise("Square", oscSaw)
+	wave3 := AddNoise("Square", oscSqr)
 
 	return Sum{
 		Info: &Info{
