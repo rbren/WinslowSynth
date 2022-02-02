@@ -70,17 +70,20 @@ function drawConstant(constant) {
   return `
   <div class="constant">
     <label>${constant.Info.Name}</label>
-    <br>
-    <input
-      class="slider"
-      type="range"
-      ${props}
-      >
-    <input
-      type="number"
-      ${props}
-      >
-    <input type="checkbox" onchange="toggleFreeze('${constant.Info.Name}', this.value)" ${window.freeze[constant.Info.Name] ? 'checked' : ''}>
+    <div class="controls">
+      <input
+        class="slider"
+        type="range"
+        ${props}
+        >
+      <input
+        type="number"
+        ${props}
+        >
+      <input type="checkbox"
+        onchange="toggleFreeze('${constant.Info.Name}', this.value)"
+        ${window.freeze[constant.Info.Name] ? 'checked' : ''}>
+    </div>
   </div>
   `
 }

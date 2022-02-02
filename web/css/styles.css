@@ -7,12 +7,39 @@ body {
   width: 400px;
 }
 
+.constant {
+  width: 400px;
+}
+
+.constant label {
+  width: 25%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.constant .controls {
+  width: 75%;
+  margin-top: -8px;
+  display: inline;
+}
+
 .constant input {
   display: inline;
 }
 
 .constant input[type="number"] {
-  max-width: 60px;
+  height: 20px;
+  font-size: 12px;
+  max-width: 50px;
+}
+
+.constant .slider {
+  height: 12px;
+}
+
+.constant label {
+  font-size: 14px;
 }
 
 .line {
