@@ -69,7 +69,7 @@ function drawConstant(constant) {
       `;
   return `
   <div class="constant">
-    <label>${constant.Info.Name}</label>
+    <label title="${constant.Info.Name}">${constant.Info.Name}</label>
     <div class="controls">
       <input
         class="slider"
