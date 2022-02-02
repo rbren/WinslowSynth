@@ -19,5 +19,5 @@ type Instrument interface {
 }
 
 func GetDefaultInstrument() Instrument {
-	return BasicSine()
+	return Mega()
 }

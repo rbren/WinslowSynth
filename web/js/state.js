@@ -51,12 +51,13 @@ function findHistories(inst) {
 }
 
 function isConst(inst) {
-  if (!inst) return false
-  if (!inst.Info?.Name) return false
-  if (inst.Value === undefined) return false
-  if (inst.Min === undefined) return false
-  if (inst.Max === undefined) return false
-  return true
+  if (!inst) return false;
+  if (!inst.Info?.Name) return false;
+  if (inst.Info.Name === 'Frequency') return false;
+  if (inst.Value === undefined) return false;
+  if (inst.Min === undefined) return false;
+  if (inst.Max === undefined) return false;
+  return true;
 }
 
 function findConstants(inst) {
