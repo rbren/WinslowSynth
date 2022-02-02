@@ -16,16 +16,16 @@ func GetADSR(name string) ADSR {
 		},
 		AttackTime: Constant{
 			Info:  &Info{Group: name, Name: "Attack"},
-			Value: 500,
+			Value: 300,
 			Min:   0.0,
-			Max:   3000,
+			Max:   1000,
 			Step:  1.0,
 		},
 		DecayTime: Constant{
 			Info:  &Info{Group: name, Name: "Decay"},
-			Value: 1000,
+			Value: 500,
 			Min:   0.0,
-			Max:   3000,
+			Max:   1000,
 			Step:  1.0,
 		},
 		ReleaseTime: Constant{
