@@ -68,11 +68,11 @@ function drawConstant(constant) {
       min="${constant.Min}"
       max="${constant.Max}"
       value="${constant.Value}"
-      onchange="updateConstant('${constant.Info.Name}', this.value)"
+      onchange="updateConstant('${constant.Info.Group}', '${constant.Info.Name}', this.value)"
       `;
   return `
   <div class="constant">
-    <label title="${constant.Info.Name}">${constant.Info.Name}</label>
+    <label title="${constant.Info.Group}/${constant.Info.Name}">${constant.Info.Name}</label>
     <div class="controls">
       <input
         class="slider"

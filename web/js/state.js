@@ -28,7 +28,7 @@ function toggleFreeze(name, val) {
 function randomize() {
   $('.constant').each(function(i, div) {
     const e = $(this);
-    const name = e.find('label').text();
+    const [group, name] = e.find('label').attr('title').split('/');
     const freeze = window.freeze[name];
     if (freeze) return;
     const inpt = e.find('input[type="number"]');
@@ -36,7 +36,7 @@ function randomize() {
     const min = parseFloat(inpt.attr('min'))
     const max = parseFloat(inpt.attr('max'))
     const rand = min + Math.random() * (max - min);
-    updateConstant(name, rand);
+    updateConstant(group, name, rand);
   });
 }
 

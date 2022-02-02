@@ -106,7 +106,6 @@ func (s Server) ChooseAction(msg MessageIn) {
 
 func (s Server) SetAction(msg MessageIn) {
 	logrus.Infof("Set %s to %f", msg.Key, msg.Value)
-	panic("need group")
 	parts := strings.Split(msg.Key, "/")
 	group := parts[0]
 	name := parts[1]
