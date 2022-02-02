@@ -67,7 +67,6 @@ function drawConstant(constant) {
       value="${constant.Value}"
       onchange="updateConstant('${constant.Info.Name}', this.value)"
       `;
-  console.log('draw', constant.Info.Name, window.freeze, window.freeze[constant.Info.Name]);
   return `
   <div class="constant">
     <label>${constant.Info.Name}</label>
