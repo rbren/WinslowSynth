@@ -45,7 +45,9 @@ func (s *Server) Initialize() {
 	go s.startWriteLoop()
 	http.HandleFunc("/connect", s.connect)
 	http.Handle("/", http.FileServer(http.Dir("web")))
-	go http.ListenAndServe(":8080", nil)
+	go func() {
+		logrus.Fatal(http.ListenAndServe(":8080", nil))
+	}()
 	logrus.Info("started listening")
 }
 
