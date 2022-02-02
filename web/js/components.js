@@ -62,7 +62,7 @@ function drawConstantGroup(name, constants) {
 }
 
 function drawConstant(constant) {
-  step = (constant.Max - constant.Min) / 100.0
+  step = constant.Step || (constant.Max - constant.Min) / 100.0
   props = `
       step="${step}"
       min="${constant.Min}"
