@@ -2,6 +2,15 @@ body {
   padding: 20px;
 }
 
+#StatusBar {
+  margin-bottom: 20px;
+}
+
+h1 {
+  display: inline;
+  margin-right: 20px;
+}
+
 #Time {
   display: none;
 }

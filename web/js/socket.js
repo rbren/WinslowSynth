@@ -3,11 +3,11 @@ window.addEventListener("load", function(evt) {
   console.log("load");
   var ws = window.ws = new WebSocket("ws://" + window.location.host + "/connect");
   ws.onopen = function(evt) {
-    console.log("OPEN");
+    $('#Status').html(drawStatus(true));
   }
   ws.onclose = function(evt) {
-    console.log("CLOSE");
     ws = null;
+    $('#Status').html(drawStatus(false));
   }
   ws.onmessage = function(evt) {
     //console.log("RESPONSE: " + evt.data);

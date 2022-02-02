@@ -14,8 +14,16 @@ function drawTime(t) {
   return t;
 }
 
+function drawStatus(ok) {
+  return `
+  <span class="badge bg-${ok ? 'success' : 'danger'}">
+  ${ok ? 'Connected' : 'Disconnected'}
+  </span>
+  `
+}
+
 function drawInstrument(inst) {
-  $('h1').html(inst.Info?.Name || "Synthesizer");
+  $('#Title').html(inst.Info?.Name || "Synthesizer");
   return "";
 }
 
