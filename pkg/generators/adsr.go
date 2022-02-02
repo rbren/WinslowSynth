@@ -1,5 +1,9 @@
 package generators
 
+import (
+	"fmt"
+)
+
 type ADSR struct {
 	Info         *Info
 	PeakLevel    Constant
@@ -10,13 +14,13 @@ type ADSR struct {
 }
 
 func (a ADSR) GetValue(t, r uint64) float32 {
+	if t < a.AttackTime {
+		return a.Attack(t, r)
+	}
+	if t < a.DecayTime {
+		return a.Decay(t, r)
+	}
 	if r == 0 {
-		if t < a.AttackTime {
-			return a.Attack(t, r)
-		}
-		if t < a.DecayTime {
-			return a.Decay(t, r)
-		}
 		return a.SustainLevel.GetValue(t, r)
 	}
 	return a.Release(t, r)
@@ -40,11 +44,6 @@ func (a ADSR) Release(t, r uint64) float32 {
 		return 0.0
 	}
 	baseVal := a.SustainLevel.GetValue(t, r)
-	if t < a.AttackTime {
-		baseVal = a.Attack(r, r)
-	} else if t < a.DecayTime {
-		baseVal = a.Decay(r, r)
-	}
 	percentDone := float32(timeSinceRelease) / float32(a.ReleaseTime)
 	return baseVal * (1.0 - percentDone)
 }
