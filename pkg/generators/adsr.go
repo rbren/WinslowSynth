@@ -23,7 +23,8 @@ func (a ADSR) GetValue(t, r uint64) float32 {
 	if t < attackTime {
 		return a.Attack(t, r)
 	}
-	if t < attackTime+getTimeInSamples(a.DecayTime.GetValue(t, r)) {
+	decayTime := getTimeInSamples(a.DecayTime.GetValue(t, r))
+	if t < attackTime+decayTime {
 		return a.Decay(t, r)
 	}
 	if r == 0 {
@@ -45,7 +46,12 @@ func (a ADSR) Decay(t, r uint64) float32 {
 }
 
 func (a ADSR) Release(t, r uint64) float32 {
-	timeSinceRelease := t - r
+	minTimeOfRelease := getTimeInSamples(a.AttackTime.GetValue(t, r) + a.DecayTime.GetValue(t, r))
+	timeOfRelease := r
+	if timeOfRelease < minTimeOfRelease {
+		timeOfRelease = minTimeOfRelease
+	}
+	timeSinceRelease := t - timeOfRelease
 	desiredReleaseTime := getTimeInSamples(a.ReleaseTime.GetValue(t, r))
 	if timeSinceRelease > desiredReleaseTime {
 		return 0.0
