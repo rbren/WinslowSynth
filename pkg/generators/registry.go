@@ -30,7 +30,7 @@ func init() {
 
 type Registry struct {
 	Events map[int64]*Event
-	lock   sync.Mutex
+	lock   *sync.Mutex
 }
 
 func NewRegistry() Registry {
