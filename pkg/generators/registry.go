@@ -1,7 +1,6 @@
 package generators
 
 import (
-	"container/list"
 	"sync"
 
 	"github.com/sirupsen/logrus"
@@ -104,16 +103,15 @@ func (r Registry) GetSamples(absoluteTime uint64, numSamples int) []float32 {
 	return samples
 }
 
+func getEmptyHistory() []float32 {
+	return make([]float32, historyLength)
+}
+
 func addHistory(g Generator, val float32) {
 	i := g.GetInfo()
-	if i == nil {
+	if i == nil || i.History == nil {
 		return
 	}
-	if i.History == nil {
-		i.History = list.New()
-	}
-	i.History.PushBack(val)
-	if i.History.Len() > historyLength {
-		i.History.Remove(i.History.Front())
-	}
+	i.History[i.HistoryPosition] = val
+	i.HistoryPosition = (i.HistoryPosition + 1) % historyLength
 }

@@ -62,12 +62,17 @@ func Mega() Instrument {
 	oscSaw.Amplitude = GetLFO("Saw", oscSaw.Amplitude)
 	oscSqr.Amplitude = GetLFO("Square", oscSqr.Amplitude)
 
+	wave1 := AddNoise("Sine", oscSin)
+	wave2 := AddNoise("Saw", oscSaw)
+	wave3 := AddNoise("Square", oscSaw)
+	nf := wave1.(NoiseFilter)
+	nf.Info = &Info{
+		Name: "Sine",
+		//History: getEmptyHistory(),
+	}
+
 	return Sum{
-		Generators: []Generator{
-			AddNoise("Sine", oscSin),
-			AddNoise("Saw", oscSaw),
-			AddNoise("Square", oscSqr),
-		},
+		Generators: []Generator{nf, wave2, wave3},
 	}
 }
 

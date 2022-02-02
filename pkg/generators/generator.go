@@ -1,13 +1,12 @@
 package generators
 
-import (
-	"container/list"
-)
+import ()
 
 type Info struct {
-	Name    string
-	Group   string
-	History *list.List
+	Name            string
+	Group           string
+	History         []float32
+	HistoryPosition int
 }
 
 type Generator interface {
