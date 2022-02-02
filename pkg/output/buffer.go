@@ -94,34 +94,11 @@ func (m CircularAudioBuffer) Write(left []float32, right []float32) (n int, err 
 			return numWritten, errors.New("Caught up to the reader!")
 		}
 	}
-	//logrus.Info("write", len(p), numWritten)
 	return numWritten, nil
 }
 
 func (m CircularAudioBuffer) WriteAudio(left []float32, right []float32) (n int, err error) {
 	return m.Write(left, right)
-
-	/*
-		buf := make([]byte, 2*2*len(left))
-		channels := [][]float32{left, right}
-		for c := range channels {
-			for i := range channels[c] {
-				val := channels[c][i]
-				if val < -1 {
-					val = -1
-				}
-				if val > +1 {
-					val = +1
-				}
-				valInt16 := int16(val * (1<<15 - 1))
-				low := byte(valInt16)
-				high := byte(valInt16 >> 8)
-				buf[i*4+c*2+0] = low
-				buf[i*4+c*2+1] = high
-			}
-		}
-		return m.Write(buf)
-	*/
 }
 
 func (m CircularAudioBuffer) ReadAudio(out [][]float32) {
