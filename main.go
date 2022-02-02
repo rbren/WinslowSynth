@@ -16,32 +16,13 @@ import (
 
 const useServer = true
 
-func merge(cs ...chan input.InputKey) chan input.InputKey {
-	out := make(chan input.InputKey)
-
-	for _, c := range cs {
-		go func(c chan input.InputKey) {
-			for v := range c {
-				out <- v
-			}
-		}(c)
-	}
-	return out
-}
-
 func startServer() {
 	s := server.Server{}
 	s.Initialize()
-	serverNotes, err := s.StartListening()
+	notes, err := s.StartListening()
 	closeOnExit(s)
 	must(err)
-
-	inputDevice, cmdNotes, err := input.StartBestInputDevice()
-	defer inputDevice.Close()
-	closeOnExit(inputDevice)
-	must(err)
-
-	player, out := startOutput(merge(serverNotes, cmdNotes))
+	player, out := startOutput(notes)
 	defer out.Close()
 	s.Player = player
 
