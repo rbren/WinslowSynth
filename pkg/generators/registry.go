@@ -77,8 +77,8 @@ func (r Registry) Release(key int64, time uint64, g Generator) {
 }
 
 func (r Registry) ClearOldEvents(absoluteTime uint64) {
-	r.lock.Lock()
-	defer r.lock.Unlock()
+	//r.lock.Lock()
+	//defer r.lock.Unlock()
 	remove := []int64{}
 	for key, event := range r.Events {
 		if event.ReleaseTime == 0 {
@@ -95,6 +95,8 @@ func (r Registry) ClearOldEvents(absoluteTime uint64) {
 }
 
 func (r Registry) GetSamples(absoluteTime uint64, numSamples int) []float32 {
+	r.lock.Lock()
+	defer r.lock.Unlock()
 	r.ClearOldEvents(absoluteTime) // TODO: put this on its own loop
 	samples := make([]float32, numSamples)
 	for _, event := range r.Events {
