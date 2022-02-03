@@ -14,7 +14,7 @@ var historyLength int
 var Library = map[string]Instrument{}
 
 func init() {
-	historyLength = config.MainConfig.SampleRate / 100 // store 1 second
+	historyLength = 50 * (config.MainConfig.SampleRate / 1000) // store 50ms
 	maxReleaseTimeSamples = config.MainConfig.SampleRate * 10
 	Library = map[string]Instrument{
 		"warbler":     Warbler(),
