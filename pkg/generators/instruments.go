@@ -13,8 +13,8 @@ func frequencyConst() Constant {
 	}
 }
 
-func BasicSine() Spinner {
-	return Spinner{
+func BasicSine() Oscillator {
+	return Oscillator{
 		Frequency: frequencyConst(),
 		Info: &Info{
 			Name: "Basic Sine",
@@ -23,17 +23,19 @@ func BasicSine() Spinner {
 	}
 }
 
-func BasicSaw() SawWave {
-	return SawWave{
+func BasicSaw() Oscillator {
+	return Oscillator{
 		Info:      &Info{Name: "Basic Saw"},
+		Shape:     SawShape,
 		Frequency: frequencyConst(),
 		Amplitude: GetADSR("adsr"),
 	}
 }
 
-func BasicSquare() SquareWave {
-	return SquareWave{
+func BasicSquare() Oscillator {
+	return Oscillator{
 		Info:      &Info{Name: "Basic Square"},
+		Shape:     SquareShape,
 		Frequency: frequencyConst(),
 		Amplitude: GetADSR("adsr"),
 	}
@@ -87,7 +89,7 @@ func NoisySineWave() Instrument {
 	}
 }
 
-func Warbler() Spinner {
+func Warbler() Oscillator {
 	adsr := GetADSR("adsr")
 	adsrInner := adsr
 	adsrInner.SustainLevel = Constant{
@@ -96,11 +98,11 @@ func Warbler() Spinner {
 		Min:   0.0,
 		Max:   100.0,
 	}
-	return Spinner{
+	return Oscillator{
 		Info:          &Info{Name: "Warbler"},
 		Amplitude:     adsr,
 		DropOnRelease: true,
-		Frequency: Spinner{
+		Frequency: Oscillator{
 			Amplitude: adsrInner,
 			Frequency: Constant{
 				Info:  &Info{Group: "", Name: "Warble Speed"},
@@ -133,11 +135,11 @@ func DirtySawWave() Instrument {
 	return base
 }
 
-func HarmonicSpinner() Instrument {
+func HarmonicOscillator() Instrument {
 	base := SimpleRamper()
 	return Harmonic{
-		Info:    &Info{Name: "Harmonic"},
-		Spinner: base,
+		Info:       &Info{Name: "Harmonic"},
+		Oscillator: base,
 		Modes: []Mode{
 			Mode{Frequency: 1.5, Amplitude: .25},
 			Mode{Frequency: 2.0, Amplitude: .15},
@@ -158,8 +160,8 @@ func AmplitudeRamp() Ramp {
 	}
 }
 
-func SimpleRamper() Spinner {
-	g := Spinner{
+func SimpleRamper() Oscillator {
+	g := Oscillator{
 		Info:      &Info{Name: "Simple Ramper"},
 		Frequency: frequencyConst(),
 		Amplitude: AmplitudeRamp(),

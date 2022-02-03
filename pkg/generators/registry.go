@@ -22,7 +22,7 @@ func init() {
 		"saw":         BasicSaw(),
 		"square":      BasicSquare(),
 		"dirty":       DirtySawWave(),
-		"harmonic":    HarmonicSpinner(),
+		"harmonic":    HarmonicOscillator(),
 		"noiseFilter": NoisySineWave(),
 		"mega":        Mega(),
 	}

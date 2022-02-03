@@ -74,7 +74,7 @@ func GetLFO(name string, amplitude Generator) Instrument {
 	return Multiply{
 		Generators: []Generator{
 			amplitude,
-			Spinner{
+			Oscillator{
 				Bias: Constant{Value: 1.0},
 				Amplitude: Constant{
 					Info:  &Info{Group: name, Name: "LFO strength"},
