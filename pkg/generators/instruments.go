@@ -60,6 +60,10 @@ func Mega() Instrument {
 	wave2 := AddNoise("Saw", oscSaw)
 	wave3 := AddNoise("Square", oscSqr)
 
+	wave1 = AddLevel("Sine", wave1)
+	wave2 = AddLevel("Saw", wave2)
+	wave3 = AddLevel("Square", wave3)
+
 	return Average{
 		Info: &Info{
 			Name:    "Mega",

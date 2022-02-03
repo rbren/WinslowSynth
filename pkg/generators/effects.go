@@ -1,9 +1,27 @@
 package generators
 
+func AddLevel(name string, inst Instrument) Instrument {
+	return Multiply{
+		Info: &Info{Group: name},
+		Generators: []Generator{
+			Constant{
+				Info: &Info{
+					Name:  "Level",
+					Group: name,
+				},
+				Value: 1.0,
+				Min:   0.0,
+				Max:   1.0,
+			},
+			inst,
+		},
+	}
+}
+
 func GetADSR(name string) ADSR {
 	return ADSR{
 		PeakLevel: Constant{
-			Info:  &Info{Group: name, Name: "Level"},
+			Info:  &Info{Group: name, Name: "Peak"},
 			Value: 1.0,
 			Min:   0.0,
 			Max:   1.0,
