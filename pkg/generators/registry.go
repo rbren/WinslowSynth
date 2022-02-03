@@ -36,6 +36,7 @@ type Registry struct {
 func NewRegistry() Registry {
 	return Registry{
 		Events: map[int64]*Event{},
+		lock:   &sync.Mutex{},
 	}
 }
 
