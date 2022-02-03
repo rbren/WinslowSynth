@@ -1,5 +1,20 @@
 package generators
 
+func TheWorks(name string, shape OscillatorShape) Instrument {
+	osc := Oscillator{
+		Info: &Info{
+			Name:  name,
+			Group: name,
+		},
+		Frequency: GetHarmonicConstant(name),
+		Amplitude: GetLFO(name, GetADSR(name)),
+		Shape:     shape,
+	}
+	inst := AddNoise(name, osc)
+	inst = AddLevel(name, inst)
+	return inst
+}
+
 func AddLevel(name string, inst Instrument) Instrument {
 	return Multiply{
 		Info: &Info{Group: name},

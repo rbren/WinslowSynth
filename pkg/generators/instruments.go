@@ -42,29 +42,9 @@ func BasicSquare() Oscillator {
 }
 
 func Mega() Instrument {
-	oscSin := BasicSine()
-	oscSaw := BasicSaw()
-	oscSqr := BasicSquare()
-
-	oscSin.Frequency = GetHarmonicConstant("Sine")
-	oscSaw.Frequency = GetHarmonicConstant("Saw")
-	oscSqr.Frequency = GetHarmonicConstant("Square")
-
-	oscSin.Amplitude = GetADSR("Sine")
-	oscSaw.Amplitude = GetADSR("Saw")
-	oscSqr.Amplitude = GetADSR("Square")
-
-	oscSin.Amplitude = GetLFO("Sine", oscSin.Amplitude)
-	oscSaw.Amplitude = GetLFO("Saw", oscSaw.Amplitude)
-	oscSqr.Amplitude = GetLFO("Square", oscSqr.Amplitude)
-
-	wave1 := AddNoise("Sine", oscSin)
-	wave2 := AddNoise("Saw", oscSaw)
-	wave3 := AddNoise("Square", oscSqr)
-
-	wave1 = AddLevel("Sine", wave1)
-	wave2 = AddLevel("Saw", wave2)
-	wave3 = AddLevel("Square", wave3)
+	wave1 := TheWorks("Sine", WaveShape)
+	wave2 := TheWorks("Saw", SawShape)
+	wave3 := TheWorks("Square", SquareShape)
 
 	return Average{
 		Info: &Info{
