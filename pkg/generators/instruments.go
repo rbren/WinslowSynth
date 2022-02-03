@@ -1,6 +1,8 @@
 package generators
 
 import (
+	"fmt"
+
 	"github.com/rbren/midi/pkg/config"
 )
 
@@ -41,17 +43,31 @@ func BasicSquare() Oscillator {
 	}
 }
 
+const numMegaOscillators = 1
+
 func Mega() Instrument {
-	wave1 := TheWorks("Sine", WaveShape)
-	wave2 := TheWorks("Saw", SawShape)
-	wave3 := TheWorks("Square", SquareShape)
+	waves := []Generator{}
+
+	if numMegaOscillators > 1 {
+		for i := 0; i < 30; i++ {
+			wave1 := TheWorks(fmt.Sprintf("Sine%d", i), WaveShape)
+			wave2 := TheWorks(fmt.Sprintf("Saw%d", i), SawShape)
+			wave3 := TheWorks(fmt.Sprintf("Square%d", i), SquareShape)
+			waves = append(waves, wave1, wave2, wave3)
+		}
+	} else {
+		wave1 := TheWorks("Sine", WaveShape)
+		wave2 := TheWorks("Saw", SawShape)
+		wave3 := TheWorks("Square", SquareShape)
+		waves = append(waves, wave1, wave2, wave3)
+	}
 
 	return Average{
 		Info: &Info{
 			Name:    "Mega",
 			History: getEmptyHistory(),
 		},
-		Generators: []Generator{wave1, wave2, wave3},
+		Generators: waves,
 	}
 }
 
