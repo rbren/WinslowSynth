@@ -73,16 +73,14 @@ func Mega() Instrument {
 
 func NoisySineWave() Instrument {
 	base := BasicSine()
-	return NoiseFilter{
-		Info:  &Info{Name: "Noisy Sine"},
-		Input: base,
-		Amount: Constant{
-			Info:  &Info{Group: "", Name: "Noise"},
-			Value: .2,
-			Min:   0.0,
-			Max:   1.0,
-		},
-	}
+	filter := NewNoiseFilter(base, Constant{
+		Info:  &Info{Group: "", Name: "Noise"},
+		Value: .2,
+		Min:   0.0,
+		Max:   1.0,
+	})
+	filter.Info.Name = "Noisy Sine"
+	return filter
 }
 
 func Warbler() Oscillator {

@@ -109,13 +109,10 @@ func GetLFO(name string, amplitude Generator) Instrument {
 }
 
 func AddNoise(name string, base Generator) Instrument {
-	return NoiseFilter{
-		Input: base,
-		Amount: Constant{
-			Info:  &Info{Group: name, Name: "Noise"},
-			Value: 0.0,
-			Min:   0.0,
-			Max:   1.0,
-		},
-	}
+	return NewNoiseFilter(base, Constant{
+		Info:  &Info{Group: name, Name: "Noise"},
+		Value: 0.0,
+		Min:   0.0,
+		Max:   1.0,
+	})
 }
