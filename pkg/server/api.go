@@ -97,8 +97,12 @@ func (s *Server) startReadLoop() {
 
 func (s Server) ChooseAction(msg MessageIn) {
 	if inst, ok := generators.Library[msg.Key]; ok {
+		if inst == nil {
+			panic("instrument not found:" + msg.Key)
+		}
 		s.Player.Instrument = inst
 		generators.SetUpInstrument(s.Player.Instrument)
+		logrus.Info("set instrument", s.Player.Instrument.GetInfo().Name)
 	} else {
 		logrus.Error("instrument not found:", msg.Key)
 	}

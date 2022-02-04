@@ -17,10 +17,10 @@ func frequencyConst() Constant {
 
 func BasicSine() Oscillator {
 	return Oscillator{
-		Frequency: frequencyConst(),
 		Info: &Info{
 			Name: "Basic Sine",
 		},
+		Frequency: frequencyConst(),
 		Amplitude: GetADSR("adsr"),
 	}
 }

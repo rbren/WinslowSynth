@@ -19,44 +19,44 @@ func getTimeInSamples(ms float32) uint64 {
 }
 
 func (a ADSR) GetValue(t, r uint64) float32 {
-	attackTime := getTimeInSamples(a.AttackTime.GetValue(t, r))
+	attackTime := getTimeInSamples(getValue(a.AttackTime, t, r))
 	if t < attackTime {
 		return a.Attack(t, r)
 	}
-	decayTime := getTimeInSamples(a.DecayTime.GetValue(t, r))
+	decayTime := getTimeInSamples(getValue(a.DecayTime, t, r))
 	if t < attackTime+decayTime {
 		return a.Decay(t, r)
 	}
 	if r == 0 {
-		return a.SustainLevel.GetValue(t, r)
+		return getValue(a.SustainLevel, t, r)
 	}
 	return a.Release(t, r)
 }
 
 func (a ADSR) Attack(t, r uint64) float32 {
-	percentDone := float32(t) / float32(getTimeInSamples(a.AttackTime.GetValue(t, r)))
-	return a.PeakLevel.GetValue(t, r) * percentDone
+	percentDone := float32(t) / float32(getTimeInSamples(getValue(a.AttackTime, t, r)))
+	return getValue(a.PeakLevel, t, r) * percentDone
 }
 
 func (a ADSR) Decay(t, r uint64) float32 {
-	timeInDecay := t - getTimeInSamples(a.AttackTime.GetValue(t, r))
-	percentDone := float32(timeInDecay) / float32(getTimeInSamples(a.DecayTime.GetValue(t, r)))
-	levelDiff := a.PeakLevel.GetValue(t, r) - a.SustainLevel.GetValue(t, r)
-	return a.SustainLevel.GetValue(t, r) + float32(levelDiff)*(1.0-percentDone)
+	timeInDecay := t - getTimeInSamples(getValue(a.AttackTime, t, r))
+	percentDone := float32(timeInDecay) / float32(getTimeInSamples(getValue(a.DecayTime, t, r)))
+	levelDiff := getValue(a.PeakLevel, t, r) - getValue(a.SustainLevel, t, r)
+	return getValue(a.SustainLevel, t, r) + float32(levelDiff)*(1.0-percentDone)
 }
 
 func (a ADSR) Release(t, r uint64) float32 {
-	minTimeOfRelease := getTimeInSamples(a.AttackTime.GetValue(t, r) + a.DecayTime.GetValue(t, r))
+	minTimeOfRelease := getTimeInSamples(getValue(a.AttackTime, t, r) + getValue(a.DecayTime, t, r))
 	timeOfRelease := r
 	if timeOfRelease < minTimeOfRelease {
 		timeOfRelease = minTimeOfRelease
 	}
 	timeSinceRelease := t - timeOfRelease
-	desiredReleaseTime := getTimeInSamples(a.ReleaseTime.GetValue(t, r))
+	desiredReleaseTime := getTimeInSamples(getValue(a.ReleaseTime, t, r))
 	if timeSinceRelease > desiredReleaseTime {
 		return 0.0
 	}
-	baseVal := a.SustainLevel.GetValue(t, r)
+	baseVal := getValue(a.SustainLevel, t, r)
 	percentDone := float32(timeSinceRelease) / float32(desiredReleaseTime)
 	return baseVal * (1.0 - percentDone)
 }

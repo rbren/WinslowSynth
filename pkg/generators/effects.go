@@ -11,8 +11,27 @@ func TheWorks(name string, shape OscillatorShape) Instrument {
 		Shape:     shape,
 	}
 	inst := AddNoise(name, osc)
+	//inst = AddDelay(name, inst)
 	inst = AddLevel(name, inst)
 	return inst
+}
+
+func AddDelay(name string, inst Instrument) Instrument {
+	delay := NewDelay(inst, Constant{
+		Info: &Info{
+			Name:  "Delay",
+			Group: name,
+		},
+		Value: 500,
+		Min:   0,
+		Max:   3000,
+		Step:  50,
+	})
+	delay.SetInfo(Info{
+		Name:  "Delay Effect",
+		Group: name,
+	})
+	return delay
 }
 
 func AddLevel(name string, inst Instrument) Instrument {

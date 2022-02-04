@@ -14,11 +14,11 @@ var historyLength int
 var Library = map[string]Instrument{}
 
 func init() {
-	historyLength = 50 * (config.MainConfig.SampleRate / 1000) // store 50ms
+	historyLength = 50 * (config.MainConfig.SampleRate / 1000) // store 1s
 	maxReleaseTimeSamples = config.MainConfig.SampleRate * 10
 	Library = map[string]Instrument{
 		"warbler":     Warbler(),
-		"sine":        BasicSine(),
+		"sine":        AddDelay("sine", BasicSine()),
 		"saw":         BasicSaw(),
 		"square":      BasicSquare(),
 		"dirty":       DirtySawWave(),
@@ -109,23 +109,9 @@ func (r Registry) GetSamples(absoluteTime uint64, numSamples int) []float32 {
 			releasedAt = elapsed - elapsedSinceRelease
 		}
 		for idx := range eventSamples {
-			eventSamples[idx] = event.Generator.GetValue(elapsed+uint64(idx), releasedAt)
-			addHistory(event.Generator, eventSamples[idx])
+			eventSamples[idx] = getValue(event.Generator, elapsed+uint64(idx), releasedAt)
 		}
 		samples = buffers.MixBuffers([][]float32{samples, eventSamples})
 	}
 	return samples
-}
-
-func getEmptyHistory() []float32 {
-	return make([]float32, historyLength)
-}
-
-func addHistory(g Generator, val float32) {
-	i := g.GetInfo()
-	if i == nil || i.History == nil {
-		return
-	}
-	i.History[i.HistoryPosition] = val
-	i.HistoryPosition = (i.HistoryPosition + 1) % historyLength
 }
