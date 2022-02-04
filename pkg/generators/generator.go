@@ -69,3 +69,15 @@ func GetValue(g Generator, t, r uint64) float32 {
 
 	return val
 }
+
+func AddHistory(g Generator, startTime uint64, history []float32) {
+	i := g.GetInfo()
+	if i == nil || i.History == nil {
+		return
+	}
+	for idx, val := range history {
+		i.History[i.HistoryPosition] = val
+		i.HistoryPosition = (i.HistoryPosition + 1) % len(i.History)
+		i.HistoryTime = startTime + uint64(idx)
+	}
+}

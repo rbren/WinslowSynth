@@ -11,6 +11,7 @@ function setState(state) {
   });
   const instInfo = state.Instrument.Info;
   if (instInfo && instInfo.History) {
+    console.log('hist', instInfo.History.reduce((a, b) => a + b) / instInfo.History.length);
     drawHistory(instInfo);
   }
   window.state = state;

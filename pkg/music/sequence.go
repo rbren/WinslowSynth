@@ -88,7 +88,6 @@ func (s Sequence) GetSamples(inst generators.Instrument, absoluteTime uint64, nu
 	}
 	allSamples := [][]float32{}
 	for _, event := range s.Events {
-		logrus.Infof("process event %#v", event)
 		eventSamples := make([]float32, numSamples)
 		withFreq := generators.SetFrequency(inst, event.Frequency)
 		t, r := event.getRelativeTime(absoluteTime)
@@ -97,5 +96,7 @@ func (s Sequence) GetSamples(inst generators.Instrument, absoluteTime uint64, nu
 		}
 		allSamples = append(allSamples, eventSamples)
 	}
-	return buffers.MixBuffers(allSamples)
+	mixed := buffers.MixBuffers(allSamples)
+	generators.AddHistory(inst, absoluteTime, mixed)
+	return mixed
 }
