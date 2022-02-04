@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"github.com/sirupsen/logrus"
+	"github.com/thoas/go-funk"
 
 	"github.com/rbren/midi/pkg/buffers"
 	"github.com/rbren/midi/pkg/config"
@@ -18,18 +19,18 @@ func init() {
 }
 
 type Sequence struct {
-	Events map[int64]*Event
+	Events []*Event
 	lock   *sync.Mutex
 }
 
 func NewSequence() Sequence {
 	return Sequence{
-		Events: map[int64]*Event{},
+		Events: []*Event{},
 		lock:   &sync.Mutex{},
 	}
 }
 
-func (s Sequence) Add(note input.InputKey, time uint64) {
+func (s *Sequence) Add(note input.InputKey, time uint64) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	if note.Action == "channel.NoteOn" {
@@ -41,45 +42,38 @@ func (s Sequence) Add(note input.InputKey, time uint64) {
 	}
 }
 
-func (s Sequence) attack(key input.InputKey, time uint64) {
+func (s *Sequence) attack(key input.InputKey, time uint64) {
 	logrus.Infof("attack %d %d", key.Key, time)
-	// TODO: allow more than one event per key simultaneously
-	s.Events[key.Key] = &Event{
+	s.release(key, time)
+	s.Events = append(s.Events, &Event{
 		AttackTime:  time,
 		ReleaseTime: 0,
 		Frequency:   key.Frequency,
 		Key:         key.Key,
 		Velocity:    key.Velocity,
-	}
+	})
 }
 
-func (s Sequence) release(key input.InputKey, time uint64) {
+func (s *Sequence) release(key input.InputKey, time uint64) {
 	logrus.Infof("release %d %d", key.Key, time)
-	existing, ok := s.Events[key.Key]
-	if !ok {
-		logrus.Error("Released key without attack!", key)
-		return
+	for _, evt := range s.Events {
+		if evt.Key == key.Key && evt.ReleaseTime == 0 {
+			evt.ReleaseTime = time
+		}
 	}
-	existing.ReleaseTime = time
 }
 
-func (s Sequence) ClearOldEvents(absoluteTime uint64) {
-	remove := []int64{}
-	for key, event := range s.Events {
+func (s *Sequence) ClearOldEvents(absoluteTime uint64) {
+	s.Events = funk.Filter(s.Events, func(event *Event) bool {
 		if event.ReleaseTime == 0 {
-			continue
+			return true
 		}
 		elapsedSinceRelease := absoluteTime - event.ReleaseTime
-		if elapsedSinceRelease > uint64(maxReleaseTimeSamples) {
-			remove = append(remove, key)
-		}
-	}
-	for _, key := range remove {
-		delete(s.Events, key)
-	}
+		return elapsedSinceRelease <= uint64(maxReleaseTimeSamples)
+	}).([]*Event)
 }
 
-func (s Sequence) GetSamples(inst generators.Instrument, absoluteTime uint64, numSamples int) []float32 {
+func (s *Sequence) GetSamples(inst generators.Instrument, absoluteTime uint64, numSamples int) []float32 {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	s.ClearOldEvents(absoluteTime) // TODO: put this on its own loop
