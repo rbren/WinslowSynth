@@ -16,7 +16,7 @@ const msPerTick = 10
 
 type MusicPlayer struct {
 	Instrument     generators.Instrument
-	Generators     generators.Registry
+	Sequence       Sequence
 	Output         *output.CircularAudioBuffer
 	CurrentSample  uint64
 	samplesPerTick int
@@ -33,14 +33,14 @@ func NewMusicPlayer(out *output.CircularAudioBuffer) MusicPlayer {
 	return MusicPlayer{
 		Output:         out,
 		Instrument:     generators.GetDefaultInstrument(),
-		Generators:     generators.NewRegistry(),
+		Sequence:       NewSequence(),
 		samplesPerTick: samplesPerTick,
 		silence:        make([]float32, samplesPerTick),
 	}
 }
 
 func (m *MusicPlayer) Clear() {
-	m.Generators = generators.NewRegistry()
+	m.Sequence = NewSequence()
 }
 
 func (m *MusicPlayer) Start(notes chan input.InputKey) {
@@ -70,22 +70,15 @@ func (m *MusicPlayer) Start(notes chan input.InputKey) {
 			select {
 			case note := <-notes:
 				logrus.Info("note", note)
-				g := generators.SetFrequency(m.Instrument, note.Frequency)
-				if note.Action == "channel.NoteOn" {
-					m.Generators.Attack(note.Key, m.CurrentSample, g)
-				} else if note.Action == "channel.NoteOff" {
-					m.Generators.Release(note.Key, m.CurrentSample, g)
-				} else {
-					logrus.Info("No action for " + note.Action)
-				}
+				m.Sequence.Add(note, m.CurrentSample) // TODO: can we get more accurate than CurrentSample?
 			}
 		}
 	}()
 }
 
 func (m *MusicPlayer) nextBytes() {
-	logrus.Debug("active keys", len(m.Generators.Events))
-	samples := m.Generators.GetSamples(m.CurrentSample, m.samplesPerTick)
+	logrus.Debug("active keys", len(m.Sequence.Events))
+	samples := m.Sequence.GetSamples(m.Instrument, m.CurrentSample, m.samplesPerTick)
 	_, err := m.Output.WriteAudio(samples, samples)
 	if err != nil {
 		panic(err)

@@ -18,7 +18,7 @@ func (s Average) GetValue(t, releasedAt uint64) float32 {
 	}
 	var val float32 = 0.0
 	for _, gen := range s.Generators {
-		val += getValue(gen, t, releasedAt)
+		val += GetValue(gen, t, releasedAt)
 	}
 	return val / float32(len(s.Generators))
 }
@@ -26,7 +26,7 @@ func (s Average) GetValue(t, releasedAt uint64) float32 {
 func (m Multiply) GetValue(t, releasedAt uint64) float32 {
 	var val float32 = 1.0
 	for _, gen := range m.Generators {
-		val *= getValue(gen, t, releasedAt)
+		val *= GetValue(gen, t, releasedAt)
 	}
 	return val
 }

@@ -27,10 +27,10 @@ func NewNoiseFilter(input Generator, amt Generator) NoiseFilter {
 
 func (n NoiseFilter) GetValue(t, r uint64) float32 {
 	random := rand.Float32()
-	amt := getValue(n.Amount, t, r)
+	amt := GetValue(n.Amount, t, r)
 	hold := random < amt
 	if !hold {
-		return getValue(n.Input, t, r)
+		return GetValue(n.Input, t, r)
 	}
 	lastValueIndex := n.Info.HistoryPosition - 1
 	if lastValueIndex < 0 {

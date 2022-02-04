@@ -23,7 +23,7 @@ func NewDelay(input Generator, amt Generator) Delay {
 
 func (d Delay) GetValue(t, r uint64) float32 {
 	samplesPerMs := config.MainConfig.SampleRate / 1000
-	amtMs := getValue(d.Amount, t, r)
+	amtMs := GetValue(d.Amount, t, r)
 	amtSamples := int(amtMs) * samplesPerMs
 	inputInfo := d.Input.GetInfo()
 	valueIndex := inputInfo.HistoryPosition - 1 - amtSamples

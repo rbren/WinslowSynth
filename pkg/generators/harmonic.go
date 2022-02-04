@@ -36,7 +36,7 @@ func (h *Harmonic) initialize(force bool) {
 
 func (h Harmonic) GetValue(t, r uint64) float32 {
 	h.initialize(false)
-	return getValue(h.Average, t, r)
+	return GetValue(h.Average, t, r)
 }
 
 func (h Harmonic) GetInfo() *Info    { return h.Info }

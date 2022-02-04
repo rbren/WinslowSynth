@@ -55,12 +55,12 @@ func (s Oscillator) GetValue(t, r uint64) float32 {
 
 func (s Oscillator) GetWave(t, r uint64) float32 {
 	pos := 2.0 * math.Pi * GetPhasePosition(s.Frequency, s.Phase, t, r)
-	amp := getValue(s.Amplitude, t, r)
-	return getValue(s.Bias, t, r) + amp*float32(math.Sin(float64(pos)))
+	amp := GetValue(s.Amplitude, t, r)
+	return GetValue(s.Bias, t, r) + amp*float32(math.Sin(float64(pos)))
 }
 
 func (s Oscillator) GetSaw(t, r uint64) float32 {
-	return getValue(s.Amplitude, t, r) * GetPhasePosition(s.Frequency, s.Phase, t, r)
+	return GetValue(s.Amplitude, t, r) * GetPhasePosition(s.Frequency, s.Phase, t, r)
 }
 
 func (s Oscillator) GetSquare(t, r uint64) float32 {
@@ -69,7 +69,7 @@ func (s Oscillator) GetSquare(t, r uint64) float32 {
 	if phasePos > .5 {
 		val = -1.0
 	}
-	return val * getValue(s.Amplitude, t, r)
+	return val * GetValue(s.Amplitude, t, r)
 }
 
 func (s Oscillator) GetInfo() *Info    { return s.Info }

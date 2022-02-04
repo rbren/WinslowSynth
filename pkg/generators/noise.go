@@ -16,7 +16,7 @@ func init() {
 
 func (n Noise) GetValue(t, r uint64) float32 {
 	random := rand.Float32()
-	amt := getValue(n.Amount, t, r)
+	amt := GetValue(n.Amount, t, r)
 	max := 1.0 + amt
 	min := 1.0 - amt
 	return min + random*(max-min)
