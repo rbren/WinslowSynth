@@ -74,7 +74,6 @@ function drawWaveForm(freq) {
   const endIdx = window.sampleHistory.length - modulus;
   const startIdx = endIdx - samplesPerImpulse;
   const samples = window.sampleHistory.slice(startIdx, endIdx);
-  console.log('wave form', freq, samplesPerImpulse, startIdx, endIdx);
 
   const {x, y} = window.waveFormGraph;
   x.domain([0, samplesPerImpulse]);

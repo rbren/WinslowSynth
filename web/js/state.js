@@ -35,7 +35,6 @@ function randomize() {
     const freeze = window.freeze[key];
     if (freeze) return;
     const inpt = e.find('input[type="number"]');
-    console.log('name', name, inpt.val(), freeze);
     const min = parseFloat(inpt.attr('min'))
     const max = parseFloat(inpt.attr('max'))
     const rand = min + Math.random() * (max - min);
@@ -96,13 +95,11 @@ function addHistory(hist) {
   const lastSeenTime = window.sampleHistoryTime;
   const numNewFrames = lastNewTime - lastSeenTime;
   let oldestNewFrame = hist.History.length - numNewFrames;
-  //console.log('got history', [firstNewTime, lastNewTime], 'after', lastSeenTime, 'with', numNewFrames, 'new frames');
   if (oldestNewFrame < 0) {
     console.error('skipped', -oldestNewFrame, 'frames');
     oldestNewFrame = 0;
   }
   const newFrames = reordered.slice(oldestNewFrame, reordered.length);
-  //console.log(newFrames.length, 'new frames');
   window.sampleHistory = window.sampleHistory.concat(newFrames);
   const desiredHistoryLength = 48000;
   window.sampleHistory.splice(0, window.sampleHistory.length - desiredHistoryLength);
