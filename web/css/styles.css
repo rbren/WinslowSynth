@@ -29,6 +29,7 @@ h1 {
 
 #Graphs div {
   display: inline-block;
+  margin-right: 20px;
 }
 
 .constant-group {
