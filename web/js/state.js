@@ -1,7 +1,6 @@
 const STATE_KEYS = ["Time", "Instrument", "Instruments", "Constants"];
 
 function setState(state) {
-  console.log('set state', state.Time);
   window.freeze = window.freeze || {};
   state.Constants = findConstants(state.Instrument);
   STATE_KEYS.forEach(key => {
@@ -91,14 +90,18 @@ function addHistory(hist) {
   window.sampleHistory = window.sampleHistory || [];
   window.sampleHistoryTime = window.sampleHistoryTime || -1;
   const reordered = reorderHistory(hist);
-  const firstTime = hist.HistoryTime - hist.History.length
-  const expectedTime = window.sampleHistoryTime;
-  if (firstTime > expectedTime) {
-    console.log('skipped', firstTime - expectedTime, 'frames', window.sampleHistoryTime, hist.HistoryTime, hist.History.length);
-  } else if (firstTime < expectedTime) {
-    console.log('repeated', expectedTime - firstTime, 'frames');
+  const firstNewTime = hist.HistoryTime - hist.History.length;
+  const lastNewTime = hist.HistoryTime;
+  const lastSeenTime = window.sampleHistoryTime;
+  const numNewFrames = lastNewTime - lastSeenTime;
+  let oldestNewFrame = hist.History.length - numNewFrames;
+  if (oldestNewFrame < 0) {
+    console.log('skipped', -oldestNewFrame, 'frames');
+    oldestNewFrame = 0;
   }
-  window.sampleHistory = window.sampleHistory.concat(reordered);
+  const newFrames = reordered.slice(oldestNewFrame, reordered.length);
+  //console.log(newFrames.length, 'new frames');
+  window.sampleHistory = window.sampleHistory.concat(newFrames);
   const desiredHistoryLength = 5000;
   window.sampleHistory.splice(0, window.sampleHistory.length - desiredHistoryLength);
   window.sampleHistoryTime = hist.HistoryTime;

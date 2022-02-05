@@ -4,7 +4,7 @@ import (
 	"github.com/rbren/midi/pkg/config"
 )
 
-var historyMs = 50
+var historyMs = 100
 var historyLength int
 var Library = map[string]Instrument{}
 
