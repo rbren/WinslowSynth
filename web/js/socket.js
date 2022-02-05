@@ -21,7 +21,6 @@ window.addEventListener("load", function(evt) {
   const pressedKeys = {}
 
   document.onkeydown = function(event) {
-    console.log("keydown", event.key);
     if (!ws) return true;
     if (pressedKeys[event.key]) return true;
     pressedKeys[event.key] = true;
