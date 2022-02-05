@@ -66,26 +66,21 @@ function startDrawHistoryInterval() {
   console.log('drawing', newSamplesPerInterval, 'every', drawHistoryIntervalMs);
 
   const id = "#HistoryGraph";
-  const numSamplesInGraph = newSamplesPerInterval * 1;
+  const numSamplesInGraph = newSamplesPerInterval * 5;
   const valueline = setUpGraph(id, [0, numSamplesInGraph], [-1.0, 1.0]);
 
-  const startTime = window.sampleHistoryTime - window.sampleHistory.length;
-  let curTime = startTime;
-  let samplesToDraw = [];
+  let curEndTime = window.sampleHistoryTime;
   return setInterval(() => {
-    const firstAvailableTime = window.sampleHistoryTime - window.sampleHistory.length;
-    if (firstAvailableTime > curTime) {
-      console.error('skip drawing', firstAvailableTime - curTime, 'frames');
-      curTime = firstAvailableTime;
-    }
-    const firstSampleIdx = curTime - firstAvailableTime;
-    let newSamples = window.sampleHistory.slice(firstSampleIdx, firstSampleIdx + newSamplesPerInterval);
-    samplesToDraw = samplesToDraw.concat(newSamples);
-    if (samplesToDraw.length > numSamplesInGraph) {
-      samplesToDraw.splice(0, samplesToDraw.length - numSamplesInGraph);
-    }
+    const endIdx = window.sampleHistory.length;
+    const startIdx = endIdx - numSamplesInGraph;
+    const samplesToDraw = window.sampleHistory.slice(startIdx, endIdx);
     drawGraph(id, valueline, samplesToDraw);
-    curTime += newSamples.length;
-    $("#DebugTime").html(curTime);
+
+    // some debug info
+    const newStartTime = window.sampleHistoryTime - (endIdx - startIdx);
+    if (curEndTime < newStartTime) {
+      console.error('skipped drawing', newStartTime - curEndTime, 'frames');
+    }
+    curEndTime = window.sampleHistoryTime;
   }, drawHistoryIntervalMs);
 }
