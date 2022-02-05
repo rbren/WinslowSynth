@@ -26,11 +26,11 @@ func (d Delay) GetValue(t, r uint64) float32 {
 	amtMs := GetValue(d.Amount, t, r)
 	amtSamples := int(amtMs) * samplesPerMs
 	inputInfo := d.Input.GetInfo()
-	valueIndex := inputInfo.HistoryPosition - 1 - amtSamples
+	valueIndex := inputInfo.History.Position - 1 - amtSamples
 	if valueIndex < 0 {
-		valueIndex = len(inputInfo.History) + valueIndex
+		valueIndex = len(inputInfo.History.Samples) + valueIndex
 	}
-	val := inputInfo.History[valueIndex]
+	val := inputInfo.History.Samples[valueIndex]
 	return val
 }
 

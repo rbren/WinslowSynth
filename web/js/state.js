@@ -12,8 +12,8 @@ function setState(state) {
   window.state = state;
 
   const instInfo = state.Instrument.Info;
-  if (instInfo && instInfo.History) {
-    addHistory(instInfo);
+  if (instInfo?.History?.Samples) {
+    addHistory(instInfo.History);
   }
   drawWaveForm(state.Frequency);
 }
@@ -79,10 +79,10 @@ function findConstants(inst) {
 }
 
 function reorderHistory(hist) {
-  const firstPos = (hist.HistoryPosition - 1) % hist.History.length;
-  const reordered = hist.History
-    .slice(firstPos, hist.History.length)
-    .concat(hist.History.slice(0, firstPos));
+  const firstPos = (hist.Position - 1) % hist.Samples.length;
+  const reordered = hist.Samples
+    .slice(firstPos, hist.Samples.length)
+    .concat(hist.Samples.slice(0, firstPos));
   return reordered;
 }
 
@@ -90,11 +90,11 @@ function addHistory(hist) {
   window.sampleHistory = window.sampleHistory || [];
   window.sampleHistoryTime = window.sampleHistoryTime || -1;
   const reordered = reorderHistory(hist);
-  const firstNewTime = hist.HistoryTime - hist.History.length;
-  const lastNewTime = hist.HistoryTime;
+  const firstNewTime = hist.Time - hist.Samples.length;
+  const lastNewTime = hist.Time;
   const lastSeenTime = window.sampleHistoryTime;
   const numNewFrames = lastNewTime - lastSeenTime;
-  let oldestNewFrame = hist.History.length - numNewFrames;
+  let oldestNewFrame = hist.Samples.length - numNewFrames;
   if (oldestNewFrame < 0) {
     console.error('skipped', -oldestNewFrame, 'frames');
     oldestNewFrame = 0;
@@ -103,5 +103,5 @@ function addHistory(hist) {
   window.sampleHistory = window.sampleHistory.concat(newFrames);
   const desiredHistoryLength = 48000;
   window.sampleHistory.splice(0, window.sampleHistory.length - desiredHistoryLength);
-  window.sampleHistoryTime = hist.HistoryTime;
+  window.sampleHistoryTime = hist.Time;
 }

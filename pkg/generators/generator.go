@@ -5,11 +5,15 @@ import (
 )
 
 type Info struct {
-	Name            string
-	Group           string
-	History         []float32
-	HistoryPosition int
-	HistoryTime     uint64
+	Name    string
+	Group   string
+	History History
+}
+
+type History struct {
+	Samples  []float32
+	Position int
+	Time     uint64
 }
 
 func copyInfo(dest *Info, src Info) {
@@ -19,11 +23,12 @@ func copyInfo(dest *Info, src Info) {
 	dest.Name = src.Name
 	dest.Group = src.Group
 	dest.History = src.History
-	dest.HistoryTime = src.HistoryTime
 }
 
-func getEmptyHistory() []float32 {
-	return make([]float32, historyLength)
+func getEmptyHistory() History {
+	return History{
+		Samples: make([]float32, historyLength),
+	}
 }
 
 type Generator interface {
@@ -61,12 +66,12 @@ func GetValue(g Generator, t, r uint64) float32 {
 
 func AddHistory(g Generator, startTime uint64, history []float32) {
 	i := g.GetInfo()
-	if i == nil || i.History == nil {
+	if i == nil || i.History.Samples == nil {
 		return
 	}
 	for idx, val := range history {
-		i.History[i.HistoryPosition] = val
-		i.HistoryPosition = (i.HistoryPosition + 1) % len(i.History)
-		i.HistoryTime = startTime + uint64(idx)
+		i.History.Samples[i.History.Position] = val
+		i.History.Position = (i.History.Position + 1) % len(i.History.Samples)
+		i.History.Time = startTime + uint64(idx)
 	}
 }

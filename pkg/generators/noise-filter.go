@@ -32,11 +32,11 @@ func (n NoiseFilter) GetValue(t, r uint64) float32 {
 	if !hold {
 		return GetValue(n.Input, t, r)
 	}
-	lastValueIndex := n.Info.HistoryPosition - 1
+	lastValueIndex := n.Info.History.Position - 1
 	if lastValueIndex < 0 {
-		lastValueIndex = len(n.Info.History) + lastValueIndex
+		lastValueIndex = len(n.Info.History.Samples) + lastValueIndex
 	}
-	val := n.Info.History[lastValueIndex]
+	val := n.Info.History.Samples[lastValueIndex]
 	return val
 }
 
