@@ -66,17 +66,18 @@ function setUpWaveFormGraph() {
 
 function drawWaveForm(freq) {
   if (freq === 0) return;
+  const impulsesToShow = 2;
   const impulsesPerSec = freq;
   const samplesPerSec = window.state.Config.SampleRate;
   const samplesPerImpulse = Math.round(samplesPerSec / impulsesPerSec);
   const lastAvailableSample = window.sampleHistoryTime;
   const modulus = lastAvailableSample % samplesPerImpulse;
   const endIdx = window.sampleHistory.length - modulus;
-  const startIdx = endIdx - samplesPerImpulse;
+  const startIdx = endIdx - samplesPerImpulse * impulsesToShow;
   const samples = window.sampleHistory.slice(startIdx, endIdx);
 
   const {x, y} = window.waveFormGraph;
-  x.domain([0, samplesPerImpulse]);
+  x.domain([0, samplesPerImpulse * impulsesToShow]);
   var valueline = d3.line()
         .x(function(d, idx) { return x(idx); })
         .y(function(d, idx) { return y(d); });
