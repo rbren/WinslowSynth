@@ -1,5 +1,7 @@
 body {
   padding: 20px;
+  background-color: black;
+  color: white;
 }
 
 #StatusBar {
@@ -12,7 +14,7 @@ h1 {
 }
 
 #Time {
-  /*display: none;*/
+  display: none;
 }
 
 #MainControls * {
@@ -23,6 +25,10 @@ h1 {
 #MainControls button {
   width: 200px;
   height: 30px;
+}
+
+#Graphs div {
+  display: inline-block;
 }
 
 .constant-group {
@@ -62,6 +68,12 @@ h1 {
 .constant input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+input[type="range"]::-moz-range-progress {
+  background-color: steelblue;
+  height: 10px;
+  border-radius: 4px;
 }
 
 .constant .slider {

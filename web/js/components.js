@@ -71,7 +71,7 @@ function drawConstant(constant) {
     <label title="${constant.Info.Group}/${constant.Info.Name}">${constant.Info.Name}</label>
     <div class="controls">
       <input
-        class="slider"
+        class="slider form-range"
         type="range"
         ${props}
         >
