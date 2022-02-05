@@ -1,3 +1,8 @@
+function initialize() {
+  setUpWaveFormGraph();
+  window.drawHistoryInterval = startDrawHistoryInterval();
+}
+
 function drawInstruments(names) {
   return `
     <select onchange="chooseInstrument(this.value)">
@@ -25,11 +30,6 @@ function drawStatus(ok) {
 function drawInstrument(inst) {
   $('#Title').html(inst.Info?.Name || "Synthesizer");
   return "";
-}
-
-function drawWaveForm(hist, freq) {
-  const reordered = reorderHistory(hist);
-  window.drawGraph("#WaveFormGraph", reordered);
 }
 
 function drawConstants(consts) {

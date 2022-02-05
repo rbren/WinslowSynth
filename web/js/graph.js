@@ -3,7 +3,7 @@
       width = 400 - margin.left - margin.right,
       height = 200 - margin.top - margin.bottom;
 
-  window.setUpGraph = function(id, xDomain, yDomain) {
+  window.setUpGraph = function(id, xDomain, yDomain, opts={}) {
     var svg = d3.select(id).append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
@@ -20,20 +20,22 @@
         .x(function(d, idx) { return x(idx); })
         .y(function(d, idx) { return y(d); });
 
-    // Add the x Axis
-    svg.append("g")
-        .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(x));
+    if (!opts.hideXAxis) {
+      svg.append("g")
+          .attr("transform", "translate(0," + height + ")")
+          .call(d3.axisBottom(x));
+    }
 
-    // Add the y Axis
-    svg.append("g")
-        .call(d3.axisLeft(y));
+    if (!opts.hideYAxis) {
+      svg.append("g")
+          .call(d3.axisLeft(y));
+    }
 
     // The eventual data
     svg.append("path")
         .attr("class", "line")
 
-    return valueline;
+    return {x, y, valueline};
   }
 
   window.drawGraph = function(id, valueline, data) {
@@ -54,20 +56,41 @@
         .attr("d", valueline);
   }
 
-  setUpGraph("#WaveFormGraph", [0, 440.0], [-1.0, 1.0]);
 })();
+
+function setUpWaveFormGraph() {
+  if (!window.waveFormGraph) {
+    window.waveFormGraph = setUpGraph("#WaveFormGraph", [0, 250], [-1.0, 1.0], {hideXAxis: true});
+  }
+}
+
+function drawWaveForm(freq) {
+  if (freq === 0) return;
+  const impulsesPerSec = freq;
+  const samplesPerSec = window.state.Config.SampleRate;
+  const samplesPerImpulse = Math.round(samplesPerSec / impulsesPerSec);
+  const lastAvailableSample = window.sampleHistoryTime;
+  const modulus = lastAvailableSample % samplesPerImpulse;
+  const endIdx = window.sampleHistory.length - modulus;
+  const startIdx = endIdx - samplesPerImpulse;
+  const samples = window.sampleHistory.slice(startIdx, endIdx);
+  console.log('wave form', freq, samplesPerImpulse, startIdx, endIdx);
+
+  const {x, y} = window.waveFormGraph;
+  x.domain([0, samplesPerImpulse]);
+  var valueline = d3.line()
+        .x(function(d, idx) { return x(idx); })
+        .y(function(d, idx) { return y(d); });
+
+  drawGraph("#WaveFormGraph", valueline, samples);
+}
+
 
 const drawHistoryIntervalMs = 50;
 function startDrawHistoryInterval() {
-
-  const samplesPerSecond = window.state.Config.SampleRate;
-  const newSamplesPerInterval = (samplesPerSecond / 1000) * drawHistoryIntervalMs;
-
-  console.log('drawing', newSamplesPerInterval, 'every', drawHistoryIntervalMs);
-
   const id = "#HistoryGraph";
-  const numSamplesInGraph = newSamplesPerInterval * 5;
-  const valueline = setUpGraph(id, [0, numSamplesInGraph], [-1.0, 1.0]);
+  const numSamplesInGraph = 10000;
+  const {valueline} = setUpGraph(id, [0, numSamplesInGraph], [-1.0, 1.0]);
 
   let curEndTime = window.sampleHistoryTime;
   return setInterval(() => {

@@ -9,16 +9,13 @@ function setState(state) {
       $("#" + key).html(window[drawKey](state[key]));
     }
   });
+  window.state = state;
+
   const instInfo = state.Instrument.Info;
   if (instInfo && instInfo.History) {
     addHistory(instInfo);
-    drawWaveForm(instInfo, state.Frequency);
   }
-  window.state = state;
-  if (!window.drawHistoryInterval) {
-    console.log('starting loop');
-    window.drawHistoryInterval = startDrawHistoryInterval();
-  }
+  drawWaveForm(state.Frequency);
 }
 
 function clearState() {

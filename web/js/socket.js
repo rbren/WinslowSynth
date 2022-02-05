@@ -4,6 +4,7 @@ window.addEventListener("load", function(evt) {
   var ws = window.ws = new WebSocket("ws://" + window.location.host + "/connect");
   ws.onopen = function(evt) {
     $('#Status').html(drawStatus(true));
+    initialize();
   }
   ws.onclose = function(evt) {
     ws = null;
