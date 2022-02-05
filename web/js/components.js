@@ -27,12 +27,8 @@ function drawInstrument(inst) {
   return "";
 }
 
-function drawHistory(hist) {
-  const firstPos = hist.HistoryPosition % hist.History.length;
-  const reordered = hist.History
-    .slice(firstPos, hist.History.length)
-    .concat(hist.History.slice(0, firstPos));
-
+function drawHistory(hist, freq) {
+  const reordered = reorderHistory(hist);
   window.drawGraph("#Graphs", reordered);
 }
 

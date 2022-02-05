@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
 
+	"github.com/rbren/midi/pkg/config"
 	"github.com/rbren/midi/pkg/generators"
 	"github.com/rbren/midi/pkg/input"
 	"github.com/rbren/midi/pkg/music"
@@ -26,9 +27,11 @@ type MessageIn struct {
 
 type MessageOut struct {
 	Time        uint64
+	Frequency   float32
 	Instrument  generators.Instrument
 	Instruments []string
 	Constants   []generators.Constant
+	Config      config.Config
 }
 
 type Server struct {
@@ -153,6 +156,8 @@ func (s *Server) startWriteLoop() {
 				Time:        s.Player.CurrentSample,
 				Instrument:  s.Player.Instrument,
 				Instruments: instruments,
+				Frequency:   s.Player.Sequence.LastFrequency,
+				Config:      config.MainConfig,
 			}
 			err := s.connection.WriteJSON(msg)
 			if err != nil {

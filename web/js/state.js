@@ -1,6 +1,7 @@
 const STATE_KEYS = ["Time", "Instrument", "Instruments", "Constants"];
 
 function setState(state) {
+  console.log('set state', state.Time);
   window.freeze = window.freeze || {};
   state.Constants = findConstants(state.Instrument);
   STATE_KEYS.forEach(key => {
@@ -11,8 +12,8 @@ function setState(state) {
   });
   const instInfo = state.Instrument.Info;
   if (instInfo && instInfo.History) {
-    console.log('hist', instInfo.History.reduce((a, b) => a + b) / instInfo.History.length);
-    drawHistory(instInfo);
+    addHistory(instInfo);
+    drawHistory(instInfo, state.Frequency);
   }
   window.state = state;
 }
@@ -76,4 +77,29 @@ function findConstants(inst) {
     all = all.concat(findConstants(inst[key]));
   }
   return all;
+}
+
+function reorderHistory(hist) {
+  const firstPos = (hist.HistoryPosition - 1) % hist.History.length;
+  const reordered = hist.History
+    .slice(firstPos, hist.History.length)
+    .concat(hist.History.slice(0, firstPos));
+  return reordered;
+}
+
+function addHistory(hist) {
+  window.sampleHistory = window.sampleHistory || [];
+  window.sampleHistoryTime = window.sampleHistoryTime || -1;
+  const reordered = reorderHistory(hist);
+  const firstTime = hist.HistoryTime - hist.History.length
+  const expectedTime = window.sampleHistoryTime;
+  if (firstTime > expectedTime) {
+    console.log('skipped', firstTime - expectedTime, 'frames', window.sampleHistoryTime, hist.HistoryTime, hist.History.length);
+  } else if (firstTime < expectedTime) {
+    console.log('repeated', expectedTime - firstTime, 'frames');
+  }
+  window.sampleHistory = window.sampleHistory.concat(reordered);
+  const desiredHistoryLength = 5000;
+  window.sampleHistory.splice(0, window.sampleHistory.length - desiredHistoryLength);
+  window.sampleHistoryTime = hist.HistoryTime;
 }

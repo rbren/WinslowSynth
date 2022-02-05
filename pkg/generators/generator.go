@@ -55,17 +55,8 @@ func GetValue(g Generator, t, r uint64) float32 {
 	i := g.GetInfo()
 
 	// TODO: use history as a cache
-
 	val := g.GetValue(t, r)
-
-	if i != nil && i.History != nil {
-		//logrus.Infof("set hist %s %d %d %d", i.Name, t, i.HistoryTime, i.HistoryPosition)
-		if t == 0 || t > i.HistoryTime {
-			i.History[i.HistoryPosition] = val
-			i.HistoryPosition = (i.HistoryPosition + 1) % len(i.History)
-			i.HistoryTime = t
-		}
-	}
+	AddHistory(g, t, []float32{val})
 
 	return val
 }

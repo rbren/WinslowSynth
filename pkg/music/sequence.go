@@ -19,8 +19,9 @@ func init() {
 }
 
 type Sequence struct {
-	Events []*Event
-	lock   *sync.Mutex
+	lock          *sync.Mutex
+	Events        []*Event
+	LastFrequency float32
 }
 
 func NewSequence() Sequence {
@@ -45,6 +46,7 @@ func (s *Sequence) Add(note input.InputKey, time uint64) {
 func (s *Sequence) attack(key input.InputKey, time uint64) {
 	logrus.Infof("attack %d %d", key.Key, time)
 	s.release(key, time)
+	s.LastFrequency = key.Frequency
 	s.Events = append(s.Events, &Event{
 		AttackTime:  time,
 		ReleaseTime: 0,
@@ -77,9 +79,6 @@ func (s *Sequence) GetSamples(inst generators.Instrument, absoluteTime uint64, n
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	s.ClearOldEvents(absoluteTime) // TODO: put this on its own loop
-	if len(s.Events) == 0 {
-		return make([]float32, numSamples)
-	}
 	allSamples := [][]float32{}
 	for _, event := range s.Events {
 		eventSamples := make([]float32, numSamples)
@@ -90,7 +89,12 @@ func (s *Sequence) GetSamples(inst generators.Instrument, absoluteTime uint64, n
 		}
 		allSamples = append(allSamples, eventSamples)
 	}
-	mixed := buffers.MixBuffers(allSamples)
-	generators.AddHistory(inst, absoluteTime, mixed)
-	return mixed
+	var output []float32
+	if len(allSamples) == 0 {
+		output = make([]float32, numSamples)
+	} else {
+		output = buffers.MixBuffers(allSamples)
+	}
+	generators.AddHistory(inst, absoluteTime, output)
+	return output
 }
