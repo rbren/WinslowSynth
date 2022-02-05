@@ -12,9 +12,13 @@ function setState(state) {
   const instInfo = state.Instrument.Info;
   if (instInfo && instInfo.History) {
     addHistory(instInfo);
-    drawHistory(instInfo, state.Frequency);
+    drawWaveForm(instInfo, state.Frequency);
   }
   window.state = state;
+  if (!window.drawHistoryInterval) {
+    console.log('starting loop');
+    window.drawHistoryInterval = startDrawHistoryInterval();
+  }
 }
 
 function clearState() {
@@ -95,14 +99,15 @@ function addHistory(hist) {
   const lastSeenTime = window.sampleHistoryTime;
   const numNewFrames = lastNewTime - lastSeenTime;
   let oldestNewFrame = hist.History.length - numNewFrames;
+  //console.log('got history', [firstNewTime, lastNewTime], 'after', lastSeenTime, 'with', numNewFrames, 'new frames');
   if (oldestNewFrame < 0) {
-    console.log('skipped', -oldestNewFrame, 'frames');
+    console.error('skipped', -oldestNewFrame, 'frames');
     oldestNewFrame = 0;
   }
   const newFrames = reordered.slice(oldestNewFrame, reordered.length);
   //console.log(newFrames.length, 'new frames');
   window.sampleHistory = window.sampleHistory.concat(newFrames);
-  const desiredHistoryLength = 5000;
+  const desiredHistoryLength = 48000;
   window.sampleHistory.splice(0, window.sampleHistory.length - desiredHistoryLength);
   window.sampleHistoryTime = hist.HistoryTime;
 }

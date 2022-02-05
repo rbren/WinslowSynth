@@ -54,7 +54,7 @@ func SetUpInstrument(i Instrument) {
 func GetValue(g Generator, t, r uint64) float32 {
 	// TODO: use history as a cache
 	val := g.GetValue(t, r)
-	AddHistory(g, t, []float32{val})
+	//AddHistory(g, t, []float32{val})
 
 	return val
 }

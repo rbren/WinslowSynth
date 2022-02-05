@@ -27,9 +27,9 @@ function drawInstrument(inst) {
   return "";
 }
 
-function drawHistory(hist, freq) {
+function drawWaveForm(hist, freq) {
   const reordered = reorderHistory(hist);
-  window.drawGraph("#Graphs", reordered);
+  window.drawGraph("#WaveFormGraph", reordered);
 }
 
 function drawConstants(consts) {
