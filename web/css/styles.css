@@ -33,8 +33,12 @@ h1 {
 
 .constant-group {
   display: inline-block;
-  width: 300px;
-  padding: 10px;
+  width: 320px;
+  margin-right: 20px;
+  margin-top: 40px;
+  padding: 20px;
+  border: 1px solid white;
+  border-radius: 4px;
 }
 
 .constant {
