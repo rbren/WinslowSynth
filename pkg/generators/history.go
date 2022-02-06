@@ -7,7 +7,7 @@ import (
 const CopyExistingHistoryLength = -1
 const UseDefaultHistoryLength = -2
 
-var historyMs = 100
+var historyMs = 1000
 var historyLength int
 
 func init() {

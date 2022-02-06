@@ -22,7 +22,7 @@ func AddDelay(name string, inst Generator) Generator {
 			Name:  "Delay",
 			Group: name,
 		},
-		Value: 20,
+		Value: 500,
 		Min:   0,
 		Max:   3000,
 		Step:  50,
