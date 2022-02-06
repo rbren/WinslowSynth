@@ -26,7 +26,7 @@ func AddHistory(g Generator, startTime uint64, history []float32) {
 		idxTime := startTime + uint64(idx)
 		if i.History.Time >= idxTime {
 			// we've already filled this spot
-			//continue
+			continue
 		}
 		i.History.Samples[i.History.Position] = val
 		i.History.Position = (i.History.Position + 1) % len(i.History.Samples)
@@ -37,6 +37,6 @@ func AddHistory(g Generator, startTime uint64, history []float32) {
 func GetValue(g Generator, t, r uint64) float32 {
 	// TODO: use history as a cache
 	val := g.GetValue(t, r)
-	//AddHistory(g, t, []float32{val})
+	AddHistory(g, t, []float32{val})
 	return val
 }
