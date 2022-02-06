@@ -69,6 +69,8 @@ func (s *Sequence) release(key input.InputKey, time uint64) {
 }
 
 func (s *Sequence) ClearOldEvents(absoluteTime uint64) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
 	s.Events = funk.Filter(s.Events, func(event *Event) bool {
 		if event.ReleaseTime == 0 {
 			return true
@@ -82,7 +84,6 @@ func (s *Sequence) GetSamples(absoluteTime uint64, numSamples int) []float32 {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	//logrus.Infof("%d generators", len(s.Events))
-	s.ClearOldEvents(absoluteTime) // TODO: put this on its own loop
 	allSamples := [][]float32{}
 	for _, event := range s.Events {
 		eventSamples := make([]float32, numSamples)
