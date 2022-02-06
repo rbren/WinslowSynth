@@ -103,9 +103,9 @@ func (s Server) ChooseAction(msg MessageIn) {
 		if inst == nil {
 			panic("instrument not found:" + msg.Key)
 		}
-		s.Player.Instrument = inst
-		generators.SetUpInstrument(s.Player.Instrument)
-		logrus.Info("set instrument", s.Player.Instrument.GetInfo().Name)
+		s.Player.Sequence.Instrument = inst
+		generators.SetUpInstrument(s.Player.Sequence.Instrument)
+		logrus.Info("set instrument", s.Player.Sequence.Instrument.GetInfo().Name)
 	} else {
 		logrus.Error("instrument not found:", msg.Key)
 	}
@@ -116,8 +116,8 @@ func (s Server) SetAction(msg MessageIn) {
 	parts := strings.Split(msg.Key, "/")
 	group := parts[0]
 	name := parts[1]
-	s.Player.Instrument = generators.SetInstrumentConstant(s.Player.Instrument, group, name, msg.Value)
-	generators.SetUpInstrument(s.Player.Instrument)
+	s.Player.Sequence.Instrument = generators.SetInstrumentConstant(s.Player.Sequence.Instrument, group, name, msg.Value)
+	generators.SetUpInstrument(s.Player.Sequence.Instrument)
 }
 
 func (s Server) NoteAction(msg MessageIn) {
@@ -154,7 +154,7 @@ func (s *Server) startWriteLoop() {
 			sort.Strings(instruments)
 			msg := MessageOut{
 				Time:        s.Player.CurrentSample,
-				Instrument:  s.Player.Instrument,
+				Instrument:  s.Player.Sequence.Instrument,
 				Instruments: instruments,
 				Frequency:   s.Player.Sequence.LastFrequency,
 				Config:      config.MainConfig,

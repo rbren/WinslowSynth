@@ -6,7 +6,6 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/rbren/midi/pkg/config"
-	"github.com/rbren/midi/pkg/generators"
 	"github.com/rbren/midi/pkg/input"
 	"github.com/rbren/midi/pkg/logger"
 	"github.com/rbren/midi/pkg/output"
@@ -15,7 +14,6 @@ import (
 const msPerTick = 10
 
 type MusicPlayer struct {
-	Instrument     generators.Instrument
 	Sequence       Sequence
 	Output         *output.CircularAudioBuffer
 	CurrentSample  uint64
@@ -32,7 +30,6 @@ func NewMusicPlayer(out *output.CircularAudioBuffer) MusicPlayer {
 	logrus.Info("output", out.GetCapacity())
 	return MusicPlayer{
 		Output:         out,
-		Instrument:     generators.GetDefaultInstrument(),
 		Sequence:       NewSequence(),
 		samplesPerTick: samplesPerTick,
 		silence:        make([]float32, samplesPerTick),
@@ -78,7 +75,7 @@ func (m *MusicPlayer) Start(notes chan input.InputKey) {
 
 func (m *MusicPlayer) nextBytes() {
 	logrus.Debug("active keys", len(m.Sequence.Events))
-	samples := m.Sequence.GetSamples(m.Instrument, m.CurrentSample, m.samplesPerTick)
+	samples := m.Sequence.GetSamples(m.CurrentSample, m.samplesPerTick)
 	_, err := m.Output.WriteAudio(samples, samples)
 	if err != nil {
 		panic(err)

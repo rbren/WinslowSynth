@@ -20,14 +20,16 @@ func init() {
 
 type Sequence struct {
 	lock          *sync.Mutex
+	Instrument    generators.Generator
 	Events        []*Event
 	LastFrequency float32
 }
 
 func NewSequence() Sequence {
 	return Sequence{
-		Events: []*Event{},
-		lock:   &sync.Mutex{},
+		Instrument: generators.GetDefaultInstrument(),
+		Events:     []*Event{},
+		lock:       &sync.Mutex{},
 	}
 }
 
@@ -53,6 +55,7 @@ func (s *Sequence) attack(key input.InputKey, time uint64) {
 		Frequency:   key.Frequency,
 		Key:         key.Key,
 		Velocity:    key.Velocity,
+		Generator:   generators.SetFrequency(s.Instrument, key.Frequency),
 	})
 }
 
@@ -75,20 +78,16 @@ func (s *Sequence) ClearOldEvents(absoluteTime uint64) {
 	}).([]*Event)
 }
 
-func (s *Sequence) GetSamples(inst generators.Instrument, absoluteTime uint64, numSamples int) []float32 {
+func (s *Sequence) GetSamples(absoluteTime uint64, numSamples int) []float32 {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	s.ClearOldEvents(absoluteTime) // TODO: put this on its own loop
 	allSamples := [][]float32{}
 	for _, event := range s.Events {
 		eventSamples := make([]float32, numSamples)
-		withFreq := generators.SetFrequency(inst, event.Frequency)
-		if withFreq.GetInfo() != nil {
-			//withFreq.SetInfo(generators.Info{}) // Make sure not to overwrite the history of inst
-		}
 		t, r := event.getRelativeTime(absoluteTime)
 		for idx := range eventSamples {
-			eventSamples[idx] = generators.GetValue(withFreq, t+uint64(idx), r)
+			eventSamples[idx] = generators.GetValue(event.Generator, t+uint64(idx), r)
 		}
 		allSamples = append(allSamples, eventSamples)
 	}
@@ -98,6 +97,6 @@ func (s *Sequence) GetSamples(inst generators.Instrument, absoluteTime uint64, n
 	} else {
 		output = buffers.MixBuffers(allSamples)
 	}
-	generators.AddHistory(inst, absoluteTime, output)
+	generators.AddHistory(s.Instrument, absoluteTime, output)
 	return output
 }

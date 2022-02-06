@@ -30,6 +30,16 @@ func GetConstants(g Generator) []Constant {
 	if g == nil {
 		return []Constant{}
 	}
+
+	// Clear history
+	if info := g.GetInfo(); info != nil {
+		infoCopy := *info
+		if infoCopy.History.Samples != nil {
+			infoCopy.History = getEmptyHistory()
+		}
+		g.SetInfo(infoCopy)
+	}
+
 	if c, ok := g.(Constant); ok {
 		if c.Info != nil && c.Info.Name != "" {
 			return []Constant{c}

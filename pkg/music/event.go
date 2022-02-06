@@ -1,11 +1,16 @@
 package music
 
+import (
+	"github.com/rbren/midi/pkg/generators"
+)
+
 type Event struct {
 	Key         int64
 	Frequency   float32
 	Velocity    int64
 	AttackTime  uint64
 	ReleaseTime uint64
+	Generator   generators.Generator
 }
 
 type EventType int
