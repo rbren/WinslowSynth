@@ -65,3 +65,7 @@ func (i Info) Copy(historyLen int) Info {
 	}
 	return i
 }
+
+func (h History) GetOrdered() []float32 {
+	return append(h.Samples[h.Position:], h.Samples[0:h.Position]...)
+}

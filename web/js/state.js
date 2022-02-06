@@ -13,7 +13,7 @@ function setState(state) {
 
   const instInfo = state.Instrument.Info;
   if (instInfo?.History?.Samples) {
-    addHistory(instInfo.History);
+    addHistory(state.Time, state.MainHistory);
   }
   drawWaveForm(state.Frequency);
 }
@@ -78,44 +78,35 @@ function findConstants(inst) {
   return all;
 }
 
-function reorderHistory(hist) {
-  const firstPos = hist.Position
-  const reordered = hist.Samples
-    .slice(firstPos, hist.Samples.length)
-    .concat(hist.Samples.slice(0, firstPos));
-  return reordered;
-}
-
 function getAvg(arr) {
   return arr.reduce((a, b) => Math.abs(a) + Math.abs(b), 0.0) / arr.length > 0 ? 'X' : 'O';
 }
 
-function logHistory(hist, reord) {
+function logHistory(label, reord) {
   const qLen = reord.length / 4;
   const q1 = reord.slice(0, qLen);
   const q2 = reord.slice(qLen, 2 * qLen);
   const q3 = reord.slice(qLen * 2, qLen * 3);
   const q4 = reord.slice(qLen * 3, qLen * 4);
-  console.log(hist.Position, hist.Time, reord.length, getAvg(q1), getAvg(q2), getAvg(q3), getAvg(q4))
+  console.log(label, reord.length, getAvg(q1), getAvg(q2), getAvg(q3), getAvg(q4))
 }
 
-function addHistory(hist) {
-  const reordered = reorderHistory(hist);
-  logHistory(hist, reordered);
+function addHistory(time, samples) {
+  logHistory('', samples);
   window.sampleHistory = window.sampleHistory || [];
   window.sampleHistoryTime = window.sampleHistoryTime || -1;
-  const firstNewTime = hist.Time - hist.Samples.length;
-  const lastNewTime = hist.Time;
+  const firstNewTime = time - samples.length;
+  const lastNewTime = time;
   const lastSeenTime = window.sampleHistoryTime;
   const numNewFrames = lastNewTime - lastSeenTime;
-  let oldestNewFrame = hist.Samples.length - numNewFrames;
+  let oldestNewFrame = samples.length - numNewFrames;
   if (oldestNewFrame < 0) {
     console.error('skipped', -oldestNewFrame, 'frames');
     oldestNewFrame = 0;
   }
-  const newFrames = reordered.slice(oldestNewFrame, reordered.length);
+  const newFrames = samples.slice(oldestNewFrame, samples.length);
   window.sampleHistory = window.sampleHistory.concat(newFrames);
   const desiredHistoryLength = 48000;
   window.sampleHistory.splice(0, window.sampleHistory.length - desiredHistoryLength);
-  window.sampleHistoryTime = hist.Time;
+  window.sampleHistoryTime = time;
 }

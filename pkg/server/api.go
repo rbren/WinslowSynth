@@ -29,6 +29,7 @@ type MessageOut struct {
 	Time        uint64
 	Frequency   float32
 	Instrument  generators.Generator
+	MainHistory []float32
 	Instruments []string
 	Constants   []generators.Constant
 	Config      config.Config
@@ -153,6 +154,7 @@ func (s *Server) startWriteLoop() {
 			msg := MessageOut{
 				Time:        s.Player.CurrentSample,
 				Instrument:  s.Player.Sequence.Instrument,
+				MainHistory: s.Player.Sequence.Instrument.GetInfo().History.GetOrdered(),
 				Instruments: instruments,
 				Frequency:   s.Player.Sequence.LastFrequency,
 				Config:      config.MainConfig,
