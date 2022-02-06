@@ -83,6 +83,9 @@ func (s *Sequence) GetSamples(inst generators.Instrument, absoluteTime uint64, n
 	for _, event := range s.Events {
 		eventSamples := make([]float32, numSamples)
 		withFreq := generators.SetFrequency(inst, event.Frequency)
+		if withFreq.GetInfo() != nil {
+			//withFreq.SetInfo(generators.Info{}) // Make sure not to overwrite the history of inst
+		}
 		t, r := event.getRelativeTime(absoluteTime)
 		for idx := range eventSamples {
 			eventSamples[idx] = generators.GetValue(withFreq, t+uint64(idx), r)
