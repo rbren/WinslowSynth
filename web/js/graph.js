@@ -94,6 +94,7 @@ function startDrawHistoryInterval() {
 
   let curEndTime = window.sampleHistoryTime;
   return setInterval(() => {
+    if (!window.sampleHistory) return;
     const endIdx = window.sampleHistory.length;
     const startIdx = endIdx - numSamplesInGraph;
     const samplesToDraw = window.sampleHistory.slice(startIdx, endIdx);
