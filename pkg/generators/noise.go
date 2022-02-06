@@ -6,7 +6,7 @@ import (
 )
 
 type Noise struct {
-	Info   *Info
+	Info   Info
 	Amount Generator
 }
 
@@ -22,5 +22,8 @@ func (n Noise) GetValue(t, r uint64) float32 {
 	return min + random*(max-min)
 }
 
-func (n Noise) GetInfo() *Info    { return n.Info }
-func (n Noise) SetInfo(info Info) { copyInfo(n.Info, info) }
+func (n Noise) GetInfo() Info { return n.Info }
+func (n Noise) Copy(historyLen int) Generator {
+	n.Info = n.Info.Copy(historyLen)
+	return n
+}

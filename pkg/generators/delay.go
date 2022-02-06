@@ -5,18 +5,15 @@ import (
 )
 
 type Delay struct {
-	Info   *Info
+	Info   Info
 	Amount Generator
-	Input  Instrument
+	Input  Generator
 }
 
 func NewDelay(input Generator, amt Generator) Delay {
-	input.SetInfo(Info{
-		History: getEmptyHistory(),
-	})
+	// TODO: ensure input has history being tracked
 	return Delay{
-		Info:   &Info{},
-		Input:  input,
+		Input:  input.Copy(UseDefaultHistoryLength),
 		Amount: amt,
 	}
 }
@@ -25,6 +22,7 @@ func (d Delay) GetValue(t, r uint64) float32 {
 	samplesPerMs := config.MainConfig.SampleRate / 1000
 	amtMs := GetValue(d.Amount, t, r)
 	amtSamples := int(amtMs) * samplesPerMs
+	GetValue(d.Input, t, r) // Ignore current value, but store it in history
 	inputInfo := d.Input.GetInfo()
 	valueIndex := inputInfo.History.Position - 1 - amtSamples
 	if valueIndex < 0 {
@@ -34,5 +32,8 @@ func (d Delay) GetValue(t, r uint64) float32 {
 	return val
 }
 
-func (d Delay) GetInfo() *Info    { return d.Info }
-func (d Delay) SetInfo(info Info) { copyInfo(d.Info, info) }
+func (d Delay) GetInfo() Info { return d.Info }
+func (d Delay) Copy(historyLen int) Generator {
+	d.Info = d.Info.Copy(historyLen)
+	return d
+}

@@ -5,7 +5,7 @@ import (
 )
 
 type ADSR struct {
-	Info         *Info
+	Info         Info
 	PeakLevel    Constant
 	AttackTime   Constant
 	DecayTime    Constant
@@ -60,5 +60,8 @@ func (a ADSR) Release(t, r uint64) float32 {
 	percentDone := float32(timeSinceRelease) / float32(desiredReleaseTime)
 	return baseVal * (1.0 - percentDone)
 }
-func (a ADSR) GetInfo() *Info    { return a.Info }
-func (a ADSR) SetInfo(info Info) { copyInfo(a.Info, info) }
+func (a ADSR) GetInfo() Info { return a.Info }
+func (a ADSR) Copy(historyLen int) Generator {
+	a.Info = a.Info.Copy(historyLen)
+	return a
+}

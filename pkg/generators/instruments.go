@@ -8,7 +8,7 @@ import (
 
 func frequencyConst() Constant {
 	return Constant{
-		Info:  &Info{Group: "", Name: "Frequency"},
+		Info:  Info{Group: "", Name: "Frequency"},
 		Value: 440.0,
 		Min:   20.0,
 		Max:   20000.0,
@@ -17,7 +17,7 @@ func frequencyConst() Constant {
 
 func BasicSine() Oscillator {
 	return Oscillator{
-		Info: &Info{
+		Info: Info{
 			Name: "Basic Sine",
 		},
 		Frequency: frequencyConst(),
@@ -27,7 +27,7 @@ func BasicSine() Oscillator {
 
 func BasicSaw() Oscillator {
 	return Oscillator{
-		Info:      &Info{Name: "Basic Saw"},
+		Info:      Info{Name: "Basic Saw"},
 		Shape:     SawShape,
 		Frequency: frequencyConst(),
 		Amplitude: GetADSR("adsr"),
@@ -36,7 +36,7 @@ func BasicSaw() Oscillator {
 
 func BasicSquare() Oscillator {
 	return Oscillator{
-		Info:      &Info{Name: "Basic Square"},
+		Info:      Info{Name: "Basic Square"},
 		Shape:     SquareShape,
 		Frequency: frequencyConst(),
 		Amplitude: GetADSR("adsr"),
@@ -45,7 +45,7 @@ func BasicSquare() Oscillator {
 
 const numMegaOscillators = 1
 
-func Mega() Instrument {
+func Mega() Generator {
 	waves := []Generator{}
 
 	if numMegaOscillators > 1 {
@@ -63,7 +63,7 @@ func Mega() Instrument {
 	}
 
 	return Average{
-		Info: &Info{
+		Info: Info{
 			Name:    "Mega",
 			History: getEmptyHistory(),
 		},
@@ -71,10 +71,10 @@ func Mega() Instrument {
 	}
 }
 
-func NoisySineWave() Instrument {
+func NoisySineWave() Generator {
 	base := BasicSine()
 	filter := NewNoiseFilter(base, Constant{
-		Info:  &Info{Group: "", Name: "Noise"},
+		Info:  Info{Group: "", Name: "Noise"},
 		Value: .2,
 		Min:   0.0,
 		Max:   1.0,
@@ -87,19 +87,19 @@ func Warbler() Oscillator {
 	adsr := GetADSR("adsr")
 	adsrInner := adsr
 	adsrInner.SustainLevel = Constant{
-		Info:  &Info{Group: "", Name: "Warble Amt"},
+		Info:  Info{Group: "", Name: "Warble Amt"},
 		Value: 20.0,
 		Min:   0.0,
 		Max:   100.0,
 	}
 	return Oscillator{
-		Info:          &Info{Name: "Warbler"},
+		Info:          Info{Name: "Warbler"},
 		Amplitude:     adsr,
 		DropOnRelease: true,
 		Frequency: Oscillator{
 			Amplitude: adsrInner,
 			Frequency: Constant{
-				Info:  &Info{Group: "", Name: "Warble Speed"},
+				Info:  Info{Group: "", Name: "Warble Speed"},
 				Value: 4,
 				Min:   0.0,
 				Max:   20.0,
@@ -110,15 +110,15 @@ func Warbler() Oscillator {
 	}
 }
 
-func DirtySawWave() Instrument {
+func DirtySawWave() Generator {
 	base := BasicSaw()
 	base.Amplitude = Multiply{
-		Info: &Info{Name: "Dirty Saw"},
+		Info: Info{Name: "Dirty Saw"},
 		Generators: []Generator{
 			base.Amplitude,
 			Noise{
 				Amount: Constant{
-					Info:  &Info{Group: "", Name: "Noise"},
+					Info:  Info{Group: "", Name: "Noise"},
 					Value: .1,
 					Min:   0.0,
 					Max:   1.0,
@@ -129,10 +129,10 @@ func DirtySawWave() Instrument {
 	return base
 }
 
-func HarmonicOscillator() Instrument {
+func HarmonicOscillator() Generator {
 	base := SimpleRamper()
 	return Harmonic{
-		Info:       &Info{Name: "Harmonic"},
+		Info:       Info{Name: "Harmonic"},
 		Oscillator: base,
 		Modes: []Mode{
 			Mode{Frequency: 1.5, Amplitude: .25},
@@ -147,7 +147,7 @@ func AmplitudeRamp() Ramp {
 	rampUpMs := 100
 	rampDownMs := 500
 	return Ramp{
-		Info:     &Info{Name: "Ramper"},
+		Info:     Info{Name: "Ramper"},
 		RampUp:   uint64(rampUpMs * samplesPerMs),
 		RampDown: uint64(rampDownMs * samplesPerMs),
 		Target:   1.0,
@@ -156,7 +156,7 @@ func AmplitudeRamp() Ramp {
 
 func SimpleRamper() Oscillator {
 	g := Oscillator{
-		Info:      &Info{Name: "Simple Ramper"},
+		Info:      Info{Name: "Simple Ramper"},
 		Frequency: frequencyConst(),
 		Amplitude: AmplitudeRamp(),
 		Phase:     Constant{Value: 0.0},

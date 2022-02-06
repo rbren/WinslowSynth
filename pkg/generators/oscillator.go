@@ -14,7 +14,7 @@ const (
 )
 
 type Oscillator struct {
-	Info          *Info
+	Info          Info
 	Amplitude     Generator
 	Frequency     Generator
 	Phase         Generator
@@ -72,5 +72,8 @@ func (s Oscillator) GetSquare(t, r uint64) float32 {
 	return val * GetValue(s.Amplitude, t, r)
 }
 
-func (s Oscillator) GetInfo() *Info    { return s.Info }
-func (s Oscillator) SetInfo(info Info) { copyInfo(s.Info, info) }
+func (s Oscillator) GetInfo() Info { return s.Info }
+func (s Oscillator) Copy(historyLen int) Generator {
+	s.Info = s.Info.Copy(historyLen)
+	return s
+}

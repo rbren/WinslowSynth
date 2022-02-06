@@ -5,7 +5,7 @@ import (
 )
 
 type Ramp struct {
-	Info     *Info
+	Info     Info
 	RampUp   uint64
 	RampDown uint64
 	Target   float32
@@ -40,5 +40,8 @@ func (r Ramp) RampDownVal(t, releasedAt uint64) float32 {
 	return startVal * (1.0 - percentDone)
 }
 
-func (r Ramp) GetInfo() *Info    { return r.Info }
-func (r Ramp) SetInfo(info Info) { copyInfo(r.Info, info) }
+func (r Ramp) GetInfo() Info { return r.Info }
+func (r Ramp) Copy(historyLen int) Generator {
+	r.Info = r.Info.Copy(historyLen)
+	return r
+}

@@ -3,12 +3,12 @@ package generators
 import ()
 
 type Average struct {
-	Info       *Info
+	Info       Info
 	Generators []Generator
 }
 
 type Multiply struct {
-	Info       *Info
+	Info       Info
 	Generators []Generator
 }
 
@@ -31,7 +31,13 @@ func (m Multiply) GetValue(t, releasedAt uint64) float32 {
 	return val
 }
 
-func (s Average) GetInfo() *Info     { return s.Info }
-func (s Average) SetInfo(info Info)  { copyInfo(s.Info, info) }
-func (m Multiply) GetInfo() *Info    { return m.Info }
-func (m Multiply) SetInfo(info Info) { copyInfo(m.Info, info) }
+func (s Average) GetInfo() Info  { return s.Info }
+func (m Multiply) GetInfo() Info { return m.Info }
+func (s Average) Copy(historyLen int) Generator {
+	s.Info = s.Info.Copy(historyLen)
+	return s
+}
+func (m Multiply) Copy(historyLen int) Generator {
+	m.Info = m.Info.Copy(historyLen)
+	return m
+}

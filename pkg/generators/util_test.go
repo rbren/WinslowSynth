@@ -22,24 +22,28 @@ func findWarbleAmt(cs []Constant) *Constant {
 }
 
 func TestSetConstant(t *testing.T) {
-	var g Generator
-	g = Warbler()
-	g.SetInfo(Info{
+	osc := Warbler()
+	osc.Info = Info{
 		Name: "warbler",
-		History: History{
+		History: &History{
 			Samples:  []float32{1, 2, 3},
 			Position: 1,
 			Time:     123,
 		},
-	})
-	cs := GetConstants(g)
+	}
+	cs := GetConstants(osc)
 	warbleConst := findWarbleAmt(cs)
 	assert.NotEqual(t, nil, warbleConst)
 	assert.Equal(t, float32(20.0), warbleConst.Value)
-	g2 := SetConstant(g, "", "Warble Amt", 100.0)
+	g2 := SetConstant(osc, "", "Warble Amt", 100.0)
 	info2 := g2.GetInfo()
 	assert.Equal(t, "warbler", info2.Name)
-	assert.Equal(t, getEmptyHistory(), info2.History)
+	emptyHistory := History{
+		Samples:  []float32{0, 0, 0},
+		Position: 0,
+		Time:     0,
+	}
+	assert.Equal(t, emptyHistory, *info2.History)
 	cs = GetConstants(g2)
 	warbleConst = findWarbleAmt(cs)
 	assert.Equal(t, float32(100.0), warbleConst.Value)

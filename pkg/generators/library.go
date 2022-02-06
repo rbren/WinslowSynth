@@ -1,9 +1,9 @@
 package generators
 
-var Library = map[string]Instrument{}
+var Library = map[string]Generator{}
 
 func init() {
-	Library = map[string]Instrument{
+	Library = map[string]Generator{
 		"warbler":     Warbler(),
 		"sine":        AddDelay("sine", BasicSine()),
 		"saw":         BasicSaw(),
@@ -13,4 +13,8 @@ func init() {
 		"noiseFilter": NoisySineWave(),
 		"mega":        Mega(),
 	}
+}
+
+func GetDefaultInstrument() Generator {
+	return Mega()
 }

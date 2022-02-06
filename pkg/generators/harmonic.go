@@ -1,7 +1,7 @@
 package generators
 
 type Harmonic struct {
-	Info       *Info
+	Info       Info
 	Modes      []Mode
 	Oscillator Oscillator
 	Average    Average
@@ -39,5 +39,8 @@ func (h Harmonic) GetValue(t, r uint64) float32 {
 	return GetValue(h.Average, t, r)
 }
 
-func (h Harmonic) GetInfo() *Info    { return h.Info }
-func (h Harmonic) SetInfo(info Info) { copyInfo(h.Info, info) }
+func (h Harmonic) GetInfo() Info { return h.Info }
+func (h Harmonic) Copy(historyLen int) Generator {
+	h.Info = h.Info.Copy(historyLen)
+	return h
+}

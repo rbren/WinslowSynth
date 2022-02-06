@@ -6,9 +6,9 @@ import (
 )
 
 type NoiseFilter struct {
-	Info   *Info
+	Info   Info
 	Amount Generator
-	Input  Instrument
+	Input  Generator
 }
 
 func init() {
@@ -17,7 +17,7 @@ func init() {
 
 func NewNoiseFilter(input Generator, amt Generator) NoiseFilter {
 	return NoiseFilter{
-		Info: &Info{
+		Info: Info{
 			History: getEmptyHistory(),
 		},
 		Input:  input,
@@ -40,5 +40,8 @@ func (n NoiseFilter) GetValue(t, r uint64) float32 {
 	return val
 }
 
-func (n NoiseFilter) GetInfo() *Info    { return n.Info }
-func (n NoiseFilter) SetInfo(info Info) { copyInfo(n.Info, info) }
+func (n NoiseFilter) GetInfo() Info { return n.Info }
+func (n NoiseFilter) Copy(historyLen int) Generator {
+	n.Info = n.Info.Copy(historyLen)
+	return n
+}

@@ -17,13 +17,8 @@ func GetPhasePosition(freq Generator, phase Generator, time, releasedAt uint64) 
 	return float32(sampleLoc) / samplesPerPeriod
 }
 
-func SetFrequency(i Instrument, f float32) Instrument {
-	return SetInstrumentConstant(i, "", "Frequency", f)
-}
-
-func SetInstrumentConstant(i Instrument, group, name string, value float32) Instrument {
-	g := SetConstant(i, group, name, value)
-	return g.(Instrument)
+func SetFrequency(i Generator, f float32) Generator {
+	return SetConstant(i, "", "Frequency", f)
 }
 
 func GetConstants(g Generator) []Constant {
@@ -31,17 +26,8 @@ func GetConstants(g Generator) []Constant {
 		return []Constant{}
 	}
 
-	// Clear history
-	if info := g.GetInfo(); info != nil {
-		infoCopy := *info
-		if infoCopy.History.Samples != nil {
-			infoCopy.History = getEmptyHistory()
-		}
-		g.SetInfo(infoCopy)
-	}
-
 	if c, ok := g.(Constant); ok {
-		if c.Info != nil && c.Info.Name != "" {
+		if c.Info.Name != "" {
 			return []Constant{c}
 		} else {
 			return []Constant{}
@@ -71,13 +57,13 @@ func GetConstants(g Generator) []Constant {
 }
 
 func SetConstant(g Generator, group, name string, value float32) Generator {
-	if c, ok := g.(Constant); ok {
-		if c.Info != nil && c.Info.Name == name && (group == "" || c.Info.Group == group) {
+	gCopy := g.Copy(CopyExistingHistoryLength)
+	if c, ok := gCopy.(Constant); ok {
+		if c.Info.Name == name && (group == "" || c.Info.Group == group) {
 			c.Value = value
 		}
 		return c
 	}
-	gCopy := g
 	genType := reflect.TypeOf((*Generator)(nil)).Elem()
 	listType := reflect.TypeOf(([]interface{})(nil)).Elem()
 	gInterface := reflect.ValueOf(&gCopy).Elem()

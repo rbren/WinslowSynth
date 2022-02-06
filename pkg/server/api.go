@@ -28,7 +28,7 @@ type MessageIn struct {
 type MessageOut struct {
 	Time        uint64
 	Frequency   float32
-	Instrument  generators.Instrument
+	Instrument  generators.Generator
 	Instruments []string
 	Constants   []generators.Constant
 	Config      config.Config
@@ -103,8 +103,7 @@ func (s Server) ChooseAction(msg MessageIn) {
 		if inst == nil {
 			panic("instrument not found:" + msg.Key)
 		}
-		s.Player.Sequence.Instrument = inst
-		generators.SetUpInstrument(s.Player.Sequence.Instrument)
+		s.Player.Sequence.Instrument = inst.Copy(generators.UseDefaultHistoryLength)
 		logrus.Info("set instrument", s.Player.Sequence.Instrument.GetInfo().Name)
 	} else {
 		logrus.Error("instrument not found:", msg.Key)
@@ -116,8 +115,7 @@ func (s Server) SetAction(msg MessageIn) {
 	parts := strings.Split(msg.Key, "/")
 	group := parts[0]
 	name := parts[1]
-	s.Player.Sequence.Instrument = generators.SetInstrumentConstant(s.Player.Sequence.Instrument, group, name, msg.Value)
-	generators.SetUpInstrument(s.Player.Sequence.Instrument)
+	s.Player.Sequence.Instrument = generators.SetConstant(s.Player.Sequence.Instrument, group, name, msg.Value)
 }
 
 func (s Server) NoteAction(msg MessageIn) {
