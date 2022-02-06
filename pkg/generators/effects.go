@@ -10,7 +10,8 @@ func TheWorks(name string, shape OscillatorShape) Generator {
 		Amplitude: GetLFO(name, GetADSR(name)),
 		Shape:     shape,
 	}
-	inst := AddNoise(name, osc)
+	var inst Generator = osc
+	//inst := AddNoise(name, osc)
 	//inst = AddDelay(name, inst)
 	inst = AddLevel(name, inst)
 	return inst
