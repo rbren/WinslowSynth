@@ -9,7 +9,7 @@ Getting audio drivers to work properly with Golang has proven tricky.
 
 This setup is working for me on an M1 Mac:
 ```
-export LIBRARY_PATH_TO_USE="/usr/local/lib/:/Users/rbren/git/go/src/github.com/rbren/midi/portaudio/lib/.libs"
+export LIBRARY_PATH_TO_USE="/usr/local/lib/:`pwd`/portaudio/lib/.libs"
 export LIBRARY_PATH="$LIBRARY_PATH_TO_USE"
 export CGO_CFLAGS="-I`pwd`/portaudio/include"
 export PKG_CONFIG_PATH=`pwd`/portaudio
