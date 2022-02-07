@@ -11,10 +11,7 @@ function setState(state) {
   });
   window.state = state;
 
-  const instInfo = state.Instrument.Info;
-  if (instInfo?.History?.Samples) {
-    addHistory(state.Time, state.MainHistory);
-  }
+  addHistory(state.Time, state.HistoryUpdate);
   drawWaveForm(state.Frequency);
 }
 

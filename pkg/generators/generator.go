@@ -11,7 +11,7 @@ type Info struct {
 }
 
 type History struct {
-	Samples  []float32
+	samples  []float32
 	Position int
 	Time     uint64
 }

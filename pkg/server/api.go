@@ -15,7 +15,15 @@ import (
 	"github.com/rbren/midi/pkg/music"
 )
 
-var sendInterval = 50 * time.Millisecond
+var sendIntervalMs = 50
+var sendInterval = time.Duration(sendIntervalMs) * time.Millisecond
+var samplesPerSend int
+
+func init() {
+	msPerSend := sendIntervalMs
+	samplesPerMs := config.MainConfig.SampleRate / 1000
+	samplesPerSend = samplesPerMs * msPerSend
+}
 
 var upgrader = websocket.Upgrader{} // use default options
 
@@ -26,13 +34,13 @@ type MessageIn struct {
 }
 
 type MessageOut struct {
-	Time        uint64
-	Frequency   float32
-	Instrument  generators.Generator
-	MainHistory []float32
-	Instruments []string
-	Constants   []generators.Constant
-	Config      config.Config
+	Time          uint64
+	Frequency     float32
+	Instrument    generators.Generator
+	HistoryUpdate []float32
+	Instruments   []string
+	Constants     []generators.Constant
+	Config        config.Config
 }
 
 type Server struct {
@@ -152,12 +160,12 @@ func (s *Server) startWriteLoop() {
 			}
 			sort.Strings(instruments)
 			msg := MessageOut{
-				Time:        s.Player.CurrentSample,
-				Instrument:  s.Player.Sequence.Instrument,
-				MainHistory: s.Player.Sequence.Instrument.GetInfo().History.GetOrdered(),
-				Instruments: instruments,
-				Frequency:   s.Player.Sequence.LastFrequency,
-				Config:      config.MainConfig,
+				Time:          s.Player.CurrentSample,
+				Instrument:    s.Player.Sequence.Instrument,
+				HistoryUpdate: s.Player.Sequence.Instrument.GetInfo().History.GetOrdered(samplesPerSend),
+				Instruments:   instruments,
+				Frequency:     s.Player.Sequence.LastFrequency,
+				Config:        config.MainConfig,
 			}
 			err := s.connection.WriteJSON(msg)
 			if err != nil {
