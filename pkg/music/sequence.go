@@ -1,7 +1,9 @@
 package music
 
 import (
+	"math"
 	"sync"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"github.com/thoas/go-funk"
@@ -12,17 +14,12 @@ import (
 	"github.com/rbren/midi/pkg/input"
 )
 
-var maxReleaseTimeSamples int
-
-func init() {
-	maxReleaseTimeSamples = config.MainConfig.SampleRate * 10
-}
-
 type Sequence struct {
-	lock          *sync.Mutex
-	Instrument    generators.Generator
-	Events        []*Event
-	LastFrequency float32
+	lock               *sync.Mutex
+	Instrument         generators.Generator
+	Events             []*Event
+	SampleRateHandicap float32
+	LastFrequency      float32
 }
 
 func NewSequence() Sequence {
@@ -72,24 +69,50 @@ func (s *Sequence) ClearOldEvents(absoluteTime uint64) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	s.Events = funk.Filter(s.Events, func(event *Event) bool {
-		if event.ReleaseTime == 0 {
-			return true
-		}
-		elapsedSinceRelease := absoluteTime - event.ReleaseTime
-		return elapsedSinceRelease <= uint64(maxReleaseTimeSamples)
+		return event.StillActive(absoluteTime)
 	}).([]*Event)
 }
 
 func (s *Sequence) GetSamples(absoluteTime uint64, numSamples int) []float32 {
 	s.lock.Lock()
 	defer s.lock.Unlock()
+	start := time.Now()
+	samplesPerMs := config.MainConfig.SampleRate / 1000
+	samplesPerSprint := numSamples
+	msPerSprint := samplesPerSprint / samplesPerMs
+	handicapModulus := int(math.Max(1.0, math.Ceil(float64(s.SampleRateHandicap))))
+
 	//logrus.Infof("%d generators", len(s.Events))
 	allSamples := [][]float32{}
 	for _, event := range s.Events {
 		eventSamples := make([]float32, numSamples)
 		t, r := event.getRelativeTime(absoluteTime)
+		zeroed := true
 		for idx := range eventSamples {
-			eventSamples[idx] = generators.GetValue(event.Generator, t+uint64(idx), r)
+			if idx%handicapModulus == 0 || idx == numSamples-1 {
+				val := generators.GetValue(event.Generator, t+uint64(idx), r)
+				eventSamples[idx] = val
+				if val != 0.0 {
+					zeroed = false
+				}
+			}
+		}
+		event.Zeroed = zeroed
+		var prev, next float32
+		for idx := range eventSamples {
+			remainder := idx % handicapModulus
+			if remainder == 0 {
+				prev = eventSamples[idx]
+				nextIdx := idx + handicapModulus
+				if nextIdx >= len(eventSamples) {
+					nextIdx = len(eventSamples) - 1
+				}
+				next = eventSamples[nextIdx]
+			} else {
+				weightNext := float32(remainder) / float32(handicapModulus)
+				weightPrev := 1.0 - weightNext
+				eventSamples[idx] = weightPrev*prev + weightNext*next
+			}
 		}
 		allSamples = append(allSamples, eventSamples)
 	}
@@ -100,5 +123,14 @@ func (s *Sequence) GetSamples(absoluteTime uint64, numSamples int) []float32 {
 		output = buffers.MixBuffers(allSamples)
 	}
 	generators.AddHistory(s.Instrument, absoluteTime, output)
+	duration := time.Since(start)
+	ratio := float32(duration.Milliseconds()) / float32(msPerSprint)
+	if ratio > 1 {
+		s.SampleRateHandicap = float32(math.Max(float64(s.SampleRateHandicap), 1.0)) + 1
+		logrus.Warningf("DOWNSAMPLE: with %d generators, ratio was %f, increased sample handicap to %f", len(s.Events), ratio, s.SampleRateHandicap)
+	} else if ratio < .25 && s.SampleRateHandicap >= 1 {
+		s.SampleRateHandicap = s.SampleRateHandicap - 1
+		logrus.Warningf("UPSAMPLE: with %d generators, ratio was %f, decreased sample handicap to %f", len(s.Events), ratio, s.SampleRateHandicap)
+	}
 	return output
 }
