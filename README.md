@@ -1,5 +1,7 @@
 # Winslow Synthesizer
 
+This is a project for making funny sounds with Go.
+
 ![michael winslow spaceballs](winslow.gif)
 
 ## Installation
