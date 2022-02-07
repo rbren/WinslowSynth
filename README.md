@@ -1,4 +1,4 @@
-# Winslow Synthesizer
+# Winslow Synth
 
 This is a project for making funny sounds with Go.
 
