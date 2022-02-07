@@ -37,6 +37,12 @@ func NewMusicPlayer(out *output.CircularAudioBuffer) MusicPlayer {
 	}
 }
 
+func (m *MusicPlayer) Start(notes chan input.InputKey) {
+	go m.startSampling()
+	go m.startSequencing(notes)
+	go m.startClearingSequence()
+}
+
 func (m *MusicPlayer) Clear() {
 	m.Sequence = NewSequence()
 }
@@ -85,12 +91,6 @@ func (m *MusicPlayer) startClearingSequence() {
 			m.Sequence.ClearOldEvents(m.CurrentSample)
 		}
 	}
-}
-
-func (m *MusicPlayer) Start(notes chan input.InputKey) {
-	go m.startSampling()
-	go m.startSequencing(notes)
-	go m.startClearingSequence()
 }
 
 func (m *MusicPlayer) nextBytes() {
