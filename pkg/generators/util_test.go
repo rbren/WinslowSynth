@@ -26,7 +26,7 @@ func TestSetConstant(t *testing.T) {
 	osc.Info = Info{
 		Name: "warbler",
 		History: &History{
-			Samples:  []float32{1, 2, 3},
+			samples:  []float32{1, 2, 3},
 			Position: 1,
 			Time:     123,
 		},
@@ -39,7 +39,7 @@ func TestSetConstant(t *testing.T) {
 	info2 := g2.GetInfo()
 	assert.Equal(t, "warbler", info2.Name)
 	emptyHistory := History{
-		Samples:  []float32{0, 0, 0},
+		samples:  []float32{0, 0, 0},
 		Position: 0,
 		Time:     0,
 	}

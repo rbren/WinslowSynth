@@ -3,6 +3,8 @@ package generators
 import (
 	"fmt"
 	"math"
+
+	"github.com/rbren/midi/pkg/config"
 )
 
 type OscillatorShape int
@@ -54,23 +56,32 @@ func (s Oscillator) GetValue(t, r uint64) float32 {
 }
 
 func (s Oscillator) GetWave(t, r uint64) float32 {
-	pos := 2.0 * math.Pi * GetPhasePosition(s.Frequency, s.Phase, t, r)
+	pos := 2.0 * math.Pi * s.GetPhasePosition(t, r)
 	amp := GetValue(s.Amplitude, t, r)
 	return GetValue(s.Bias, t, r) + amp*float32(math.Sin(float64(pos)))
 }
 
 func (s Oscillator) GetSaw(t, r uint64) float32 {
-	fraction := GetPhasePosition(s.Frequency, s.Phase, t, r)
+	fraction := s.GetPhasePosition(t, r)
 	return GetValue(s.Amplitude, t, r) * (fraction*2.0 - 1.0)
 }
 
 func (s Oscillator) GetSquare(t, r uint64) float32 {
-	phasePos := GetPhasePosition(s.Frequency, s.Phase, t, r)
+	phasePos := s.GetPhasePosition(t, r)
 	var val float32 = 1.0
 	if phasePos > .5 {
 		val = -1.0
 	}
 	return val * GetValue(s.Amplitude, t, r)
+}
+
+// GetPhasePosition returns the current position as a fraction of a full period
+func (s Oscillator) GetPhasePosition(time, releasedAt uint64) float32 {
+	samplesPerPeriod := float32(config.MainConfig.SampleRate) / s.Frequency.GetValue(time, releasedAt)
+	phaseVal := s.Phase.GetValue(time, releasedAt)
+	phaseScaled := (samplesPerPeriod * phaseVal) / (2.0 * math.Pi)
+	sampleLoc := int((time + uint64(phaseScaled)) % uint64(samplesPerPeriod))
+	return float32(sampleLoc) / samplesPerPeriod
 }
 
 func (s Oscillator) GetInfo() Info { return s.Info }
