@@ -37,8 +37,12 @@ function randomize() {
     const inpt = e.find('input[type="number"]');
     const min = parseFloat(inpt.attr('min'))
     const max = parseFloat(inpt.attr('max'))
-    const rand = min + Math.random() * (max - min);
-    updateConstant(group, name, rand);
+    const step = parseFloat(inpt.attr('step'))
+    let newVal = min + Math.random() * (max - min);
+    if (step) {
+      newVal = Math.round(newVal / step) * step;
+    }
+    updateConstant(group, name, newVal);
   });
 }
 

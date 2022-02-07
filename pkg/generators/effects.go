@@ -94,8 +94,9 @@ func GetHarmonicConstant(name string) Generator {
 			Constant{
 				Info:  Info{Group: name, Name: "Harmonic"},
 				Value: 1.0,
-				Min:   .5,
-				Max:   4.0,
+				Min:   1.0,
+				Max:   8.0,
+				Step:  1.0,
 			},
 		},
 	}
