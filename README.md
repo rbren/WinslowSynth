@@ -165,11 +165,12 @@ There's probably something smarter we could be doing here...
 On my machine, things start to get hairy at around 100 `Generator`s. That could be one note
 on a big complicated instrument, or 100 rapid keypresses on a basic Sine oscillator.
 
-Winslow try to degrade gracefully in this situation - it will begin to downsample the instrument,
+Winslow tries to degrade gracefully in this situation - it will begin to downsample the instrument,
 interpolating intermediate samples.
 
 You can trigger this by opening up a large instrument and playing multiple chords in quick
-succession - eventually you will hear the audio degrade and start to crackle.
+succession - eventually you will hear the audio degrade and start to crackle (and you'll
+see some warning logs).
 
 I believe this is a pretty hard limitation of the current system. I'm not sure how well it performs
 relative to other digital synths, but my guess is not well.
