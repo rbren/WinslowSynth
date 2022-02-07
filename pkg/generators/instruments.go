@@ -64,7 +64,7 @@ func Mega() Generator {
 
 	return Average{
 		Info: Info{
-			Name:    "Mega",
+			Name:    "Winslow",
 			History: getEmptyHistory(),
 		},
 		Generators: waves,

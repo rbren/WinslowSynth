@@ -4,6 +4,7 @@ var Library = map[string]Generator{}
 
 func init() {
 	Library = map[string]Generator{
+		"winslow":     Mega(),
 		"warbler":     Warbler(),
 		"sine":        AddDelay("sine", BasicSine()),
 		"saw":         BasicSaw(),
@@ -11,7 +12,6 @@ func init() {
 		"dirty":       DirtySawWave(),
 		"harmonic":    HarmonicOscillator(),
 		"noiseFilter": NoisySineWave(),
-		"mega":        Mega(),
 	}
 }
 

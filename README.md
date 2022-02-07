@@ -24,6 +24,16 @@ If you have a MIDI device connected, that will automatically be picked up.
 Otherwise, you can use the top two rows of keys on your QWERTY keyboard
 when focused on the browser.
 
+## User Interface
+![Winslow's User Interface](ui.png)
+
+The UI is fairly simple for now. It contains:
+* A live visualization of the audio buffer
+* A visualization of the waveform (zooming in on a stable part of the audio buffer)
+* An instrument selector
+* Controls for every part of the current instrument
+* A button to randomize the values for each control
+
 ## Building Synths
 
 ### Generators
