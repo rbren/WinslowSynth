@@ -93,7 +93,6 @@ function logHistory(label, reord) {
 }
 
 function addHistory(time, samples) {
-  logHistory('', samples);
   window.sampleHistory = window.sampleHistory || [];
   window.sampleHistoryTime = window.sampleHistoryTime || -1;
   const firstNewTime = time - samples.length;
