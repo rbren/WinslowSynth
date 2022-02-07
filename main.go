@@ -19,9 +19,20 @@ const useServer = true
 func startServer() {
 	s := server.Server{}
 	s.Initialize()
-	notes, err := s.StartListening()
+	browserNotes, err := s.StartListening()
 	closeOnExit(s)
 	must(err)
+
+	notes := browserNotes
+	var keyListener input.InputDevice = &input.MidiKeyboard{}
+	defer keyListener.Close()
+	midiNotes, err := keyListener.StartListening()
+	if err != nil {
+		fmt.Println("Couldn't find MIDI keyboard, using browser")
+	} else {
+		notes = midiNotes
+	}
+
 	player, out := startOutput(notes)
 	defer out.Close()
 	s.Player = player
