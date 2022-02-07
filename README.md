@@ -1,6 +1,6 @@
 # Winslow Synth
 
-**Make funny sounds with Go.**
+**Make funny sounds with Go**
 
 ![GIF of Michael Winslow in Spaceballs](winslow.gif)
 
