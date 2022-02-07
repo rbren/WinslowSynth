@@ -2,7 +2,7 @@
 
 This is a project for making funny sounds with Go.
 
-![michael winslow spaceballs](winslow.gif)
+![GIF of Michael Winslow in Spaceballs](winslow.gif)
 
 ## Installation
 Getting audio drivers to work properly with Golang has proven tricky.
@@ -90,4 +90,4 @@ This will automatically create a slider in the UI which allows the user to
 alter the constant on-the-fly. The `Name` field controls the label on the slider,
 while the `Group` field controls which other `Constant`s it's grouped with.
 
-![UI controls](controls.png)
+![Example of UI controls](controls.png)
