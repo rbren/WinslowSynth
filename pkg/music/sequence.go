@@ -83,39 +83,17 @@ func (s *Sequence) GetSamples(absoluteTime uint64, numSamples int) []float32 {
 	handicapModulus := int(math.Max(1.0, math.Ceil(float64(s.SampleRateHandicap))))
 
 	//logrus.Infof("%d generators", len(s.Events))
-	allSamples := [][]float32{}
-	for _, event := range s.Events {
-		eventSamples := make([]float32, numSamples)
-		t, r := event.getRelativeTime(absoluteTime)
-		zeroed := true
-		for idx := range eventSamples {
-			if idx%handicapModulus == 0 || idx == numSamples-1 {
-				val := generators.GetValue(event.Generator, t+uint64(idx), r)
-				eventSamples[idx] = val
-				if val != 0.0 {
-					zeroed = false
-				}
-			}
-		}
-		event.Zeroed = zeroed
-		var prev, next float32
-		for idx := range eventSamples {
-			remainder := idx % handicapModulus
-			if remainder == 0 {
-				prev = eventSamples[idx]
-				nextIdx := idx + handicapModulus
-				if nextIdx >= len(eventSamples) {
-					nextIdx = len(eventSamples) - 1
-				}
-				next = eventSamples[nextIdx]
-			} else {
-				weightNext := float32(remainder) / float32(handicapModulus)
-				weightPrev := 1.0 - weightNext
-				eventSamples[idx] = weightPrev*prev + weightNext*next
-			}
-		}
-		allSamples = append(allSamples, eventSamples)
+	allSamples := make([][]float32, len(s.Events))
+	var wg sync.WaitGroup
+	for eventIdx, event := range s.Events {
+		wg.Add(1)
+		go func(eventIdx int, event *Event) {
+			defer wg.Done()
+			eventSamples := event.GetSamples(absoluteTime, numSamples, handicapModulus)
+			allSamples[eventIdx] = eventSamples
+		}(eventIdx, event)
 	}
+	wg.Wait()
 	var output []float32
 	if len(allSamples) == 0 {
 		output = make([]float32, numSamples)
