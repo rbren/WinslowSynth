@@ -11,7 +11,8 @@ func TheWorks(name string, shape OscillatorShape) Generator {
 		Shape:     shape,
 	}
 	var inst Generator = osc
-	inst = AddNoise(name, osc)
+	inst = AddNoise(name, inst)
+	inst = AddReverb(name, inst)
 	inst = AddDelay(name, inst)
 	inst = AddLevel(name, inst)
 	return inst

@@ -1,12 +1,15 @@
 package music
 
 import (
+	"math"
+
 	"github.com/rbren/midi/pkg/config"
 	"github.com/rbren/midi/pkg/generators"
 )
 
 const maxReleaseTimeMs = 10000
 const minZeroedTimeMs = 1000
+const zeroThreshold = 0.01
 
 var maxReleaseTimeSamples int
 var minZeroedTimeSamples int
@@ -62,7 +65,7 @@ func (e *Event) GetSamples(absoluteTime uint64, numSamples, handicapModulus int)
 		if idx%handicapModulus == 0 || idx == numSamples-1 {
 			val := generators.GetValue(e.Generator, t+uint64(idx), r)
 			eventSamples[idx] = val
-			if val != 0.0 {
+			if math.Abs(float64(val)) > zeroThreshold {
 				zeroed = false
 			}
 		}

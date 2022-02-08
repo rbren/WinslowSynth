@@ -10,11 +10,13 @@ type Reverb struct {
 	Info     Info
 	Strength Generator
 	Delay    Generator
-	Decay    Generator
+	Repeats  Generator
 	Input    Generator
 }
 
 func NewReverb(group string, input Generator) Reverb {
+	var maxDelay float32 = 1000.0
+	maxRepeats := float32(math.Floor(float64(historyMs) / float64(maxDelay)))
 	return Reverb{
 		Input: input.Copy(UseDefaultHistoryLength),
 		Strength: Constant{
@@ -33,16 +35,17 @@ func NewReverb(group string, input Generator) Reverb {
 			},
 			Value: 250,
 			Min:   0,
-			Max:   1000,
+			Max:   maxDelay,
 		},
-		Decay: Constant{
+		Repeats: Constant{
 			Info: Info{
-				Name:  "Reverb Decay",
+				Name:  "Reverb Repeats",
 				Group: group,
 			},
-			Value: 1000,
+			Value: 3,
 			Min:   0,
-			Max:   float32(historyMs - 1),
+			Max:   maxRepeats,
+			Step:  1,
 		},
 	}
 }
@@ -50,11 +53,14 @@ func NewReverb(group string, input Generator) Reverb {
 func (d Reverb) GetValue(t, r uint64) float32 {
 	val := GetValue(d.Input, t, r)
 
-	samplesPerMs := config.MainConfig.SampleRate / 1000
-	decayTimeMs := GetValue(d.Decay, t, r)
+	numRepeats := int(GetValue(d.Repeats, t, r))
 	delayMs := GetValue(d.Delay, t, r)
-	numRepeats := int(math.Floor(float64(decayTimeMs / delayMs)))
 	startAmplitude := GetValue(d.Strength, t, r)
+	if startAmplitude == 0 || delayMs == 0 || numRepeats == 0 {
+		return val
+	}
+
+	samplesPerMs := config.MainConfig.SampleRate / 1000
 	for repetition := 0; repetition < numRepeats; repetition++ {
 		delaySamples := uint64(int(delayMs) * (repetition + 1) * samplesPerMs)
 		amplitude := startAmplitude * (1.0 - float32(repetition)/float32(numRepeats))
