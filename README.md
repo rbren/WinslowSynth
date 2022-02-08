@@ -162,11 +162,8 @@ but changes the signal a bit.
 There's probably something smarter we could be doing here...
 
 ### Performance
-On my machine, things start to get hairy at around 100 `Generator`s. That could be one note
-on a big complicated instrument, or 100 rapid keypresses on a basic Sine oscillator.
-
-Winslow tries to degrade gracefully in this situation - it will begin to downsample the instrument,
-interpolating intermediate samples.
+On my machine, things start to get hairy at around 200 `Generator`s. That could be one note
+on a big complicated instrument, or 200 rapid keypresses on a basic Sine oscillator.
 
 You can trigger this by opening up a large instrument and playing multiple chords in quick
 succession - eventually you will hear the audio degrade and start to crackle (and you'll
@@ -174,3 +171,19 @@ see some warning logs).
 
 I believe this is a pretty hard limitation of the current system. I'm not sure how well it performs
 relative to other digital synths, but my guess is not well.
+
+#### Mitigation Strategies
+* Winslow tries to degrade gracefully when its computational speed slows below the
+sample rate. It will begin to downsample the instrument, interpolating intermediate samples.
+  * Currently the interpolation is just an average - there's probably a more sophisticated
+strategy out there.
+* Every `Event` is sampled in its own goroutine, which speeds things up considerably
+in multi-core environments
+* Winslow tries to be intelligent about when an `Event` is no longer producing sound
+and can be discarded. All `Event`s are discarded after 1 second of zero values, with
+a 10 second maximum
+  * We could be stricter about what is considered "zero" - currently it's strict equality
+  * We could probably tune the time thresholds better
+
+
+
