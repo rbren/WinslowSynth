@@ -40,7 +40,16 @@ func AddHistory(g Generator, startTime uint64, history []float32) {
 }
 
 func GetValue(g Generator, t, r uint64) float32 {
-	// TODO: use history as a cache
+	cached := GetValueCached(g, t)
+	if cached != nil {
+		return *cached
+	}
+	val := g.GetValue(t, r)
+	AddHistory(g, t, []float32{val})
+	return val
+}
+
+func GetValueCached(g Generator, t uint64) *float32 {
 	info := g.GetInfo()
 	if info.History != nil && info.History.samples != nil {
 		if timeDiff := info.History.Time - t; timeDiff >= 0 && timeDiff < uint64(len(info.History.samples)) {
@@ -48,12 +57,11 @@ func GetValue(g Generator, t, r uint64) float32 {
 			if idx < 0 {
 				idx = idx + len(info.History.samples)
 			}
-			return info.History.samples[idx]
+			val := info.History.samples[idx]
+			return &val
 		}
 	}
-	val := g.GetValue(t, r)
-	AddHistory(g, t, []float32{val})
-	return val
+	return nil
 }
 
 func (i Info) Copy(historyLen int) Info {

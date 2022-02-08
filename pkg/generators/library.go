@@ -5,10 +5,11 @@ var Library = map[string]Generator{}
 func init() {
 	Library = map[string]Generator{
 		"winslow":     Mega(),
-		"warbler":     Warbler(),
-		"sine":        AddDelay("sine", BasicSine()),
+		"sine":        BasicSine(),
 		"saw":         BasicSaw(),
 		"square":      BasicSquare(),
+		"reverb":      AddReverb("sine", BasicSine()),
+		"warbler":     Warbler(),
 		"dirty":       DirtySawWave(),
 		"harmonic":    HarmonicOscillator(),
 		"noiseFilter": NoisySineWave(),

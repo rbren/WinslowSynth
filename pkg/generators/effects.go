@@ -31,6 +31,10 @@ func AddDelay(name string, inst Generator) Generator {
 	return delay
 }
 
+func AddReverb(name string, inst Generator) Generator {
+	return NewReverb(name, inst)
+}
+
 func AddLevel(name string, inst Generator) Generator {
 	return Multiply{
 		Info: Info{Group: name},
