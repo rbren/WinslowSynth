@@ -11,8 +11,8 @@ func TheWorks(name string, shape OscillatorShape) Generator {
 		Shape:     shape,
 	}
 	var inst Generator = osc
-	//inst := AddNoise(name, osc)
-	//inst = AddDelay(name, inst)
+	inst = AddNoise(name, osc)
+	inst = AddDelay(name, inst)
 	inst = AddLevel(name, inst)
 	return inst
 }
@@ -23,10 +23,10 @@ func AddDelay(name string, inst Generator) Generator {
 			Name:  "Delay",
 			Group: name,
 		},
-		Value: 500,
+		Value: 10,
 		Min:   0,
-		Max:   3000,
-		Step:  50,
+		Max:   500,
+		Step:  10,
 	})
 	return delay
 }
@@ -130,6 +130,6 @@ func AddNoise(name string, base Generator) Generator {
 		Info:  Info{Group: name, Name: "Noise"},
 		Value: 0.0,
 		Min:   0.0,
-		Max:   1.0,
+		Max:   0.5,
 	})
 }
