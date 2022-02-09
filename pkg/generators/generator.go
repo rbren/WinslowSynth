@@ -5,9 +5,10 @@ import (
 )
 
 type Info struct {
-	Name    string
-	Group   string
-	History *History
+	Name     string
+	Group    string
+	Subgroup string
+	History  *History
 }
 
 type History struct {

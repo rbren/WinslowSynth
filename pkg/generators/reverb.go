@@ -16,13 +16,14 @@ type Reverb struct {
 
 func NewReverb(group string, input Generator) Reverb {
 	var maxDelay float32 = 1000.0
-	maxRepeats := float32(math.Floor(float64(historyMs) / float64(maxDelay)))
+	maxRepeats := float32(math.Floor(float64(historyMs-1) / float64(maxDelay)))
 	return Reverb{
 		Input: input.Copy(UseDefaultHistoryLength),
 		Strength: Constant{
 			Info: Info{
-				Name:  "Reverb Strength",
-				Group: group,
+				Name:     "Strength",
+				Group:    group,
+				Subgroup: "Reverb",
 			},
 			Value: 1.0,
 			Min:   0.0,
@@ -30,8 +31,9 @@ func NewReverb(group string, input Generator) Reverb {
 		},
 		Delay: Constant{
 			Info: Info{
-				Name:  "Reverb Delay",
-				Group: group,
+				Name:     "Delay",
+				Group:    group,
+				Subgroup: "Reverb",
 			},
 			Value: 250,
 			Min:   0,
@@ -39,8 +41,9 @@ func NewReverb(group string, input Generator) Reverb {
 		},
 		Repeats: Constant{
 			Info: Info{
-				Name:  "Reverb Repeats",
-				Group: group,
+				Name:     "Repeats",
+				Group:    group,
+				Subgroup: "Reverb",
 			},
 			Value: 3,
 			Min:   0,

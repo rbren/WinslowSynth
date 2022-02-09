@@ -35,8 +35,9 @@ function drawInstrument(inst) {
 function drawConstants(consts) {
   const groups = {}
   consts.forEach(c => {
-    groups[c.Info.Group] = groups[c.Info.Group] || [];
-    groups[c.Info.Group].push(c);
+    let group = groups[c.Info.Group] = groups[c.Info.Group] || {};
+    let subgroup = group[c.Info.Subgroup] = group[c.Info.Subgroup] || [];
+    subgroup.push(c);
   });
   return Object.keys(groups).map(k => {
     return drawConstantGroup(k, groups[k]);
@@ -48,10 +49,19 @@ window.drawTime = drawTime;
 window.drawInstrument = drawInstrument;
 window.drawConstants = drawConstants;
 
-function drawConstantGroup(name, constants) {
+function drawConstantGroup(name, subgroups) {
   return `
   <div class="constant-group">
   <h2>${name}</h2>
+  ${Object.keys(subgroups).map(k => drawConstantSubgroup(k, subgroups[k])).join('')}
+  </div>
+  `
+}
+
+function drawConstantSubgroup(name, constants) {
+  return `
+  <div class="constant-subgroup">
+  ${name ? '<h3>' + name + '<h3>' : ''}
   ${constants.map(drawConstant).join('')}
   </div>
   `

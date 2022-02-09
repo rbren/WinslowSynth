@@ -34,12 +34,22 @@ h1 {
 
 .constant-group {
   display: inline-block;
-  width: 320px;
+  width: 340px;
   margin-right: 20px;
   margin-top: 40px;
   padding: 20px;
   border: 1px solid white;
   border-radius: 4px;
+}
+
+.constant-subgroup h3 {
+  font-size: 16px;
+}
+
+.constant-subgroup {
+  border: 1px solid #777;
+  margin-top: 10px;
+  padding: 10px;
 }
 
 .constant {
