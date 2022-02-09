@@ -98,7 +98,7 @@ func (s *Sequence) GetSamples(absoluteTime uint64, numSamples int) []float32 {
 	if len(allSamples) == 0 {
 		output = make([]float32, numSamples)
 	} else {
-		output = buffers.MixBuffers(allSamples)
+		output = buffers.MixBuffers(allSamples, buffers.NaiveSumMix, .5)
 	}
 	generators.AddHistory(s.Instrument, absoluteTime, output)
 	duration := time.Since(start)
