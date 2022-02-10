@@ -186,4 +186,10 @@ a 10 second maximum
   * We could probably tune the time thresholds better
 
 
-
+#### TODO
+* When doing a `generator.Copy`, histories for _subgenerators_ are still shared
+  * should do `subgenerator.Copy(CopyHistoryLength)` (don't pass through parent's history length)
+* Need ability to disable history cache globaly for perf testing
+* interpolation:
+  * if we skip calculating sample X, intermediate values for subgenerators are not calculated
+  * this means that for X+1, if a subgenerator relies on History, it's screwed :(

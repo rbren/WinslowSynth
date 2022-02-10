@@ -4,9 +4,9 @@ var Library = map[string]Generator{}
 
 func init() {
 	Library = map[string]Generator{
-		"winslow": Mega(),
-		"sine":    BasicSine(),
-		"saw":     BasicSaw(),
+		"winslow": Mega().Initialize("Winslow"),
+		"sine":    BasicSine().Initialize("Sine"),
+		"saw":     BasicSaw().Initialize("Saw"),
 		"average": Average{
 			Generators: []Generator{
 				BasicSaw(),
@@ -18,15 +18,15 @@ func init() {
 				BasicSaw(),
 				BasicSaw(),
 			},
-		},
-		"square": BasicSquare(),
+		}.Initialize("Average"),
+		"square": BasicSquare().Initialize("Square"),
 		"reverb": Reverb{
 			Input: BasicSine(),
-		},
-		"warbler":     Warbler(),
-		"dirty":       DirtySawWave(),
-		"harmonic":    HarmonicOscillator(),
-		"noiseFilter": NoisySineWave(),
+		}.Initialize("Reverb"),
+		"warbler":     Warbler().Initialize("Warbler"),
+		"dirty":       DirtySawWave().Initialize("Dirty Saw"),
+		"harmonic":    HarmonicOscillator().Initialize("Harmonic"),
+		"noiseFilter": NoisySineWave().Initialize("Noisy Sine"),
 	}
 }
 
