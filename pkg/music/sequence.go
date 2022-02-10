@@ -101,7 +101,7 @@ func (s *Sequence) GetSamples(absoluteTime uint64, numSamples int) []float32 {
 	generators.AddHistory(s.Instrument, absoluteTime, output)
 	duration := time.Since(start)
 	ratio := float32(duration.Milliseconds()) / float32(msPerSprint)
-	if ratio > 1 {
+	if ratio > .9 {
 		s.SampleRateHandicap = float32(math.Max(float64(s.SampleRateHandicap), 1.0)) + 1
 		logrus.Warningf("DOWNSAMPLE: with %d generators, ratio was %f, increased sample handicap to %f", len(s.Events), ratio, s.SampleRateHandicap)
 	} else if ratio < .25 && s.SampleRateHandicap >= 1 {

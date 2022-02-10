@@ -2,7 +2,11 @@ package music
 
 import (
 	"math"
+	"math/rand"
 
+	"github.com/sirupsen/logrus"
+
+	"github.com/rbren/midi/pkg/buffers"
 	"github.com/rbren/midi/pkg/config"
 	"github.com/rbren/midi/pkg/generators"
 )
@@ -61,31 +65,23 @@ func (e *Event) GetSamples(absoluteTime uint64, numSamples, handicapModulus int)
 	eventSamples := make([]float32, numSamples)
 	t, r := e.getRelativeTime(absoluteTime)
 	zeroed := true
+	lastIdxCalculated := -1
+	numCalculated := 0
 	for idx := range eventSamples {
-		if idx%handicapModulus == 0 || idx == numSamples-1 {
+		if rand.Intn(handicapModulus) == 0 || idx == 0 || idx == numSamples-1 {
 			val := generators.GetValue(e.Generator, t+uint64(idx), r)
 			eventSamples[idx] = val
 			if math.Abs(float64(val)) > zeroThreshold {
 				zeroed = false
 			}
-		}
-	}
-	e.Zeroed = zeroed
-	var prev, next float32
-	for idx := range eventSamples {
-		remainder := idx % handicapModulus
-		if remainder == 0 {
-			prev = eventSamples[idx]
-			nextIdx := idx + handicapModulus
-			if nextIdx >= len(eventSamples) {
-				nextIdx = len(eventSamples) - 1
+			if lastIdxCalculated != -1 {
+				buffers.InterpolateEvents(eventSamples, lastIdxCalculated, idx)
 			}
-			next = eventSamples[nextIdx]
-		} else {
-			weightNext := float32(remainder) / float32(handicapModulus)
-			weightPrev := 1.0 - weightNext
-			eventSamples[idx] = weightPrev*prev + weightNext*next
+			numCalculated++
+			lastIdxCalculated = idx
 		}
 	}
+	logrus.Infof("Calculated %.02f%% of  values", 100*float32(numCalculated)/float32(len(eventSamples)))
+	e.Zeroed = zeroed
 	return eventSamples
 }
