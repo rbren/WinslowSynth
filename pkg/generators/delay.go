@@ -40,7 +40,6 @@ func (d Delay) GetValue(t, r uint64) float32 {
 	samplesPerMs := config.MainConfig.SampleRate / 1000
 	amtMs := GetValue(d.Amount, t, r)
 	amtSamples := int(amtMs) * samplesPerMs
-	//GetValue(d.Input, t, r) // Ignore current value, but store it in history
 	return GetValue(d.Input, t-uint64(amtSamples), r)
 }
 
