@@ -1,21 +1,68 @@
 package generators
 
-import (
-	"github.com/rbren/midi/pkg/config"
-)
-
 type ADSR struct {
 	Info         Info
-	PeakLevel    Constant
-	AttackTime   Constant
-	DecayTime    Constant
-	SustainLevel Constant
-	ReleaseTime  Constant
+	PeakLevel    Generator
+	AttackTime   Generator
+	DecayTime    Generator
+	SustainLevel Generator
+	ReleaseTime  Generator
 }
 
-func getTimeInSamples(ms float32) uint64 {
-	samplesPerMs := config.MainConfig.SampleRate / 1000
-	return uint64(int(ms) * samplesPerMs)
+func (a ADSR) SubGenerators() []Generator {
+	return []Generator{a.PeakLevel, a.SustainLevel, a.AttackTime, a.DecayTime, a.ReleaseTime}
+}
+
+func (a ADSR) Initialize(name string) Generator {
+	if a.PeakLevel == nil {
+		a.PeakLevel = Constant{
+			Info:  Info{Group: name, Subgroup: "ADSR", Name: "Peak"},
+			Value: 1.0,
+			Min:   0.0,
+			Max:   1.0,
+		}
+	}
+	if a.SustainLevel == nil {
+		a.SustainLevel = Constant{
+			Info:  Info{Group: name, Subgroup: "ADSR", Name: "Sustain"},
+			Value: 0.8,
+			Min:   0.0,
+			Max:   1.0,
+		}
+	}
+	if a.AttackTime == nil {
+		a.AttackTime = Constant{
+			Info:  Info{Group: name, Subgroup: "ADSR", Name: "Attack"},
+			Value: 300,
+			Min:   0.0,
+			Max:   1000,
+			Step:  1.0,
+		}
+	}
+	if a.DecayTime == nil {
+		a.DecayTime = Constant{
+			Info:  Info{Group: name, Subgroup: "ADSR", Name: "Decay"},
+			Value: 500,
+			Min:   0.0,
+			Max:   1000,
+			Step:  1.0,
+		}
+	}
+	if a.ReleaseTime == nil {
+		a.ReleaseTime = Constant{
+			Info:  Info{Group: name, Subgroup: "ADSR", Name: "Release"},
+			Value: 1000,
+			Min:   0.0,
+			Max:   3000,
+			Step:  1.0,
+		}
+	}
+	a.PeakLevel = a.PeakLevel.Initialize(name)
+	a.SustainLevel = a.SustainLevel.Initialize(name)
+	a.AttackTime = a.AttackTime.Initialize(name)
+	a.DecayTime = a.DecayTime.Initialize(name)
+	a.ReleaseTime = a.ReleaseTime.Initialize(name)
+	return a
 }
 
 func (a ADSR) GetValue(t, r uint64) float32 {

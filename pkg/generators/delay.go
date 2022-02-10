@@ -10,12 +10,30 @@ type Delay struct {
 	Input  Generator
 }
 
-func NewDelay(input Generator, amt Generator) Delay {
-	// TODO: ensure input has history being tracked
-	return Delay{
-		Input:  input.Copy(UseDefaultHistoryLength),
-		Amount: amt,
+func (d Delay) SubGenerators() []Generator {
+	return []Generator{d.Input, d.Amount}
+}
+
+func (d Delay) Initialize(name string) Generator {
+	if d.Input == nil {
+		panic("Delay has no input")
 	}
+	d.Input = d.Input.Copy(UseDefaultHistoryLength)
+	if d.Amount == nil {
+		d.Amount = Constant{
+			Info: Info{
+				Name:  "Delay",
+				Group: name,
+			},
+			Value: 10,
+			Min:   0,
+			Max:   500,
+			Step:  10,
+		}
+	}
+	d.Input = d.Input.Initialize(name)
+	d.Amount = d.Amount.Initialize(name)
+	return d
 }
 
 func (d Delay) GetValue(t, r uint64) float32 {

@@ -12,10 +12,10 @@ type Mode struct {
 	Frequency float32
 }
 
-func (h *Harmonic) initialize(force bool) {
-	if !force && len(h.Average.Generators) == len(h.Modes) {
-		return
-	}
+func (h Harmonic) SubGenerators() []Generator {
+	return []Generator{h.Average}
+}
+func (h Harmonic) Initialize(name string) Generator {
 	toAverage := []Generator{h.Oscillator}
 	for _, mode := range h.Modes {
 		amp := Multiply{
@@ -32,10 +32,11 @@ func (h *Harmonic) initialize(force bool) {
 		toAverage = append(toAverage, modeGenerator)
 	}
 	h.Average = Average{Generators: toAverage}
+	h.Average = h.Average.Initialize(name).(Average)
+	return h
 }
 
 func (h Harmonic) GetValue(t, r uint64) float32 {
-	h.initialize(false)
 	return GetValue(h.Average, t, r)
 }
 

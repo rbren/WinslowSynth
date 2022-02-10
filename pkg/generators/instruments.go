@@ -2,8 +2,6 @@ package generators
 
 import (
 	"fmt"
-
-	"github.com/rbren/midi/pkg/config"
 )
 
 func frequencyConst() Constant {
@@ -72,15 +70,12 @@ func Mega() Generator {
 }
 
 func NoisySineWave() Generator {
-	base := BasicSine()
-	filter := NewNoiseFilter(base, Constant{
-		Info:  Info{Group: "", Name: "Noise"},
-		Value: .2,
-		Min:   0.0,
-		Max:   1.0,
-	})
-	filter.Info.Name = "Noisy Sine"
-	return filter
+	return NoiseFilter{
+		Info: Info{
+			Name: "Noisy Sine",
+		},
+		Input: BasicSine(),
+	}
 }
 
 func Warbler() Oscillator {
@@ -130,7 +125,7 @@ func DirtySawWave() Generator {
 }
 
 func HarmonicOscillator() Generator {
-	base := SimpleRamper()
+	base := BasicSine()
 	return Harmonic{
 		Info:       Info{Name: "Harmonic"},
 		Oscillator: base,
@@ -140,26 +135,4 @@ func HarmonicOscillator() Generator {
 			Mode{Frequency: 4.0, Amplitude: .1},
 		},
 	}
-}
-
-func AmplitudeRamp() Ramp {
-	samplesPerMs := config.MainConfig.SampleRate / 1000
-	rampUpMs := 100
-	rampDownMs := 500
-	return Ramp{
-		Info:     Info{Name: "Ramper"},
-		RampUp:   uint64(rampUpMs * samplesPerMs),
-		RampDown: uint64(rampDownMs * samplesPerMs),
-		Target:   1.0,
-	}
-}
-
-func SimpleRamper() Oscillator {
-	g := Oscillator{
-		Info:      Info{Name: "Simple Ramper"},
-		Frequency: frequencyConst(),
-		Amplitude: AmplitudeRamp(),
-		Phase:     Constant{Value: 0.0},
-	}
-	return g
 }

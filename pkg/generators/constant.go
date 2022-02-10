@@ -8,6 +8,12 @@ type Constant struct {
 	Step  float32
 }
 
+func (c Constant) Initialize(group string) Generator { return c }
+
+func (c Constant) SubGenerators() []Generator {
+	return []Generator{}
+}
+
 func (c Constant) GetValue(t, r uint64) float32 {
 	return c.Value
 }

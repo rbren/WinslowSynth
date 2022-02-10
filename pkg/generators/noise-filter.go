@@ -15,14 +15,26 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-func NewNoiseFilter(input Generator, amt Generator) NoiseFilter {
-	return NoiseFilter{
-		Info: Info{
-			History: getEmptyHistory(),
-		},
-		Input:  input,
-		Amount: amt,
+func (n NoiseFilter) SubGenerators() []Generator {
+	return []Generator{n.Input, n.Amount}
+}
+
+func (n NoiseFilter) Initialize(name string) Generator {
+	n.Info.History = getEmptyHistory()
+	if n.Input == nil {
+		panic("NoiseFilter has no input")
 	}
+	if n.Amount == nil {
+		n.Amount = Constant{
+			Info:  Info{Group: name, Name: "Noise"},
+			Value: 0.0,
+			Min:   0.0,
+			Max:   0.5,
+		}
+	}
+	n.Input = n.Input.Initialize(name)
+	n.Amount = n.Amount.Initialize(name)
+	return n
 }
 
 func (n NoiseFilter) GetValue(t, r uint64) float32 {

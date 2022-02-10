@@ -25,23 +25,67 @@ type Oscillator struct {
 	DropOnRelease bool
 }
 
-func (s *Oscillator) initialize() {
+func (s Oscillator) SubGenerators() []Generator {
+	return []Generator{s.Amplitude, s.Frequency, s.Phase, s.Bias}
+}
+
+func (s Oscillator) Initialize(group string) Generator {
+	if s.Frequency == nil {
+		s.Frequency = Constant{
+			Info: Info{
+				Name:     "Frequency",
+				Group:    group,
+				Subgroup: "Oscillator",
+			},
+			Value: 440,
+			Min:   20,
+			Max:   20000,
+		}
+	}
 	if s.Amplitude == nil {
-		s.Amplitude = Constant{Value: 1.0}
+		s.Amplitude = Constant{
+			Info: Info{
+				Name:     "Amplitude",
+				Group:    group,
+				Subgroup: "Oscillator",
+			},
+			Value: 1.0,
+			Min:   0.0,
+			Max:   1.0,
+		}
 	}
 	if s.Phase == nil {
-		s.Phase = Constant{Value: 0.0}
+		s.Phase = Constant{
+			Info: Info{
+				Name:     "Phase",
+				Group:    group,
+				Subgroup: "Oscillator",
+			},
+			Value: 0.0,
+			Min:   0.0,
+			Max:   2.0 * math.Pi,
+		}
 	}
 	if s.Bias == nil {
-		s.Bias = Constant{Value: 0.0}
+		s.Bias = Constant{
+			Info: Info{
+				Group:    group,
+				Subgroup: "Oscillator",
+			},
+			Value: 0.0,
+		}
 	}
+	s.Frequency = s.Frequency.Initialize(group)
+	s.Amplitude = s.Amplitude.Initialize(group)
+	s.Phase = s.Phase.Initialize(group)
+	s.Bias = s.Bias.Initialize(group)
+	return s
 }
 
 func (s Oscillator) GetValue(t, r uint64) float32 {
 	if s.DropOnRelease && r != 0 {
 		return 0.0
 	}
-	s.initialize()
 	if s.Shape == WaveShape {
 		return s.GetWave(t, r)
 	}
@@ -78,9 +122,8 @@ func (s Oscillator) GetSquare(t, r uint64) float32 {
 // GetPhasePosition returns the current position as a fraction of a full period
 func (s Oscillator) GetPhasePosition(time, releasedAt uint64) float32 {
 	samplesPerPeriod := float32(config.MainConfig.SampleRate) / s.Frequency.GetValue(time, releasedAt)
-	phaseVal := s.Phase.GetValue(time, releasedAt)
-	phaseScaled := (samplesPerPeriod * phaseVal) / (2.0 * math.Pi)
-	sampleLoc := int((time + uint64(phaseScaled)) % uint64(samplesPerPeriod))
+	phase := s.Phase.GetValue(time, releasedAt)
+	sampleLoc := int((time + uint64(phase)) % uint64(samplesPerPeriod))
 	return float32(sampleLoc) / samplesPerPeriod
 }
 

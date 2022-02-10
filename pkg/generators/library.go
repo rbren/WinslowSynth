@@ -19,8 +19,10 @@ func init() {
 				BasicSaw(),
 			},
 		},
-		"square":      BasicSquare(),
-		"reverb":      AddReverb("sine", BasicSine()),
+		"square": BasicSquare(),
+		"reverb": Reverb{
+			Input: BasicSine(),
+		},
 		"warbler":     Warbler(),
 		"dirty":       DirtySawWave(),
 		"harmonic":    HarmonicOscillator(),
