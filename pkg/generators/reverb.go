@@ -69,11 +69,8 @@ func (d Reverb) GetValue(t, r uint64) float32 {
 		amplitude := startAmplitude * (1.0 - float32(repetition)/float32(numRepeats))
 		oldTime := t - delaySamples
 		if oldTime > 0 {
-			oldVal := GetValueCached(d.Input, oldTime)
-			if oldVal == nil {
-				panic("Couldn't get cached value for reverb")
-			}
-			val += amplitude * (*oldVal)
+			oldVal := GetValue(d.Input, oldTime, r)
+			val += amplitude * oldVal
 		}
 	}
 	return val

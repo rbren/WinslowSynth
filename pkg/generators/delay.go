@@ -22,14 +22,8 @@ func (d Delay) GetValue(t, r uint64) float32 {
 	samplesPerMs := config.MainConfig.SampleRate / 1000
 	amtMs := GetValue(d.Amount, t, r)
 	amtSamples := int(amtMs) * samplesPerMs
-	GetValue(d.Input, t, r) // Ignore current value, but store it in history
-	inputInfo := d.Input.GetInfo()
-	valueIndex := inputInfo.History.Position - 1 - amtSamples
-	if valueIndex < 0 {
-		valueIndex = len(inputInfo.History.samples) + valueIndex
-	}
-	val := inputInfo.History.samples[valueIndex]
-	return val
+	//GetValue(d.Input, t, r) // Ignore current value, but store it in history
+	return GetValue(d.Input, t-uint64(amtSamples), r)
 }
 
 func (d Delay) GetInfo() Info { return d.Info }
