@@ -74,8 +74,6 @@ func (s *Sequence) ClearOldEvents(absoluteTime uint64) {
 }
 
 func (s *Sequence) GetSamples(absoluteTime uint64, numSamples int) []float32 {
-	s.lock.Lock()
-	defer s.lock.Unlock()
 	start := time.Now()
 	samplesPerMs := config.MainConfig.SampleRate / 1000
 	samplesPerSprint := numSamples
