@@ -130,5 +130,9 @@ func (s Oscillator) GetPhasePosition(time, releasedAt uint64) float32 {
 func (s Oscillator) GetInfo() Info { return s.Info }
 func (s Oscillator) Copy(historyLen int) Generator {
 	s.Info = s.Info.Copy(historyLen)
+	s.Amplitude = s.Amplitude.Copy(CopyExistingHistoryLength)
+	s.Frequency = s.Frequency.Copy(CopyExistingHistoryLength)
+	s.Phase = s.Phase.Copy(CopyExistingHistoryLength)
+	s.Bias = s.Bias.Copy(CopyExistingHistoryLength)
 	return s
 }

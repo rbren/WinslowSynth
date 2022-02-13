@@ -52,9 +52,15 @@ func (s Average) GetInfo() Info  { return s.Info }
 func (m Multiply) GetInfo() Info { return m.Info }
 func (s Average) Copy(historyLen int) Generator {
 	s.Info = s.Info.Copy(historyLen)
+	for idx := range s.Generators {
+		s.Generators[idx] = s.Generators[idx].Copy(CopyExistingHistoryLength)
+	}
 	return s
 }
 func (m Multiply) Copy(historyLen int) Generator {
 	m.Info = m.Info.Copy(historyLen)
+	for idx := range m.Generators {
+		m.Generators[idx] = m.Generators[idx].Copy(CopyExistingHistoryLength)
+	}
 	return m
 }

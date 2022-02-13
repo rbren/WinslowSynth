@@ -43,5 +43,6 @@ func (h Harmonic) GetValue(t, r uint64) float32 {
 func (h Harmonic) GetInfo() Info { return h.Info }
 func (h Harmonic) Copy(historyLen int) Generator {
 	h.Info = h.Info.Copy(historyLen)
+	h.Average = h.Average.Copy(CopyExistingHistoryLength).(Average)
 	return h
 }

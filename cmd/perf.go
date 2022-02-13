@@ -28,6 +28,7 @@ func main() {
 		if instrumentToTest != "" && key != instrumentToTest {
 			continue
 		}
+		inst.Initialize("foo")
 		fmt.Println("Testing " + key)
 		var avg float64
 		for trial := 0; trial < numTrials; trial++ {

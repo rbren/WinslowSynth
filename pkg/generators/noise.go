@@ -42,5 +42,6 @@ func (n Noise) GetValue(t, r uint64) float32 {
 func (n Noise) GetInfo() Info { return n.Info }
 func (n Noise) Copy(historyLen int) Generator {
 	n.Info = n.Info.Copy(historyLen)
+	n.Amount = n.Amount.Copy(CopyExistingHistoryLength)
 	return n
 }

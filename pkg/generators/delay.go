@@ -18,7 +18,6 @@ func (d Delay) Initialize(name string) Generator {
 	if d.Input == nil {
 		panic("Delay has no input")
 	}
-	d.Input = d.Input.Copy(UseDefaultHistoryLength)
 	if d.Amount == nil {
 		d.Amount = Constant{
 			Info: Info{
@@ -32,6 +31,7 @@ func (d Delay) Initialize(name string) Generator {
 		}
 	}
 	d.Input = d.Input.Initialize(name)
+	d.Input = d.Input.Copy(UseDefaultHistoryLength)
 	d.Amount = d.Amount.Initialize(name)
 	return d
 }
@@ -47,5 +47,7 @@ func (d Delay) GetValue(t, r uint64) float32 {
 func (d Delay) GetInfo() Info { return d.Info }
 func (d Delay) Copy(historyLen int) Generator {
 	d.Info = d.Info.Copy(historyLen)
+	d.Amount = d.Amount.Copy(CopyExistingHistoryLength)
+	d.Input = d.Input.Copy(CopyExistingHistoryLength)
 	return d
 }

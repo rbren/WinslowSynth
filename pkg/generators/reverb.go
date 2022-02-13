@@ -24,7 +24,6 @@ func (r Reverb) Initialize(group string) Generator {
 	if r.Input == nil {
 		panic("Reverb has no input")
 	}
-	r.Input = r.Input.Copy(UseDefaultHistoryLength)
 	if r.Strength == nil {
 		r.Strength = Constant{
 			Info: Info{
@@ -63,6 +62,7 @@ func (r Reverb) Initialize(group string) Generator {
 		}
 	}
 	r.Input = r.Input.Initialize(group)
+	r.Input = r.Input.Copy(UseDefaultHistoryLength)
 	r.Delay = r.Delay.Initialize(group)
 	r.Strength = r.Strength.Initialize(group)
 	r.Repeats = r.Repeats.Initialize(group)
@@ -95,5 +95,9 @@ func (d Reverb) GetValue(t, r uint64) float32 {
 func (d Reverb) GetInfo() Info { return d.Info }
 func (d Reverb) Copy(historyLen int) Generator {
 	d.Info = d.Info.Copy(historyLen)
+	d.Strength = d.Strength.Copy(CopyExistingHistoryLength)
+	d.Delay = d.Delay.Copy(CopyExistingHistoryLength)
+	d.Repeats = d.Repeats.Copy(CopyExistingHistoryLength)
+	d.Input = d.Input.Copy(CopyExistingHistoryLength)
 	return d
 }
