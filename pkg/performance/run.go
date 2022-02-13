@@ -11,7 +11,7 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-func TestPerformance(g generators.Generator, duration int) float64 {
+func CheckPerformance(g generators.Generator, duration int) float64 {
 	g = g.Copy(generators.UseDefaultHistoryLength)
 	generators.SetFrequency(g, 440.0)
 

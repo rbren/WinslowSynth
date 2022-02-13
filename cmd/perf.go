@@ -33,7 +33,7 @@ func main() {
 		inst.Initialize("foo")
 		var avg float64
 		for trial := 0; trial < numTrials; trial++ {
-			duration := performance.TestPerformance(inst, valuesPerTrial)
+			duration := performance.CheckPerformance(inst, valuesPerTrial)
 			fmt.Printf("  trial %d: %.2fµs\n", trial, duration)
 			avg += duration
 		}
