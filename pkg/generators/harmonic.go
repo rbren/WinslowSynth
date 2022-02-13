@@ -12,7 +12,13 @@ type Mode struct {
 	Frequency float32
 }
 
+func (h Harmonic) GetInfo() Info                   { return h.Info }
 func (h Harmonic) GetSubGenerators() SubGenerators { return h.SubGenerators }
+func (h Harmonic) Copy(historyLen int) Generator {
+	h.Info = h.Info.Copy(historyLen)
+	h.SubGenerators = h.SubGenerators.Copy()
+	return h
+}
 
 func (h Harmonic) Initialize(name string) Generator {
 	if h.SubGenerators == nil {
@@ -43,12 +49,4 @@ func (h Harmonic) Initialize(name string) Generator {
 
 func (h Harmonic) GetValue(t, r uint64) float32 {
 	return GetValue(h.SubGenerators["Average"], t, r)
-}
-
-func (h Harmonic) GetInfo() Info { return h.Info }
-func (h Harmonic) Copy(historyLen int) Generator {
-	h.Info = h.Info.Copy(historyLen)
-	h.SubGenerators["Average"] = h.SubGenerators["Average"].Copy(CopyExistingHistoryLength).(Average)
-	h.SubGenerators["Oscillator"] = h.SubGenerators["Oscillator"].Copy(CopyExistingHistoryLength).(Oscillator)
-	return h
 }

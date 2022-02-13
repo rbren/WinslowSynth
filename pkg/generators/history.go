@@ -28,6 +28,14 @@ func getEmptyHistory() *History {
 	}
 }
 
+func (h History) GetOrdered(numSamples int) []float32 {
+	ordered := append(h.samples[h.Position:], h.samples[0:h.Position]...)
+	if numSamples != -1 {
+		return ordered[len(ordered)-numSamples:]
+	}
+	return ordered
+}
+
 func AddHistory(g Generator, startTime uint64, history []float32) {
 	i := g.GetInfo()
 	if i.History == nil || i.History.samples == nil {
@@ -103,10 +111,10 @@ func (i Info) Copy(historyLen int) Info {
 	return i
 }
 
-func (h History) GetOrdered(numSamples int) []float32 {
-	ordered := append(h.samples[h.Position:], h.samples[0:h.Position]...)
-	if numSamples != -1 {
-		return ordered[len(ordered)-numSamples:]
+func (s SubGenerators) Copy() SubGenerators {
+	c := map[string]Generator{}
+	for k, g := range s {
+		c[k] = g.Copy(CopyExistingHistoryLength)
 	}
-	return ordered
+	return c
 }

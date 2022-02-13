@@ -1,7 +1,6 @@
 package generators
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -57,7 +56,6 @@ func TestSetFrequency(t *testing.T) {
 	cs := GetConstants(osc)
 	numFreqs := 0
 	for _, c := range cs {
-		fmt.Println("found const", c.Info.Group, c.Info.Name)
 		if c.Info.Name == "Frequency" {
 			numFreqs++
 			assert.Equal(t, float32(440.0), c.Value)
@@ -69,7 +67,6 @@ func TestSetFrequency(t *testing.T) {
 	cs = GetConstants(osc)
 	numFreqs = 0
 	for _, c := range cs {
-		fmt.Println("found const", c.Info.Group, c.Info.Name)
 		if c.Info.Name == "Frequency" {
 			numFreqs++
 			assert.Equal(t, float32(220.0), c.Value)

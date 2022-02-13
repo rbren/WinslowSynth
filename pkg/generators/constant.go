@@ -8,18 +8,15 @@ type Constant struct {
 	Step  float32
 }
 
-func (c Constant) Initialize(group string) Generator { return c }
-
-func (c Constant) GetSubGenerators() SubGenerators {
-	return map[string]Generator{}
-}
-
-func (c Constant) GetValue(t, r uint64) float32 {
-	return c.Value
-}
-
-func (c Constant) GetInfo() Info { return c.Info }
+func (c Constant) GetInfo() Info                   { return c.Info }
+func (c Constant) GetSubGenerators() SubGenerators { return map[string]Generator{} }
 func (c Constant) Copy(historyLen int) Generator {
 	c.Info = c.Info.Copy(historyLen)
 	return c
+}
+
+func (c Constant) Initialize(group string) Generator { return c }
+
+func (c Constant) GetValue(t, r uint64) float32 {
+	return c.Value
 }

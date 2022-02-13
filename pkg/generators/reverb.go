@@ -11,7 +11,13 @@ type Reverb struct {
 	SubGenerators SubGenerators
 }
 
+func (r Reverb) GetInfo() Info                   { return r.Info }
 func (r Reverb) GetSubGenerators() SubGenerators { return r.SubGenerators }
+func (r Reverb) Copy(historyLen int) Generator {
+	r.Info = r.Info.Copy(historyLen)
+	r.SubGenerators = r.SubGenerators.Copy()
+	return r
+}
 
 func (r Reverb) Initialize(group string) Generator {
 	var maxDelay float32 = 1000.0
@@ -85,14 +91,4 @@ func (d Reverb) GetValue(t, r uint64) float32 {
 		}
 	}
 	return val
-}
-
-func (d Reverb) GetInfo() Info { return d.Info }
-func (d Reverb) Copy(historyLen int) Generator {
-	d.Info = d.Info.Copy(historyLen)
-	d.SubGenerators["Strength"] = d.SubGenerators["Strength"].Copy(CopyExistingHistoryLength)
-	d.SubGenerators["Delay"] = d.SubGenerators["Delay"].Copy(CopyExistingHistoryLength)
-	d.SubGenerators["Repeats"] = d.SubGenerators["Repeats"].Copy(CopyExistingHistoryLength)
-	d.SubGenerators["Input"] = d.SubGenerators["Input"].Copy(CopyExistingHistoryLength)
-	return d
 }

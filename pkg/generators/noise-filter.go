@@ -14,7 +14,13 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
+func (n NoiseFilter) GetInfo() Info                   { return n.Info }
 func (n NoiseFilter) GetSubGenerators() SubGenerators { return n.SubGenerators }
+func (n NoiseFilter) Copy(historyLen int) Generator {
+	n.Info = n.Info.Copy(historyLen)
+	n.SubGenerators = n.SubGenerators.Copy()
+	return n
+}
 
 func (n NoiseFilter) Initialize(name string) Generator {
 	n.Info.History = getEmptyHistory()
@@ -42,12 +48,4 @@ func (n NoiseFilter) GetValue(t, r uint64) float32 {
 		return GetValue(n.SubGenerators["Input"], t, r)
 	}
 	return GetValue(n.SubGenerators["Input"], t-1, r)
-}
-
-func (n NoiseFilter) GetInfo() Info { return n.Info }
-func (n NoiseFilter) Copy(historyLen int) Generator {
-	n.Info = n.Info.Copy(historyLen)
-	n.SubGenerators["Amount"] = n.SubGenerators["Amount"].Copy(CopyExistingHistoryLength)
-	n.SubGenerators["Input"] = n.SubGenerators["Input"].Copy(CopyExistingHistoryLength)
-	return n
 }

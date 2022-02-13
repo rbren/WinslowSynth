@@ -16,8 +16,20 @@ type Multiply struct {
 	SubGenerators SubGenerators
 }
 
+func (a Average) GetInfo() Info                    { return a.Info }
+func (m Multiply) GetInfo() Info                   { return m.Info }
 func (a Average) GetSubGenerators() SubGenerators  { return a.SubGenerators }
 func (m Multiply) GetSubGenerators() SubGenerators { return m.SubGenerators }
+func (a Average) Copy(historyLen int) Generator {
+	a.Info = a.Info.Copy(historyLen)
+	a.SubGenerators = a.SubGenerators.Copy()
+	return a
+}
+func (m Multiply) Copy(historyLen int) Generator {
+	m.Info = m.Info.Copy(historyLen)
+	m.SubGenerators = m.SubGenerators.Copy()
+	return m
+}
 
 func (a Average) Initialize(group string) Generator {
 	a.SubGenerators = map[string]Generator{}
@@ -40,7 +52,7 @@ func (s Average) GetValue(t, releasedAt uint64) float32 {
 		return 0.0
 	}
 	var val float32 = 0.0
-	for _, gen := range s.Generators {
+	for _, gen := range s.SubGenerators {
 		val += GetValue(gen, t, releasedAt)
 	}
 	return val / float32(len(s.Generators))
@@ -48,25 +60,8 @@ func (s Average) GetValue(t, releasedAt uint64) float32 {
 
 func (m Multiply) GetValue(t, releasedAt uint64) float32 {
 	var val float32 = 1.0
-	for _, gen := range m.Generators {
+	for _, gen := range m.SubGenerators {
 		val *= GetValue(gen, t, releasedAt)
 	}
 	return val
-}
-
-func (s Average) GetInfo() Info  { return s.Info }
-func (m Multiply) GetInfo() Info { return m.Info }
-func (s Average) Copy(historyLen int) Generator {
-	s.Info = s.Info.Copy(historyLen)
-	for key := range s.SubGenerators {
-		s.SubGenerators[key] = s.SubGenerators[key].Copy(CopyExistingHistoryLength)
-	}
-	return s
-}
-func (m Multiply) Copy(historyLen int) Generator {
-	m.Info = m.Info.Copy(historyLen)
-	for key := range m.SubGenerators {
-		m.SubGenerators[key] = m.SubGenerators[key].Copy(CopyExistingHistoryLength)
-	}
-	return m
 }

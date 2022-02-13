@@ -5,7 +5,13 @@ type ADSR struct {
 	SubGenerators SubGenerators
 }
 
+func (a ADSR) GetInfo() Info                   { return a.Info }
 func (a ADSR) GetSubGenerators() SubGenerators { return a.SubGenerators }
+func (a ADSR) Copy(historyLen int) Generator {
+	a.Info = a.Info.Copy(historyLen)
+	a.SubGenerators = a.SubGenerators.Copy()
+	return a
+}
 
 func (a ADSR) Initialize(name string) Generator {
 	if a.SubGenerators == nil {
@@ -101,12 +107,4 @@ func (a ADSR) Release(t, r uint64) float32 {
 	baseVal := GetValue(a.SubGenerators["SustainLevel"], t, r)
 	percentDone := float32(timeSinceRelease) / float32(desiredReleaseTime)
 	return baseVal * (1.0 - percentDone)
-}
-func (a ADSR) GetInfo() Info { return a.Info }
-func (a ADSR) Copy(historyLen int) Generator {
-	a.Info = a.Info.Copy(historyLen)
-	for key, g := range a.SubGenerators {
-		a.SubGenerators[key] = g.Copy(CopyExistingHistoryLength)
-	}
-	return a
 }

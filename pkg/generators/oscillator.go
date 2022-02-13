@@ -22,7 +22,13 @@ type Oscillator struct {
 	SubGenerators SubGenerators
 }
 
+func (s Oscillator) GetInfo() Info                   { return s.Info }
 func (s Oscillator) GetSubGenerators() SubGenerators { return s.SubGenerators }
+func (s Oscillator) Copy(historyLen int) Generator {
+	s.Info = s.Info.Copy(historyLen)
+	s.SubGenerators = s.SubGenerators.Copy()
+	return s
+}
 
 func (s Oscillator) Initialize(group string) Generator {
 	if s.SubGenerators == nil {
@@ -122,13 +128,4 @@ func (s Oscillator) GetPhasePosition(time, releasedAt uint64) float32 {
 	phase := s.SubGenerators["Phase"].GetValue(time, releasedAt)
 	sampleLoc := int((time + uint64(phase)) % uint64(samplesPerPeriod))
 	return float32(sampleLoc) / samplesPerPeriod
-}
-
-func (s Oscillator) GetInfo() Info { return s.Info }
-func (s Oscillator) Copy(historyLen int) Generator {
-	s.Info = s.Info.Copy(historyLen)
-	for key, g := range s.SubGenerators {
-		s.SubGenerators[key] = g.Copy(CopyExistingHistoryLength)
-	}
-	return s
 }

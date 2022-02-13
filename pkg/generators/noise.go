@@ -14,7 +14,13 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
+func (n Noise) GetInfo() Info                   { return n.Info }
 func (n Noise) GetSubGenerators() SubGenerators { return n.SubGenerators }
+func (n Noise) Copy(historyLen int) Generator {
+	n.Info = n.Info.Copy(historyLen)
+	n.SubGenerators = n.SubGenerators.Copy()
+	return n
+}
 
 func (n Noise) Initialize(name string) Generator {
 	if n.SubGenerators == nil {
@@ -38,11 +44,4 @@ func (n Noise) GetValue(t, r uint64) float32 {
 	max := 1.0 + amt
 	min := 1.0 - amt
 	return min + random*(max-min)
-}
-
-func (n Noise) GetInfo() Info { return n.Info }
-func (n Noise) Copy(historyLen int) Generator {
-	n.Info = n.Info.Copy(historyLen)
-	n.SubGenerators["Amount"] = n.SubGenerators["Amount"].Copy(CopyExistingHistoryLength)
-	return n
 }
