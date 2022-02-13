@@ -50,3 +50,29 @@ func TestSetConstant(t *testing.T) {
 	warbleConst = findWarbleAmt(cs)
 	assert.Equal(t, float32(100.0), warbleConst.Value)
 }
+
+func TestSetFrequency(t *testing.T) {
+	osc := Mega()
+	osc = osc.Initialize("winslow")
+	cs := GetConstants(osc)
+	numFreqs := 0
+	for _, c := range cs {
+		fmt.Println("found const", c.Info.Group, c.Info.Name)
+		if c.Info.Name == "Frequency" {
+			numFreqs++
+			assert.Equal(t, float32(440.0), c.Value)
+		}
+	}
+	assert.Equal(t, 3, numFreqs)
+
+	osc = SetFrequency(osc, 220)
+	cs = GetConstants(osc)
+	numFreqs = 0
+	for _, c := range cs {
+		fmt.Println("found const", c.Info.Group, c.Info.Name)
+		if c.Info.Name == "Frequency" {
+			numFreqs++
+			assert.Equal(t, float32(220.0), c.Value)
+		}
+	}
+}
