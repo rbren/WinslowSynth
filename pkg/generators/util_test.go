@@ -31,6 +31,7 @@ func TestSetConstant(t *testing.T) {
 			Time:     123,
 		},
 	}
+	osc = osc.Initialize("warbler").(Oscillator)
 	cs := GetConstants(osc)
 	warbleConst := findWarbleAmt(cs)
 	assert.NotEqual(t, nil, warbleConst)
