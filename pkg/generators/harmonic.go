@@ -15,6 +15,7 @@ type Mode struct {
 func (h Harmonic) SubGenerators() []Generator {
 	return []Generator{h.Average}
 }
+
 func (h Harmonic) Initialize(name string) Generator {
 	toAverage := []Generator{h.Oscillator}
 	for _, mode := range h.Modes {
@@ -33,6 +34,7 @@ func (h Harmonic) Initialize(name string) Generator {
 	}
 	h.Average = Average{Generators: toAverage}
 	h.Average = h.Average.Initialize(name).(Average)
+	h.Oscillator = h.Oscillator.Initialize(name).(Oscillator)
 	return h
 }
 
@@ -44,5 +46,6 @@ func (h Harmonic) GetInfo() Info { return h.Info }
 func (h Harmonic) Copy(historyLen int) Generator {
 	h.Info = h.Info.Copy(historyLen)
 	h.Average = h.Average.Copy(CopyExistingHistoryLength).(Average)
+	h.Oscillator = h.Oscillator.Copy(CopyExistingHistoryLength).(Oscillator)
 	return h
 }
