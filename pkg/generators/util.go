@@ -1,20 +1,22 @@
 package generators
 
 import (
-	_ "github.com/rbren/midi/pkg/logger"
+	"sort"
+
+	"github.com/sirupsen/logrus"
 )
 
 func SetFrequency(i Generator, f float32) Generator {
 	return SetConstant(i, "", "Frequency", f)
 }
 
-func GetConstants(g Generator) []Constant {
+func GetConstants(g Generator, includeFreq bool) []Constant {
 	if g == nil {
 		return []Constant{}
 	}
 
 	if c, ok := g.(Constant); ok {
-		if c.Info.Name != "" {
+		if c.Info.Name != "" && (includeFreq || c.Info.Name != "Frequency") {
 			return []Constant{c}
 		} else {
 			return []Constant{}
@@ -23,8 +25,33 @@ func GetConstants(g Generator) []Constant {
 
 	consts := []Constant{}
 	for _, g := range g.GetSubGenerators() {
-		consts = append(consts, GetConstants(g)...)
+		consts = append(consts, GetConstants(g, includeFreq)...)
 	}
+
+	sort.Slice(consts, func(i, j int) bool {
+		c1 := consts[i]
+		c2 := consts[j]
+		if c1.Info.Group != c2.Info.Group {
+			if c1.Info.Group < c2.Info.Group {
+				return true
+			}
+			return false
+		}
+		if c1.Info.Subgroup != c2.Info.Subgroup {
+			if c1.Info.Subgroup < c2.Info.Subgroup {
+				return true
+			}
+			return false
+		}
+		if c1.Info.Name < c2.Info.Name {
+			return true
+		}
+		if c1.Info.Name > c2.Info.Name {
+			return false
+		}
+		logrus.Warnf("two consts with same group and name: %s/%s/%s", c1.Info.Group, c1.Info.Subgroup, c1.Info.Name)
+		return true
+	})
 
 	return consts
 }

@@ -162,6 +162,7 @@ func (s *Server) startWriteLoop() {
 			msg := MessageOut{
 				Time:          s.Player.CurrentSample,
 				Instrument:    s.Player.Sequence.Instrument,
+				Constants:     generators.GetConstants(s.Player.Sequence.Instrument, false),
 				HistoryUpdate: s.Player.Sequence.Instrument.GetInfo().History.GetOrdered(samplesPerSend),
 				Instruments:   instruments,
 				Frequency:     s.Player.Sequence.LastFrequency,

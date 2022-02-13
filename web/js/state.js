@@ -2,7 +2,6 @@ const STATE_KEYS = ["Time", "Instrument", "Instruments", "Constants"];
 
 function setState(state) {
   window.freeze = window.freeze || {};
-  state.Constants = findConstants(state.Instrument);
   STATE_KEYS.forEach(key => {
     if (!window.state || JSON.stringify(window.state[key]) !== JSON.stringify(state[key])) {
       var drawKey = "draw" + key;
@@ -52,29 +51,6 @@ function findHistories(inst) {
   for (let key in inst) {
     if (key === 'Info') continue;
     all = all.concat(findHistories(inst[key]));
-  }
-  return all;
-}
-
-function isConst(inst) {
-  if (!inst) return false;
-  if (!inst.Info?.Name) return false;
-  if (inst.Info.Name === 'Frequency') return false;
-  if (inst.Value === undefined) return false;
-  if (inst.Min === undefined) return false;
-  if (inst.Max === undefined) return false;
-  return true;
-}
-
-function findConstants(inst) {
-  if (!inst || typeof inst !== 'object') return [];
-  let all = [];
-  if (isConst(inst)) {
-    all.push(inst);
-  }
-  for (let key in inst) {
-    if (key === 'Info') continue;
-    all = all.concat(findConstants(inst[key]));
   }
   return all;
 }

@@ -8,7 +8,7 @@ import (
 
 func TestGetConstants(t *testing.T) {
 	i := Warbler()
-	cs := GetConstants(i)
+	cs := GetConstants(i, true)
 	assert.Equal(t, 12, len(cs))
 }
 
@@ -32,7 +32,7 @@ func TestSetConstant(t *testing.T) {
 		},
 	}
 	osc = osc.Initialize("warbler").(Oscillator)
-	cs := GetConstants(osc)
+	cs := GetConstants(osc, true)
 	warbleConst := findWarbleAmt(cs)
 	assert.NotEqual(t, nil, warbleConst)
 	assert.Equal(t, float32(20.0), warbleConst.Value)
@@ -45,7 +45,7 @@ func TestSetConstant(t *testing.T) {
 		Time:     0,
 	}
 	assert.Equal(t, emptyHistory, *info2.History)
-	cs = GetConstants(g2)
+	cs = GetConstants(g2, true)
 	warbleConst = findWarbleAmt(cs)
 	assert.Equal(t, float32(100.0), warbleConst.Value)
 }
@@ -53,7 +53,7 @@ func TestSetConstant(t *testing.T) {
 func TestSetFrequency(t *testing.T) {
 	osc := Mega()
 	osc = osc.Initialize("winslow")
-	cs := GetConstants(osc)
+	cs := GetConstants(osc, true)
 	numFreqs := 0
 	for _, c := range cs {
 		if c.Info.Name == "Frequency" {
@@ -64,7 +64,7 @@ func TestSetFrequency(t *testing.T) {
 	assert.Equal(t, 3, numFreqs)
 
 	osc = SetFrequency(osc, 220)
-	cs = GetConstants(osc)
+	cs = GetConstants(osc, true)
 	numFreqs = 0
 	for _, c := range cs {
 		if c.Info.Name == "Frequency" {

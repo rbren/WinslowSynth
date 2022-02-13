@@ -61,7 +61,6 @@ func (s Oscillator) Initialize(group string) Generator {
 	if s.SubGenerators["Phase"] == nil {
 		s.SubGenerators["Phase"] = Constant{
 			Info: Info{
-				Name:     "Phase",
 				Group:    group,
 				Subgroup: "Oscillator",
 			},

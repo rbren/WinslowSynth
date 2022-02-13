@@ -34,5 +34,5 @@ func init() {
 }
 
 func GetDefaultInstrument() Generator {
-	return Mega()
+	return Library["winslow"]
 }
