@@ -16,10 +16,11 @@ const releasesPerTrial = 10
 var instrumentToTest string
 
 func init() {
-	flag.StringVar(&instrumentToTest, "instrument", "winslow", "instrument to test")
+	flag.StringVar(&instrumentToTest, "instrument", "", "instrument to test")
 }
 
 func main() {
+	flag.Parse()
 	samplesPerSec := config.MainConfig.SampleRate
 	samplesPerMicroSec := float64(samplesPerSec) / 1000 / 1000
 	fmt.Printf("Min is %.02f us per sample\n", 1/samplesPerMicroSec)
@@ -28,8 +29,8 @@ func main() {
 		if instrumentToTest != "" && key != instrumentToTest {
 			continue
 		}
-		inst.Initialize("foo")
 		fmt.Println("Testing " + key)
+		inst.Initialize("foo")
 		var avg float64
 		for trial := 0; trial < numTrials; trial++ {
 			duration := performance.TestPerformance(inst, valuesPerTrial)
