@@ -7,25 +7,20 @@ import (
 )
 
 type Reverb struct {
-	Info     Info
-	Strength Generator
-	Delay    Generator
-	Repeats  Generator
-	Input    Generator
+	Info          Info
+	SubGenerators SubGenerators
 }
 
-func (r Reverb) SubGenerators() []Generator {
-	return []Generator{r.Input, r.Strength, r.Delay, r.Repeats}
-}
+func (r Reverb) GetSubGenerators() SubGenerators { return r.SubGenerators }
 
 func (r Reverb) Initialize(group string) Generator {
 	var maxDelay float32 = 1000.0
 	maxRepeats := float32(math.Floor(float64(historyMs-1) / float64(maxDelay)))
-	if r.Input == nil {
+	if r.SubGenerators["Input"] == nil {
 		panic("Reverb has no input")
 	}
-	if r.Strength == nil {
-		r.Strength = Constant{
+	if r.SubGenerators["Strength"] == nil {
+		r.SubGenerators["Strength"] = Constant{
 			Info: Info{
 				Name:     "Strength",
 				Group:    group,
@@ -36,8 +31,8 @@ func (r Reverb) Initialize(group string) Generator {
 			Max:   1.0,
 		}
 	}
-	if r.Delay == nil {
-		r.Delay = Constant{
+	if r.SubGenerators["Delay"] == nil {
+		r.SubGenerators["Delay"] = Constant{
 			Info: Info{
 				Name:     "Delay",
 				Group:    group,
@@ -48,8 +43,8 @@ func (r Reverb) Initialize(group string) Generator {
 			Max:   maxDelay,
 		}
 	}
-	if r.Repeats == nil {
-		r.Repeats = Constant{
+	if r.SubGenerators["Repeats"] == nil {
+		r.SubGenerators["Repeats"] = Constant{
 			Info: Info{
 				Name:     "Repeats",
 				Group:    group,
@@ -61,20 +56,20 @@ func (r Reverb) Initialize(group string) Generator {
 			Step:  1,
 		}
 	}
-	r.Input = r.Input.Initialize(group)
-	r.Input = r.Input.Copy(UseDefaultHistoryLength)
-	r.Delay = r.Delay.Initialize(group)
-	r.Strength = r.Strength.Initialize(group)
-	r.Repeats = r.Repeats.Initialize(group)
+	r.SubGenerators["Input"] = r.SubGenerators["Input"].Initialize(group)
+	r.SubGenerators["Input"] = r.SubGenerators["Input"].Copy(UseDefaultHistoryLength)
+	r.SubGenerators["Delay"] = r.SubGenerators["Delay"].Initialize(group)
+	r.SubGenerators["Strength"] = r.SubGenerators["Strength"].Initialize(group)
+	r.SubGenerators["Repeats"] = r.SubGenerators["Repeats"].Initialize(group)
 	return r
 }
 
 func (d Reverb) GetValue(t, r uint64) float32 {
-	val := GetValue(d.Input, t, r)
+	val := GetValue(d.SubGenerators["Input"], t, r)
 
-	numRepeats := int(GetValue(d.Repeats, t, r))
-	delayMs := GetValue(d.Delay, t, r)
-	startAmplitude := GetValue(d.Strength, t, r)
+	numRepeats := int(GetValue(d.SubGenerators["Repeats"], t, r))
+	delayMs := GetValue(d.SubGenerators["Delay"], t, r)
+	startAmplitude := GetValue(d.SubGenerators["Strength"], t, r)
 	if startAmplitude == 0 || delayMs == 0 || numRepeats == 0 {
 		return val
 	}
@@ -85,7 +80,7 @@ func (d Reverb) GetValue(t, r uint64) float32 {
 		amplitude := startAmplitude * (1.0 - float32(repetition)/float32(numRepeats))
 		oldTime := t - delaySamples
 		if oldTime > 0 {
-			oldVal := GetValue(d.Input, oldTime, r)
+			oldVal := GetValue(d.SubGenerators["Input"], oldTime, r)
 			val += amplitude * oldVal
 		}
 	}
@@ -95,9 +90,9 @@ func (d Reverb) GetValue(t, r uint64) float32 {
 func (d Reverb) GetInfo() Info { return d.Info }
 func (d Reverb) Copy(historyLen int) Generator {
 	d.Info = d.Info.Copy(historyLen)
-	d.Strength = d.Strength.Copy(CopyExistingHistoryLength)
-	d.Delay = d.Delay.Copy(CopyExistingHistoryLength)
-	d.Repeats = d.Repeats.Copy(CopyExistingHistoryLength)
-	d.Input = d.Input.Copy(CopyExistingHistoryLength)
+	d.SubGenerators["Strength"] = d.SubGenerators["Strength"].Copy(CopyExistingHistoryLength)
+	d.SubGenerators["Delay"] = d.SubGenerators["Delay"].Copy(CopyExistingHistoryLength)
+	d.SubGenerators["Repeats"] = d.SubGenerators["Repeats"].Copy(CopyExistingHistoryLength)
+	d.SubGenerators["Input"] = d.SubGenerators["Input"].Copy(CopyExistingHistoryLength)
 	return d
 }

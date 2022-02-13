@@ -22,7 +22,9 @@ func init() {
 		}.Initialize("Average"),
 		"square": BasicSquare().Initialize("Square"),
 		"reverb": Reverb{
-			Input: BasicSine(),
+			SubGenerators: map[string]Generator{
+				"Input": BasicSine(),
+			},
 		}.Initialize("Reverb"),
 		"warbler":     Warbler().Initialize("Warbler"),
 		"dirty":       DirtySawWave().Initialize("Dirty Saw"),

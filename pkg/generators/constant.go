@@ -10,8 +10,8 @@ type Constant struct {
 
 func (c Constant) Initialize(group string) Generator { return c }
 
-func (c Constant) SubGenerators() []Generator {
-	return []Generator{}
+func (c Constant) GetSubGenerators() SubGenerators {
+	return map[string]Generator{}
 }
 
 func (c Constant) GetValue(t, r uint64) float32 {

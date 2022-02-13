@@ -5,21 +5,18 @@ import (
 )
 
 type Delay struct {
-	Info   Info
-	Amount Generator
-	Input  Generator
+	Info          Info
+	SubGenerators SubGenerators
 }
 
-func (d Delay) SubGenerators() []Generator {
-	return []Generator{d.Input, d.Amount}
-}
+func (d Delay) GetSubGenerators() SubGenerators { return d.SubGenerators }
 
 func (d Delay) Initialize(name string) Generator {
-	if d.Input == nil {
+	if d.SubGenerators == nil || d.SubGenerators["Input"] == nil {
 		panic("Delay has no input")
 	}
-	if d.Amount == nil {
-		d.Amount = Constant{
+	if d.SubGenerators["Amount"] == nil {
+		d.SubGenerators["Amount"] = Constant{
 			Info: Info{
 				Name:  "Delay",
 				Group: name,
@@ -30,23 +27,23 @@ func (d Delay) Initialize(name string) Generator {
 			Step:  10,
 		}
 	}
-	d.Input = d.Input.Initialize(name)
-	d.Input = d.Input.Copy(UseDefaultHistoryLength)
-	d.Amount = d.Amount.Initialize(name)
+	d.SubGenerators["Input"] = d.SubGenerators["Input"].Initialize(name)
+	d.SubGenerators["Input"] = d.SubGenerators["Input"].Copy(UseDefaultHistoryLength)
+	d.SubGenerators["Amount"] = d.SubGenerators["Amount"].Initialize(name)
 	return d
 }
 
 func (d Delay) GetValue(t, r uint64) float32 {
 	samplesPerMs := config.MainConfig.SampleRate / 1000
-	amtMs := GetValue(d.Amount, t, r)
+	amtMs := GetValue(d.SubGenerators["Amount"], t, r)
 	amtSamples := int(amtMs) * samplesPerMs
-	return GetValue(d.Input, t-uint64(amtSamples), r)
+	return GetValue(d.SubGenerators["Input"], t-uint64(amtSamples), r)
 }
 
 func (d Delay) GetInfo() Info { return d.Info }
 func (d Delay) Copy(historyLen int) Generator {
 	d.Info = d.Info.Copy(historyLen)
-	d.Amount = d.Amount.Copy(CopyExistingHistoryLength)
-	d.Input = d.Input.Copy(CopyExistingHistoryLength)
+	d.SubGenerators["Amount"] = d.SubGenerators["Amount"].Copy(CopyExistingHistoryLength)
+	d.SubGenerators["Input"] = d.SubGenerators["Input"].Copy(CopyExistingHistoryLength)
 	return d
 }

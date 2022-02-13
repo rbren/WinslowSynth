@@ -17,11 +17,13 @@ type History struct {
 	Time     uint64
 }
 
+type SubGenerators map[string]Generator
+
 type Generator interface {
 	Initialize(group string) Generator
 	GetInfo() Info
 	Copy(historyLen int) Generator
-	SubGenerators() []Generator
+	GetSubGenerators() SubGenerators
 	GetValue(elapsed uint64, releasedAt uint64) float32
 }
 

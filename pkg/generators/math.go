@@ -1,30 +1,36 @@
 package generators
 
-import ()
+import (
+	"fmt"
+)
 
 type Average struct {
-	Info       Info
-	Generators []Generator
+	Info          Info
+	Generators    []Generator
+	SubGenerators SubGenerators
 }
 
 type Multiply struct {
-	Info       Info
-	Generators []Generator
+	Info          Info
+	Generators    []Generator
+	SubGenerators SubGenerators
 }
 
-func (a Average) SubGenerators() []Generator  { return a.Generators }
-func (m Multiply) SubGenerators() []Generator { return m.Generators }
+func (a Average) GetSubGenerators() SubGenerators  { return a.SubGenerators }
+func (m Multiply) GetSubGenerators() SubGenerators { return m.SubGenerators }
 
 func (a Average) Initialize(group string) Generator {
+	a.SubGenerators = map[string]Generator{}
 	for idx := range a.Generators {
-		a.Generators[idx] = a.Generators[idx].Initialize(group)
+		a.SubGenerators[fmt.Sprintf("%d", idx)] = a.Generators[idx].Initialize(group)
 	}
 	return a
 }
 
 func (m Multiply) Initialize(group string) Generator {
+	m.SubGenerators = map[string]Generator{}
 	for idx := range m.Generators {
-		m.Generators[idx] = m.Generators[idx].Initialize(group)
+		m.SubGenerators[fmt.Sprintf("%d", idx)] = m.Generators[idx].Initialize(group)
 	}
 	return m
 }
@@ -52,15 +58,15 @@ func (s Average) GetInfo() Info  { return s.Info }
 func (m Multiply) GetInfo() Info { return m.Info }
 func (s Average) Copy(historyLen int) Generator {
 	s.Info = s.Info.Copy(historyLen)
-	for idx := range s.Generators {
-		s.Generators[idx] = s.Generators[idx].Copy(CopyExistingHistoryLength)
+	for key := range s.SubGenerators {
+		s.SubGenerators[key] = s.SubGenerators[key].Copy(CopyExistingHistoryLength)
 	}
 	return s
 }
 func (m Multiply) Copy(historyLen int) Generator {
 	m.Info = m.Info.Copy(historyLen)
-	for idx := range m.Generators {
-		m.Generators[idx] = m.Generators[idx].Copy(CopyExistingHistoryLength)
+	for key := range m.SubGenerators {
+		m.SubGenerators[key] = m.SubGenerators[key].Copy(CopyExistingHistoryLength)
 	}
 	return m
 }

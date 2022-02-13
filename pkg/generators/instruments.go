@@ -18,26 +18,32 @@ func BasicSine() Oscillator {
 		Info: Info{
 			Name: "Basic Sine",
 		},
-		Frequency: frequencyConst(),
-		Amplitude: GetADSR("adsr"),
+		SubGenerators: map[string]Generator{
+			"Frequency": frequencyConst(),
+			"Amplitude": GetADSR("adsr"),
+		},
 	}
 }
 
 func BasicSaw() Oscillator {
 	return Oscillator{
-		Info:      Info{Name: "Basic Saw"},
-		Shape:     SawShape,
-		Frequency: frequencyConst(),
-		Amplitude: GetADSR("adsr"),
+		Info:  Info{Name: "Basic Saw"},
+		Shape: SawShape,
+		SubGenerators: map[string]Generator{
+			"Frequency": frequencyConst(),
+			"Amplitude": GetADSR("adsr"),
+		},
 	}
 }
 
 func BasicSquare() Oscillator {
 	return Oscillator{
-		Info:      Info{Name: "Basic Square"},
-		Shape:     SquareShape,
-		Frequency: frequencyConst(),
-		Amplitude: GetADSR("adsr"),
+		Info:  Info{Name: "Basic Square"},
+		Shape: SquareShape,
+		SubGenerators: map[string]Generator{
+			"Frequency": frequencyConst(),
+			"Amplitude": GetADSR("adsr"),
+		},
 	}
 }
 
@@ -74,14 +80,16 @@ func NoisySineWave() Generator {
 		Info: Info{
 			Name: "Noisy Sine",
 		},
-		Input: BasicSine(),
+		SubGenerators: map[string]Generator{
+			"Input": BasicSine(),
+		},
 	}
 }
 
 func Warbler() Oscillator {
 	adsr := GetADSR("adsr")
 	adsrInner := adsr
-	adsrInner.SustainLevel = Constant{
+	adsrInner.SubGenerators["SustainLevel"] = Constant{
 		Info:  Info{Group: "", Name: "Warble Amt"},
 		Value: 20.0,
 		Min:   0.0,
@@ -89,34 +97,40 @@ func Warbler() Oscillator {
 	}
 	return Oscillator{
 		Info:          Info{Name: "Warbler"},
-		Amplitude:     adsr,
 		DropOnRelease: true,
-		Frequency: Oscillator{
-			Amplitude: adsrInner,
-			Frequency: Constant{
-				Info:  Info{Group: "", Name: "Warble Speed"},
-				Value: 4,
-				Min:   0.0,
-				Max:   20.0,
+		SubGenerators: map[string]Generator{
+			"Amplitude": adsr,
+			"Frequency": Oscillator{
+				SubGenerators: map[string]Generator{
+					"Amplitude": adsrInner,
+					"Frequency": Constant{
+						Info:  Info{Group: "", Name: "Warble Speed"},
+						Value: 4,
+						Min:   0.0,
+						Max:   20.0,
+					},
+					// setting Bias on this sets the overall freq
+					"Bias": frequencyConst(),
+				},
 			},
-			// setting Bias on this sets the overall freq
-			Bias: frequencyConst(),
 		},
 	}
 }
 
 func DirtySawWave() Generator {
 	base := BasicSaw()
-	base.Amplitude = Multiply{
+	base.SubGenerators["Amplitude"] = Multiply{
 		Info: Info{Name: "Dirty Saw"},
 		Generators: []Generator{
-			base.Amplitude,
+			base.SubGenerators["Amplitude"],
 			Noise{
-				Amount: Constant{
-					Info:  Info{Group: "", Name: "Noise"},
-					Value: .1,
-					Min:   0.0,
-					Max:   1.0,
+				SubGenerators: map[string]Generator{
+					"Amount": Constant{
+						Info:  Info{Group: "", Name: "Noise"},
+						Value: .1,
+						Min:   0.0,
+						Max:   1.0,
+					},
 				},
 			},
 		},
