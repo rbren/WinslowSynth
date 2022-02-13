@@ -70,7 +70,7 @@ func GetValueCached(g Generator, t uint64) *float32 {
 	info := g.GetInfo()
 	if info.History != nil && info.History.samples != nil {
 		if timeDiff := info.History.Time - t; timeDiff >= 0 && timeDiff < uint64(len(info.History.samples)) {
-			idx := (info.History.Position - 1 - int(timeDiff)) % len(info.History.samples)
+			idx := (info.History.Position - int(timeDiff)) % len(info.History.samples)
 			if idx < 0 {
 				idx = idx + len(info.History.samples)
 			}
@@ -104,7 +104,8 @@ func (i Info) Copy(historyLen int) Info {
 }
 
 func (h History) GetOrdered(numSamples int) []float32 {
-	ordered := append(h.samples[h.Position:], h.samples[0:h.Position]...)
+	startIdx := (h.Position + 1) % len(h.samples)
+	ordered := append(h.samples[startIdx:], h.samples[0:startIdx]...)
 	if numSamples != -1 {
 		return ordered[len(ordered)-numSamples:]
 	}
