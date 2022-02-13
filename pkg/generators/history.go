@@ -5,6 +5,7 @@ import (
 
 	_ "github.com/sirupsen/logrus"
 
+	"github.com/rbren/midi/pkg/buffers"
 	"github.com/rbren/midi/pkg/config"
 )
 
@@ -32,15 +33,22 @@ func AddHistory(g Generator, startTime uint64, history []float32) {
 	if i.History == nil || i.History.samples == nil {
 		return
 	}
-	for idx, val := range history {
+	origPos := i.History.Position
+	timeSinceLastSample := startTime - i.History.Time
+	earliestNewPos := (i.History.Position + int(timeSinceLastSample)) % len(i.History.samples)
+	for idx := range history {
 		idxTime := startTime + uint64(idx)
-		if i.History.Time >= idxTime {
+		if i.History.Time != 0 && idxTime <= i.History.Time {
 			// we've already filled this spot
 			continue
 		}
-		i.History.samples[i.History.Position] = val
-		i.History.Position = (i.History.Position + 1) % len(i.History.samples)
+		idxPos := (earliestNewPos + idx) % len(i.History.samples)
+		i.History.samples[idxPos] = history[idx]
+		i.History.Position = idxPos
 		i.History.Time = idxTime
+	}
+	if timeSinceLastSample > 1 {
+		buffers.InterpolateEvents(i.History.samples, origPos, earliestNewPos)
 	}
 }
 
