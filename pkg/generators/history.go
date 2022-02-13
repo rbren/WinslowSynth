@@ -1,10 +1,14 @@
 package generators
 
 import (
+	"os"
+
 	_ "github.com/sirupsen/logrus"
 
 	"github.com/rbren/midi/pkg/config"
 )
+
+var useHistory bool
 
 const CopyExistingHistoryLength = -1
 const UseDefaultHistoryLength = -2
@@ -14,6 +18,7 @@ var historyLength int
 
 func init() {
 	historyLength = historyMs * (config.MainConfig.SampleRate / 1000)
+	useHistory = os.Getenv("NO_HISTORY") == ""
 }
 
 func getEmptyHistory() *History {
@@ -40,12 +45,16 @@ func AddHistory(g Generator, startTime uint64, history []float32) {
 }
 
 func GetValue(g Generator, t, r uint64) float32 {
-	cached := GetValueCached(g, t)
-	if cached != nil {
-		return *cached
+	if useHistory {
+		cached := GetValueCached(g, t)
+		if cached != nil {
+			return *cached
+		}
 	}
 	val := g.GetValue(t, r)
-	AddHistory(g, t, []float32{val})
+	if useHistory {
+		AddHistory(g, t, []float32{val})
+	}
 	return val
 }
 

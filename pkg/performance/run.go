@@ -7,39 +7,22 @@ import (
 	"github.com/rbren/midi/pkg/generators"
 )
 
-const numTrials = 3
-const valuesPerTrial = 10000
-const releasesPerTrial = 50
-
 func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-func TestPerformance(g generators.Generator, useHist bool) float64 {
-	avgDuration := 0.0
+func TestPerformance(g generators.Generator, duration int) float64 {
+	g = g.Copy(generators.UseDefaultHistoryLength)
 	generators.SetFrequency(g, 440.0)
-	for trial := 0; trial < numTrials; trial++ {
-		histSize := 0
-		if useHist {
-			histSize = generators.UseDefaultHistoryLength
+
+	start := time.Now()
+	releaseTime := rand.Intn(duration)
+	for time := 0; time < duration; time++ {
+		r := 0
+		if releaseTime >= time {
+			r = releaseTime
 		}
-		start := time.Now()
-		total := 0
-		for rel := 0; rel < releasesPerTrial; rel++ {
-			doRelease := rand.Float64() < .5
-			gTrial := g.Copy(histSize)
-			for time := 0; time < valuesPerTrial; time++ {
-				total++
-				releaseTime := 0
-				if time > 0 && doRelease {
-					releaseTime = rand.Intn(time)
-				}
-				generators.GetValue(gTrial, uint64(time), uint64(releaseTime))
-			}
-		}
-		duration := float64(time.Since(start).Microseconds()) / float64(total)
-		avgDuration += duration
-		//fmt.Printf("  trial %d took %fus per sample\n", trial, float64(duration.Microseconds())/float64(total))
+		generators.GetValue(g, uint64(time), uint64(r))
 	}
-	return avgDuration / numTrials
+	return float64(time.Since(start).Microseconds()) / float64(duration)
 }
