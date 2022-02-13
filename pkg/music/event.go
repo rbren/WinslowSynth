@@ -2,7 +2,6 @@ package music
 
 import (
 	"math"
-	"math/rand"
 
 	"github.com/sirupsen/logrus"
 
@@ -68,7 +67,7 @@ func (e *Event) GetSamples(absoluteTime uint64, numSamples, handicapModulus int)
 	lastIdxCalculated := -1
 	numCalculated := 0
 	for idx := range eventSamples {
-		if rand.Intn(handicapModulus) == 0 || idx == 0 || idx == numSamples-1 {
+		if idx%handicapModulus == 0 || idx == numSamples-1 {
 			val := generators.GetValue(e.Generator, t+uint64(idx), r)
 			eventSamples[idx] = val
 			if math.Abs(float64(val)) > zeroThreshold {

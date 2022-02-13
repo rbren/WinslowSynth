@@ -1,6 +1,7 @@
 package buffers
 
 import (
+	"fmt"
 	"math"
 )
 
@@ -30,9 +31,9 @@ func MixBuffersNaiveSum(bufs [][]float32, scale float32) []float32 {
 	if len(bufs) == 0 {
 		panic("tried to mix empty list of buffers")
 	}
-	for _, buf := range bufs {
+	for idx, buf := range bufs {
 		if len(buf) != len(bufs[0]) {
-			panic("tried to mix buffers of different size")
+			panic(fmt.Errorf("tried to mix buffers of different size. Got %d, expected %d at idx %d", len(buf), len(bufs[0]), idx))
 		}
 	}
 	output := make([]float32, len(bufs[0]))
