@@ -81,7 +81,7 @@ func (e *Event) GetSamples(absoluteTime uint64, numSamples, handicapModulus int)
 			lastIdxCalculated = idx
 		}
 	}
-	logrus.Infof("Calculated %.02f%% of  values", 100*float32(numCalculated)/float32(len(eventSamples)))
+	logrus.Debugf("Calculated %.02f%% of  values", 100*float32(numCalculated)/float32(len(eventSamples)))
 	e.Zeroed = zeroed
 	return eventSamples
 }
