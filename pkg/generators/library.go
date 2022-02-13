@@ -4,9 +4,10 @@ var Library = map[string]Generator{}
 
 func init() {
 	Library = map[string]Generator{
-		"winslow": Mega().Initialize("Winslow"),
-		"sine":    BasicSine().Initialize("Sine"),
-		"saw":     BasicSaw().Initialize("Saw"),
+		"oscillator": Oscillator{}.Initialize("Oscillator"),
+		"winslow":    Mega().Initialize("Winslow"),
+		"sine":       BasicSine().Initialize("Sine"),
+		"saw":        BasicSaw().Initialize("Saw"),
 		"average": Average{
 			Generators: []Generator{
 				BasicSaw(),
