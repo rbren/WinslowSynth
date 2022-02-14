@@ -2,6 +2,7 @@ package music
 
 import (
 	"math"
+	"math/rand"
 	"sync"
 	"time"
 
@@ -13,6 +14,11 @@ import (
 	"github.com/rbren/midi/pkg/generators"
 	"github.com/rbren/midi/pkg/input"
 )
+
+const maxSampleRateHandicap = 0.9
+const sampleRateHandicapJump = .01
+const sampleRateRatioMin = .3
+const sampleRateRatioMax = .7
 
 type Sequence struct {
 	lock               *sync.Mutex
@@ -78,7 +84,6 @@ func (s *Sequence) GetSamples(absoluteTime uint64, numSamples int) []float32 {
 	samplesPerMs := config.MainConfig.SampleRate / 1000
 	samplesPerSprint := numSamples
 	msPerSprint := samplesPerSprint / samplesPerMs
-	handicapModulus := int(math.Max(1.0, math.Ceil(float64(s.SampleRateHandicap))))
 
 	//logrus.Infof("%d generators", len(s.Events))
 	allSamples := make([][]float32, len(s.Events))
@@ -87,7 +92,7 @@ func (s *Sequence) GetSamples(absoluteTime uint64, numSamples int) []float32 {
 		wg.Add(1)
 		go func(eventIdx int, event *Event) {
 			defer wg.Done()
-			eventSamples := event.GetSamples(absoluteTime, numSamples, handicapModulus)
+			eventSamples := event.GetSamples(absoluteTime, numSamples, s.SampleRateHandicap)
 			allSamples[eventIdx] = eventSamples
 		}(eventIdx, event)
 	}
@@ -101,12 +106,20 @@ func (s *Sequence) GetSamples(absoluteTime uint64, numSamples int) []float32 {
 	generators.AddHistory(s.Instrument, absoluteTime, output)
 	duration := time.Since(start)
 	ratio := float32(duration.Milliseconds()) / float32(msPerSprint)
-	if ratio > .9 {
-		s.SampleRateHandicap = float32(math.Max(float64(s.SampleRateHandicap), 1.0)) + 1
-		logrus.Warningf("DOWNSAMPLE: with %d generators, ratio was %f, increased sample handicap to %f", len(s.Events), ratio, s.SampleRateHandicap)
-	} else if ratio < .25 && s.SampleRateHandicap >= 1 {
-		s.SampleRateHandicap = s.SampleRateHandicap - 1
-		logrus.Warningf("UPSAMPLE: with %d generators, ratio was %f, decreased sample handicap to %f", len(s.Events), ratio, s.SampleRateHandicap)
-	}
+	s.AdjustSampleRateHandicap(ratio)
 	return output
+}
+
+func (s *Sequence) AdjustSampleRateHandicap(ratio float32) {
+	if ratio > sampleRateRatioMax {
+		if s.SampleRateHandicap >= maxSampleRateHandicap {
+			logrus.Errorf("FULLY DOWNSAMPLED: with %d generators, ratio was %f", len(s.Events), ratio)
+		}
+		s.SampleRateHandicap = float32(math.Min(maxSampleRateHandicap, float64(s.SampleRateHandicap+sampleRateHandicapJump)))
+	} else if s.SampleRateHandicap != 0.0 && ratio < sampleRateRatioMin {
+		s.SampleRateHandicap = float32(math.Max(0, float64(s.SampleRateHandicap-sampleRateHandicapJump)))
+	}
+	if rand.Float32() < sampleRateHandicapJump*5 {
+		logrus.Infof("with %d generators, ratio was %f, sample handicap is %f", len(s.Events), ratio, s.SampleRateHandicap)
+	}
 }

@@ -2,6 +2,7 @@ package music
 
 import (
 	"math"
+	"math/rand"
 
 	"github.com/sirupsen/logrus"
 
@@ -60,20 +61,20 @@ func (e Event) StillActive(absoluteTime uint64) bool {
 	return elapsedSinceRelease <= uint64(maxReleaseTimeSamples)
 }
 
-func (e *Event) GetSamples(absoluteTime uint64, numSamples, handicapModulus int) []float32 {
+func (e *Event) GetSamples(absoluteTime uint64, numSamples int, handicap float32) []float32 {
 	eventSamples := make([]float32, numSamples)
 	t, r := e.getRelativeTime(absoluteTime)
 	zeroed := true
 	lastIdxCalculated := -1
 	numCalculated := 0
 	for idx := range eventSamples {
-		if idx%handicapModulus == 0 || idx == numSamples-1 {
+		if rand.Float32() > handicap || idx == 0 || idx == numSamples-1 {
 			val := generators.GetValue(e.Generator, t+uint64(idx), r)
 			eventSamples[idx] = val
 			if math.Abs(float64(val)) > zeroThreshold {
 				zeroed = false
 			}
-			if lastIdxCalculated != -1 {
+			if lastIdxCalculated != idx-1 {
 				buffers.InterpolateEvents(eventSamples, lastIdxCalculated, idx)
 			}
 			numCalculated++
