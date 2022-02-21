@@ -10,7 +10,7 @@ import (
 )
 
 const numTrials = 3
-const valuesPerTrial = 100000
+const valuesPerTrial = 100
 const releasesPerTrial = 10
 
 var instrumentToTest string

@@ -11,12 +11,6 @@ type Info struct {
 	History  *History
 }
 
-type History struct {
-	samples  []float32
-	Position int
-	Time     uint64
-}
-
 type Generator interface {
 	Initialize(group string) Generator
 	GetInfo() Info

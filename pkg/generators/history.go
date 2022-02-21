@@ -1,6 +1,8 @@
 package generators
 
 import (
+	"math"
+	"math/cmplx"
 	"os"
 
 	_ "github.com/sirupsen/logrus"
@@ -22,10 +24,23 @@ func init() {
 	useHistory = os.Getenv("NO_HISTORY") == ""
 }
 
+type History struct {
+	samples       []float32
+	frequencyBins []complex64
+	Position      int
+	Time          uint64
+}
+
 func getEmptyHistory() *History {
 	return &History{
 		samples: make([]float32, historyLength),
 	}
+}
+
+func getEmptyHistoryWithFrequencies(numBins int) *History {
+	h := getEmptyHistory()
+	h.frequencyBins = make([]complex64, numBins)
+	return h
 }
 
 func AddHistory(g Generator, startTime uint64, history []float32) {
@@ -33,23 +48,7 @@ func AddHistory(g Generator, startTime uint64, history []float32) {
 	if i.History == nil || i.History.samples == nil {
 		return
 	}
-	origPos := i.History.Position
-	timeSinceLastSample := startTime - i.History.Time
-	earliestNewPos := (i.History.Position + int(timeSinceLastSample)) % len(i.History.samples)
-	for idx := range history {
-		idxTime := startTime + uint64(idx)
-		if i.History.Time != 0 && idxTime <= i.History.Time {
-			// we've already filled this spot
-			continue
-		}
-		idxPos := (earliestNewPos + idx) % len(i.History.samples)
-		i.History.samples[idxPos] = history[idx]
-		i.History.Position = idxPos
-		i.History.Time = idxTime
-	}
-	if timeSinceLastSample > 1 {
-		buffers.InterpolateEvents(i.History.samples, origPos, earliestNewPos)
-	}
+	i.History.Add(startTime, history)
 }
 
 func GetValue(g Generator, t, r uint64) float32 {
@@ -103,6 +102,45 @@ func (i Info) Copy(historyLen int) Info {
 	return i
 }
 
+func (h *History) Add(startTime uint64, samples []float32) {
+	origPos := h.Position
+	timeSinceLastSample := startTime - h.Time
+	earliestNewPos := (h.Position + int(timeSinceLastSample)) % len(h.samples)
+	removedSamples := []float32{}
+	newSamples := []float32{}
+	for idx := range samples {
+		idxTime := startTime + uint64(idx)
+		if h.Time != 0 && idxTime <= h.Time {
+			// we've already filled this spot
+			continue
+		}
+		idxPos := (earliestNewPos + idx) % len(h.samples)
+		removedSamples = append(removedSamples, h.samples[idxPos])
+		newSamples = append(newSamples, samples[idx])
+		h.samples[idxPos] = samples[idx]
+		h.Position = idxPos
+		h.Time = idxTime
+	}
+	if timeSinceLastSample > 1 {
+		buffers.InterpolateEvents(h.samples, origPos, earliestNewPos)
+	}
+	h.UpdateFrequencies(removedSamples, newSamples)
+}
+
+func (h *History) UpdateFrequencies(removedSamples, newSamples []float32) {
+	if len(h.frequencyBins) == 0 {
+		return
+	}
+	for sampleIdx := range removedSamples {
+		oldSample := removedSamples[sampleIdx]
+		newSample := newSamples[sampleIdx]
+		for binIdx, binValue := range h.frequencyBins {
+			coeff := cmplx.Exp(2 * math.Pi * complex(0, 1) * complex(float64(binIdx), 0)) // TODO: precompute
+			h.frequencyBins[binIdx] = complex64(coeff) * (binValue + complex64(complex(newSample-oldSample, 0)))
+		}
+	}
+}
+
 func (h History) GetOrdered(numSamples int) []float32 {
 	startIdx := (h.Position + 1) % len(h.samples)
 	ordered := append(h.samples[startIdx:], h.samples[0:startIdx]...)
@@ -110,4 +148,14 @@ func (h History) GetOrdered(numSamples int) []float32 {
 		return ordered[len(ordered)-numSamples:]
 	}
 	return ordered
+}
+
+func (h History) GetOrderedComplex() []complex128 {
+	out := make([]complex128, len(h.samples))
+	startIdx := (h.Position + 1) % len(h.samples)
+	for i := 0; i < len(out); i++ {
+		idx := (startIdx + i) % len(h.samples)
+		out[i] = complex(float64(h.samples[idx]), 0)
+	}
+	return out
 }
