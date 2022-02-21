@@ -1,5 +1,6 @@
 function initialize() {
   setUpWaveFormGraph();
+  setUpFrequenciesGraph();
   window.drawHistoryInterval = startDrawHistoryInterval();
 }
 

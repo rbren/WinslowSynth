@@ -32,5 +32,5 @@ func init() {
 }
 
 func GetDefaultInstrument() Generator {
-	return Mega()
+	return Mega().Copy(UseDefaultHistoryLength, true)
 }

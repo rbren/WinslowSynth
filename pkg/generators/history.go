@@ -17,11 +17,19 @@ const CopyExistingHistoryLength = -1
 const UseDefaultHistoryLength = -2
 
 var historyMs = 5000
+var numFrequencyBins = 1000
+var frequencyCoefficients []complex64
 var historyLength int
 
 func init() {
 	historyLength = historyMs * (config.MainConfig.SampleRate / 1000)
 	useHistory = os.Getenv("NO_HISTORY") == ""
+	twoPiI := 2 * math.Pi * complex(0, 1)
+	frequencyCoefficients = make([]complex64, numFrequencyBins)
+	for i := 0; i < numFrequencyBins; i++ {
+		frac := float64(i) / float64(numFrequencyBins)
+		frequencyCoefficients[i] = complex64(cmplx.Exp(twoPiI * complex(frac, 0)))
+	}
 }
 
 type History struct {
@@ -37,9 +45,9 @@ func getEmptyHistory() *History {
 	}
 }
 
-func getEmptyHistoryWithFrequencies(numBins int) *History {
+func getEmptyHistoryWithFrequencies() *History {
 	h := getEmptyHistory()
-	h.frequencyBins = make([]complex64, numBins)
+	h.frequencyBins = make([]complex64, numFrequencyBins)
 	return h
 }
 
@@ -80,13 +88,17 @@ func GetValueCached(g Generator, t uint64) *float32 {
 	return nil
 }
 
-func (i Info) Copy(historyLen int) Info {
+func (i Info) Copy(historyLen int, useFrequencies bool) Info {
 	initialLength := 0
 	if i.History != nil {
 		initialLength = len(i.History.samples)
 	}
 
-	i.History = getEmptyHistory()
+	if useFrequencies {
+		i.History = getEmptyHistoryWithFrequencies()
+	} else {
+		i.History = getEmptyHistory()
+	}
 	if historyLen == UseDefaultHistoryLength {
 		return i
 	}
@@ -135,8 +147,7 @@ func (h *History) UpdateFrequencies(removedSamples, newSamples []float32) {
 		oldSample := removedSamples[sampleIdx]
 		newSample := newSamples[sampleIdx]
 		for binIdx, binValue := range h.frequencyBins {
-			coeff := cmplx.Exp(2 * math.Pi * complex(0, 1) * complex(float64(binIdx), 0)) // TODO: precompute
-			h.frequencyBins[binIdx] = complex64(coeff) * (binValue + complex64(complex(newSample-oldSample, 0)))
+			h.frequencyBins[binIdx] = frequencyCoefficients[binIdx] * (binValue + complex64(complex(newSample-oldSample, 0)))
 		}
 	}
 }
@@ -148,6 +159,14 @@ func (h History) GetOrdered(numSamples int) []float32 {
 		return ordered[len(ordered)-numSamples:]
 	}
 	return ordered
+}
+
+func (h History) GetFrequencies() []float32 {
+	freqs := make([]float32, len(h.frequencyBins))
+	for idx := range freqs {
+		freqs[idx] = real(h.frequencyBins[idx])
+	}
+	return freqs
 }
 
 func (h History) GetOrderedComplex() []complex128 {

@@ -46,7 +46,7 @@ func GetConstants(g Generator) []Constant {
 }
 
 func SetConstant(g Generator, group, name string, value float32) Generator {
-	gCopy := g.Copy(CopyExistingHistoryLength)
+	gCopy := g.Copy(CopyExistingHistoryLength, false)
 	if c, ok := gCopy.(Constant); ok {
 		if c.Info.Name == name && (group == "" || c.Info.Group == group) {
 			c.Value = value

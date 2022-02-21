@@ -43,9 +43,9 @@ func (h Harmonic) GetValue(t, r uint64) float32 {
 }
 
 func (h Harmonic) GetInfo() Info { return h.Info }
-func (h Harmonic) Copy(historyLen int) Generator {
-	h.Info = h.Info.Copy(historyLen)
-	h.Average = h.Average.Copy(CopyExistingHistoryLength).(Average)
-	h.Oscillator = h.Oscillator.Copy(CopyExistingHistoryLength).(Oscillator)
+func (h Harmonic) Copy(historyLen int, storeFrequencies bool) Generator {
+	h.Info = h.Info.Copy(historyLen, storeFrequencies)
+	h.Average = h.Average.Copy(CopyExistingHistoryLength, false).(Average)
+	h.Oscillator = h.Oscillator.Copy(CopyExistingHistoryLength, false).(Oscillator)
 	return h
 }

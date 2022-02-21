@@ -64,6 +64,21 @@ function setUpWaveFormGraph() {
   }
 }
 
+function setUpFrequenciesGraph() {
+  if (!window.frequenciesGraph) {
+    window.frequenciesGraph = setUpGraph("#FrequenciesGraph", [0, 1000], [-2.0, 2.0]);
+  }
+}
+
+function drawFrequencies(freqs) {
+  if (!freqs || freqs.length === 0) return
+  const {x, y} = window.frequenciesGraph;
+  var valueline = d3.line()
+        .x(function(d, idx) { return x(idx); })
+        .y(function(d, idx) { return y(d); });
+  drawGraph("#FrequenciesGraph", valueline, freqs);
+}
+
 function drawWaveForm(freq) {
   if (freq === 0) return;
   const impulsesToShow = 2;

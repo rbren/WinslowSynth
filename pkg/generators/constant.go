@@ -19,7 +19,7 @@ func (c Constant) GetValue(t, r uint64) float32 {
 }
 
 func (c Constant) GetInfo() Info { return c.Info }
-func (c Constant) Copy(historyLen int) Generator {
-	c.Info = c.Info.Copy(historyLen)
+func (c Constant) Copy(historyLen int, storeFrequencies bool) Generator {
+	c.Info = c.Info.Copy(historyLen, storeFrequencies)
 	return c
 }

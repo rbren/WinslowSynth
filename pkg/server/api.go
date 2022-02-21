@@ -38,6 +38,7 @@ type MessageOut struct {
 	Frequency     float32
 	Instrument    generators.Generator
 	HistoryUpdate []float32
+	Frequencies   []float32
 	Instruments   []string
 	Constants     []generators.Constant
 	Config        config.Config
@@ -112,7 +113,7 @@ func (s Server) ChooseAction(msg MessageIn) {
 		if inst == nil {
 			panic("instrument not found:" + msg.Key)
 		}
-		s.Player.Sequence.Instrument = inst.Copy(generators.UseDefaultHistoryLength)
+		s.Player.Sequence.Instrument = inst.Copy(generators.UseDefaultHistoryLength, true)
 		logrus.Info("set instrument", s.Player.Sequence.Instrument.GetInfo().Name)
 	} else {
 		logrus.Error("instrument not found:", msg.Key)
@@ -163,6 +164,7 @@ func (s *Server) startWriteLoop() {
 				Time:          s.Player.CurrentSample,
 				Instrument:    s.Player.Sequence.Instrument,
 				HistoryUpdate: s.Player.Sequence.Instrument.GetInfo().History.GetOrdered(samplesPerSend),
+				Frequencies:   s.Player.Sequence.Instrument.GetInfo().History.GetFrequencies(),
 				Instruments:   instruments,
 				Frequency:     s.Player.Sequence.LastFrequency,
 				Config:        config.MainConfig,

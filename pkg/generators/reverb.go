@@ -62,7 +62,7 @@ func (r Reverb) Initialize(group string) Generator {
 		}
 	}
 	r.Input = r.Input.Initialize(group)
-	r.Input = r.Input.Copy(UseDefaultHistoryLength)
+	r.Input = r.Input.Copy(UseDefaultHistoryLength, false)
 	r.Delay = r.Delay.Initialize(group)
 	r.Strength = r.Strength.Initialize(group)
 	r.Repeats = r.Repeats.Initialize(group)
@@ -93,11 +93,11 @@ func (d Reverb) GetValue(t, r uint64) float32 {
 }
 
 func (d Reverb) GetInfo() Info { return d.Info }
-func (d Reverb) Copy(historyLen int) Generator {
-	d.Info = d.Info.Copy(historyLen)
-	d.Strength = d.Strength.Copy(CopyExistingHistoryLength)
-	d.Delay = d.Delay.Copy(CopyExistingHistoryLength)
-	d.Repeats = d.Repeats.Copy(CopyExistingHistoryLength)
-	d.Input = d.Input.Copy(CopyExistingHistoryLength)
+func (d Reverb) Copy(historyLen int, storeFrequencies bool) Generator {
+	d.Info = d.Info.Copy(historyLen, storeFrequencies)
+	d.Strength = d.Strength.Copy(CopyExistingHistoryLength, false)
+	d.Delay = d.Delay.Copy(CopyExistingHistoryLength, false)
+	d.Repeats = d.Repeats.Copy(CopyExistingHistoryLength, false)
+	d.Input = d.Input.Copy(CopyExistingHistoryLength, false)
 	return d
 }

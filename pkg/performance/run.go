@@ -12,7 +12,7 @@ func init() {
 }
 
 func CheckPerformance(g generators.Generator, duration int) float64 {
-	g = g.Copy(generators.UseDefaultHistoryLength)
+	g = g.Copy(generators.UseDefaultHistoryLength, true)
 	generators.SetFrequency(g, 440.0)
 
 	start := time.Now()

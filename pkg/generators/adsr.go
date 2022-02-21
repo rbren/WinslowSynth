@@ -108,12 +108,12 @@ func (a ADSR) Release(t, r uint64) float32 {
 	return baseVal * (1.0 - percentDone)
 }
 func (a ADSR) GetInfo() Info { return a.Info }
-func (a ADSR) Copy(historyLen int) Generator {
-	a.Info = a.Info.Copy(historyLen)
-	a.PeakLevel = a.PeakLevel.Copy(CopyExistingHistoryLength)
-	a.AttackTime = a.AttackTime.Copy(CopyExistingHistoryLength)
-	a.DecayTime = a.DecayTime.Copy(CopyExistingHistoryLength)
-	a.SustainLevel = a.SustainLevel.Copy(CopyExistingHistoryLength)
-	a.ReleaseTime = a.ReleaseTime.Copy(CopyExistingHistoryLength)
+func (a ADSR) Copy(historyLen int, storeFrequencies bool) Generator {
+	a.Info = a.Info.Copy(historyLen, storeFrequencies)
+	a.PeakLevel = a.PeakLevel.Copy(CopyExistingHistoryLength, false)
+	a.AttackTime = a.AttackTime.Copy(CopyExistingHistoryLength, false)
+	a.DecayTime = a.DecayTime.Copy(CopyExistingHistoryLength, false)
+	a.SustainLevel = a.SustainLevel.Copy(CopyExistingHistoryLength, false)
+	a.ReleaseTime = a.ReleaseTime.Copy(CopyExistingHistoryLength, false)
 	return a
 }

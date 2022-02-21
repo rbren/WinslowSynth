@@ -13,6 +13,7 @@ function setState(state) {
 
   addHistory(state.Time, state.HistoryUpdate);
   drawWaveForm(state.Frequency);
+  drawFrequencies(state.Frequencies);
 }
 
 function clearState() {

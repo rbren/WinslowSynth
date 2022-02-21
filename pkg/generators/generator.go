@@ -14,7 +14,7 @@ type Info struct {
 type Generator interface {
 	Initialize(group string) Generator
 	GetInfo() Info
-	Copy(historyLen int) Generator
+	Copy(historyLen int, storeFrequencies bool) Generator
 	SubGenerators() []Generator
 	GetValue(elapsed uint64, releasedAt uint64) float32
 }

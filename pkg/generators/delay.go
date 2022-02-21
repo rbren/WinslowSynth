@@ -31,7 +31,7 @@ func (d Delay) Initialize(name string) Generator {
 		}
 	}
 	d.Input = d.Input.Initialize(name)
-	d.Input = d.Input.Copy(UseDefaultHistoryLength)
+	d.Input = d.Input.Copy(UseDefaultHistoryLength, false)
 	d.Amount = d.Amount.Initialize(name)
 	return d
 }
@@ -44,9 +44,9 @@ func (d Delay) GetValue(t, r uint64) float32 {
 }
 
 func (d Delay) GetInfo() Info { return d.Info }
-func (d Delay) Copy(historyLen int) Generator {
-	d.Info = d.Info.Copy(historyLen)
-	d.Amount = d.Amount.Copy(CopyExistingHistoryLength)
-	d.Input = d.Input.Copy(CopyExistingHistoryLength)
+func (d Delay) Copy(historyLen int, storeFrequencies bool) Generator {
+	d.Info = d.Info.Copy(historyLen, storeFrequencies)
+	d.Amount = d.Amount.Copy(CopyExistingHistoryLength, false)
+	d.Input = d.Input.Copy(CopyExistingHistoryLength, false)
 	return d
 }

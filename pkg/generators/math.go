@@ -50,17 +50,17 @@ func (m Multiply) GetValue(t, releasedAt uint64) float32 {
 
 func (s Average) GetInfo() Info  { return s.Info }
 func (m Multiply) GetInfo() Info { return m.Info }
-func (s Average) Copy(historyLen int) Generator {
-	s.Info = s.Info.Copy(historyLen)
+func (s Average) Copy(historyLen int, storeFrequencies bool) Generator {
+	s.Info = s.Info.Copy(historyLen, storeFrequencies)
 	for idx := range s.Generators {
-		s.Generators[idx] = s.Generators[idx].Copy(CopyExistingHistoryLength)
+		s.Generators[idx] = s.Generators[idx].Copy(CopyExistingHistoryLength, false)
 	}
 	return s
 }
-func (m Multiply) Copy(historyLen int) Generator {
-	m.Info = m.Info.Copy(historyLen)
+func (m Multiply) Copy(historyLen int, storeFrequencies bool) Generator {
+	m.Info = m.Info.Copy(historyLen, storeFrequencies)
 	for idx := range m.Generators {
-		m.Generators[idx] = m.Generators[idx].Copy(CopyExistingHistoryLength)
+		m.Generators[idx] = m.Generators[idx].Copy(CopyExistingHistoryLength, false)
 	}
 	return m
 }
