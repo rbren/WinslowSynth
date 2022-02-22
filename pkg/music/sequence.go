@@ -1,6 +1,7 @@
 package music
 
 import (
+	"fmt"
 	"math"
 	"math/rand"
 	"sync"
@@ -81,11 +82,18 @@ func (s *Sequence) ClearOldEvents(absoluteTime uint64) {
 
 func (s *Sequence) GetSamples(absoluteTime uint64, numSamples int) []float32 {
 	start := time.Now()
+	eventsCopy := []*Event{}
+	for _, event := range s.Events {
+		// events may change during loop, but that's OK as long as we're
+		// working with the same set for the duration of GetSamples
+		eventsCopy = append(eventsCopy, event)
+	}
 
-	//logrus.Infof("%d generators", len(s.Events))
-	allSamples := make([][]float32, len(s.Events))
+	startLen := len(eventsCopy)
+	//logrus.Infof("%d generators", len(eventsCopy))
+	allSamples := make([][]float32, len(eventsCopy))
 	var wg sync.WaitGroup
-	for eventIdx, event := range s.Events {
+	for eventIdx, event := range eventsCopy {
 		wg.Add(1)
 		go func(eventIdx int, event *Event) {
 			defer wg.Done()
@@ -94,6 +102,9 @@ func (s *Sequence) GetSamples(absoluteTime uint64, numSamples int) []float32 {
 		}(eventIdx, event)
 	}
 	wg.Wait()
+	if len(eventsCopy) != startLen {
+		panic(fmt.Errorf("number of events changed from %d to %d during GetSamples", startLen, len(eventsCopy)))
+	}
 	var output []float32
 	if len(allSamples) == 0 {
 		output = make([]float32, numSamples)

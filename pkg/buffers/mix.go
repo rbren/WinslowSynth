@@ -33,7 +33,7 @@ func MixBuffersNaiveSum(bufs [][]float32, scale float32) []float32 {
 	}
 	for idx, buf := range bufs {
 		if len(buf) != len(bufs[0]) {
-			panic(fmt.Errorf("tried to mix buffers of different size. Got %d, expected %d at idx %d", len(buf), len(bufs[0]), idx))
+			panic(fmt.Errorf("tried to mix buffers of different size. Got %d, expected %d at idx %d of %d", len(buf), len(bufs[0]), idx, len(bufs)))
 		}
 	}
 	output := make([]float32, len(bufs[0]))
