@@ -13,6 +13,7 @@ import (
 )
 
 var useHistory bool
+var useFrequencies bool
 
 const CopyExistingHistoryLength = -1
 const UseDefaultHistoryLength = -2
@@ -26,6 +27,12 @@ func init() {
 	historyLength = historyMs * (config.MainConfig.SampleRate / 1000)
 	logrus.Infof("Using %d bins by default", numFrequencyBins)
 	useHistory = os.Getenv("NO_HISTORY") == ""
+	useFrequencies = os.Getenv("NO_FREQUENCIES") == ""
+
+	precomputeFrequencyCoefficients()
+}
+
+func precomputeFrequencyCoefficients() {
 	twoPiI := 2 * math.Pi * complex(0, 1)
 	frequencyCoefficients = make([]complex64, numFrequencyBins)
 	for i := 0; i < numFrequencyBins; i++ {
@@ -54,6 +61,9 @@ func getEmptyHistoryWithFrequencies() *History {
 }
 
 func AddHistory(g Generator, startTime uint64, history []float32) {
+	if !useHistory {
+		return
+	}
 	i := g.GetInfo()
 	if i.History == nil || i.History.samples == nil {
 		return
@@ -62,20 +72,19 @@ func AddHistory(g Generator, startTime uint64, history []float32) {
 }
 
 func GetValue(g Generator, t, r uint64) float32 {
-	if useHistory {
-		cached := GetValueCached(g, t)
-		if cached != nil {
-			return *cached
-		}
+	cached := GetValueCached(g, t)
+	if cached != nil {
+		return *cached
 	}
 	val := g.GetValue(t, r)
-	if useHistory {
-		AddHistory(g, t, []float32{val})
-	}
+	AddHistory(g, t, []float32{val})
 	return val
 }
 
 func GetValueCached(g Generator, t uint64) *float32 {
+	if !useHistory {
+		return nil
+	}
 	info := g.GetInfo()
 	if info.History != nil && info.History.samples != nil {
 		if timeDiff := info.History.Time - t; timeDiff >= 0 && timeDiff < uint64(len(info.History.samples)) {
@@ -140,6 +149,9 @@ func (h *History) Add(startTime uint64, samples []float32) {
 }
 
 func (h *History) UpdateFrequencies(startPos, endPos int) {
+	if !useFrequencies {
+		return
+	}
 	numBins := len(h.frequencyBins)
 	if numBins == 0 {
 		return
