@@ -36,7 +36,7 @@ function drawSampleRateHandicap(handicap) {
     color = 'danger';
   }
   return `
-  <span class="badge bg-${color}">${handicap}</span>
+  <span class="badge bg-${color}">Quality: ${handicap.toFixed(2)}</span>
   `
 }
 
