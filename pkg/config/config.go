@@ -30,7 +30,7 @@ var MainConfig = Config{
 	SampleRateRatioMin:     .3,
 	SampleRateRatioMax:     .5,
 
-	InstrumentSampleMs:      25, // perf is better. with 10ms, holding a key down causes perf explosion...
+	InstrumentSampleMs:      20,
 	InstrumentClearEventsMs: 250,
 
 	MaxReleaseTimeMs:    10000,
