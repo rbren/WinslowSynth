@@ -5,7 +5,8 @@ import (
 	"math/cmplx"
 	"os"
 
-	_ "github.com/sirupsen/logrus"
+	dsp "github.com/mjibson/go-dsp/fft"
+	"github.com/sirupsen/logrus"
 
 	"github.com/rbren/midi/pkg/buffers"
 	"github.com/rbren/midi/pkg/config"
@@ -17,12 +18,14 @@ const CopyExistingHistoryLength = -1
 const UseDefaultHistoryLength = -2
 
 var historyMs = 5000
-var numFrequencyBins = 1000
+var numFrequencyBins int
 var frequencyCoefficients []complex64
 var historyLength int
 
 func init() {
 	historyLength = historyMs * (config.MainConfig.SampleRate / 1000)
+	numFrequencyBins = 5000
+	logrus.Infof("Using %d bins by default", numFrequencyBins)
 	useHistory = os.Getenv("NO_HISTORY") == ""
 	twoPiI := 2 * math.Pi * complex(0, 1)
 	frequencyCoefficients = make([]complex64, numFrequencyBins)
@@ -117,37 +120,51 @@ func (i Info) Copy(historyLen int, useFrequencies bool) Info {
 func (h *History) Add(startTime uint64, samples []float32) {
 	origPos := h.Position
 	timeSinceLastSample := startTime - h.Time
-	earliestNewPos := (h.Position + int(timeSinceLastSample)) % len(h.samples)
-	removedSamples := []float32{}
-	newSamples := []float32{}
+	doInterpolation := h.Time != 0 && timeSinceLastSample > 1
+	historyLength := len(h.samples)
+	earliestNewPos := buffers.Modulus(h.Position+int(timeSinceLastSample), historyLength)
 	for idx := range samples {
 		idxTime := startTime + uint64(idx)
 		if h.Time != 0 && idxTime <= h.Time {
 			// we've already filled this spot
 			continue
 		}
-		idxPos := (earliestNewPos + idx) % len(h.samples)
-		removedSamples = append(removedSamples, h.samples[idxPos])
-		newSamples = append(newSamples, samples[idx])
+		idxPos := buffers.Modulus((earliestNewPos + idx), historyLength)
 		h.samples[idxPos] = samples[idx]
 		h.Position = idxPos
 		h.Time = idxTime
 	}
-	if timeSinceLastSample > 1 {
+	if doInterpolation {
 		buffers.InterpolateEvents(h.samples, origPos, earliestNewPos)
 	}
-	h.UpdateFrequencies(removedSamples, newSamples)
+	h.UpdateFrequencies(origPos, h.Position)
 }
 
-func (h *History) UpdateFrequencies(removedSamples, newSamples []float32) {
-	if len(h.frequencyBins) == 0 {
+func (h *History) UpdateFrequency() {
+	newSample := h.samples[h.Position]
+	oldIdx := buffers.Modulus(h.Position-len(h.frequencyBins), len(h.samples))
+	oldSample := h.samples[oldIdx]
+	diff := complex64(complex(newSample-oldSample, 0))
+	for binIdx, binValue := range h.frequencyBins {
+		h.frequencyBins[binIdx] = frequencyCoefficients[binIdx] * (binValue + diff)
+	}
+}
+
+func (h *History) UpdateFrequencies(startPos, endPos int) {
+	numBins := len(h.frequencyBins)
+	if numBins == 0 {
 		return
 	}
-	for sampleIdx := range removedSamples {
-		oldSample := removedSamples[sampleIdx]
-		newSample := newSamples[sampleIdx]
+	historyLength := len(h.samples)
+	startIdx := buffers.Modulus(startPos+1, historyLength)
+	endIdx := buffers.Modulus(endPos+1, historyLength)
+	for posIdx := startIdx; posIdx != endIdx; posIdx = buffers.Modulus(posIdx+1, historyLength) {
+		newSample := h.samples[posIdx]
+		oldIdx := buffers.Modulus(posIdx-numBins, historyLength)
+		oldSample := h.samples[oldIdx]
+		diff := complex64(complex(newSample-oldSample, 0))
 		for binIdx, binValue := range h.frequencyBins {
-			h.frequencyBins[binIdx] = frequencyCoefficients[binIdx] * (binValue + complex64(complex(newSample-oldSample, 0)))
+			h.frequencyBins[binIdx] = frequencyCoefficients[binIdx] * (binValue + diff)
 		}
 	}
 }
@@ -162,9 +179,23 @@ func (h History) GetOrdered(numSamples int) []float32 {
 }
 
 func (h History) GetFrequencies() []float32 {
-	freqs := make([]float32, len(h.frequencyBins))
+	out := make([]float32, len(h.frequencyBins))
+	for idx := range out {
+		out[idx] = float32(cmplx.Abs(complex128(h.frequencyBins[idx])))
+	}
+	return out
+}
+
+func (h History) CalculateFrequencies() []float32 {
+	samples := h.GetOrdered(5000)
+	samples64 := make([]float64, len(samples))
+	for idx := range samples {
+		samples64[idx] = float64(samples[idx])
+	}
+	transformed := dsp.FFTReal(samples64)
+	freqs := make([]float32, len(transformed))
 	for idx := range freqs {
-		freqs[idx] = real(h.frequencyBins[idx])
+		freqs[idx] = float32(cmplx.Abs(transformed[idx]))
 	}
 	return freqs
 }

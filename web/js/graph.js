@@ -66,15 +66,17 @@ function setUpWaveFormGraph() {
 
 function setUpFrequenciesGraph() {
   if (!window.frequenciesGraph) {
-    window.frequenciesGraph = setUpGraph("#FrequenciesGraph", [0, 1000], [-2.0, 2.0]);
+    window.frequenciesGraph = setUpGraph("#FrequenciesGraph", [0, 1000], [0.0, 500]);
   }
 }
 
-function drawFrequencies(freqs) {
+function drawFrequencies(freqs, sampleRate) {
+  const windowsPerSecond = sampleRate / freqs.length;
+  window.frequencies = freqs;
   if (!freqs || freqs.length === 0) return
   const {x, y} = window.frequenciesGraph;
   var valueline = d3.line()
-        .x(function(d, idx) { return x(idx); })
+        .x(function(d, idx) { return x(idx) * windowsPerSecond; })
         .y(function(d, idx) { return y(d); });
   drawGraph("#FrequenciesGraph", valueline, freqs);
 }
