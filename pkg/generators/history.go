@@ -18,7 +18,7 @@ const CopyExistingHistoryLength = -1
 const UseDefaultHistoryLength = -2
 
 var historyMs = 5000
-var numFrequencyBins = 1000
+var numFrequencyBins = 500
 var frequencyCoefficients []complex64
 var historyLength int
 
