@@ -18,14 +18,12 @@ var useFrequencies bool
 const CopyExistingHistoryLength = -1
 const UseDefaultHistoryLength = -2
 
-var historyMs = 5000
-var numFrequencyBins = 500
 var frequencyCoefficients []complex64
 var historyLength int
 
 func init() {
-	historyLength = historyMs * (config.MainConfig.SampleRate / 1000)
-	logrus.Infof("Using %d bins by default", numFrequencyBins)
+	historyLength = config.MainConfig.HistoryMs * (config.MainConfig.SampleRate / 1000)
+	logrus.Infof("Using %d bins by default", config.MainConfig.FrequencyBins)
 	useHistory = os.Getenv("NO_HISTORY") == ""
 	useFrequencies = os.Getenv("NO_FREQUENCIES") == ""
 
@@ -34,9 +32,9 @@ func init() {
 
 func precomputeFrequencyCoefficients() {
 	twoPiI := 2 * math.Pi * complex(0, 1)
-	frequencyCoefficients = make([]complex64, numFrequencyBins)
-	for i := 0; i < numFrequencyBins; i++ {
-		frac := float64(i) / float64(numFrequencyBins)
+	frequencyCoefficients = make([]complex64, config.MainConfig.FrequencyBins)
+	for i := 0; i < config.MainConfig.FrequencyBins; i++ {
+		frac := float64(i) / float64(config.MainConfig.FrequencyBins)
 		frequencyCoefficients[i] = complex64(cmplx.Exp(twoPiI * complex(frac, 0)))
 	}
 }
@@ -56,7 +54,7 @@ func getEmptyHistory() *History {
 
 func getEmptyHistoryWithFrequencies() *History {
 	h := getEmptyHistory()
-	h.frequencyBins = make([]complex64, numFrequencyBins)
+	h.frequencyBins = make([]complex64, config.MainConfig.FrequencyBins)
 	return h
 }
 

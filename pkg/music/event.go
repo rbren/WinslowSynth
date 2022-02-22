@@ -11,16 +11,12 @@ import (
 	"github.com/rbren/midi/pkg/generators"
 )
 
-const maxReleaseTimeMs = 10000
-const minZeroedTimeMs = 1000
-const zeroThreshold = 0.01
-
 var maxReleaseTimeSamples int
 var minZeroedTimeSamples int
 
 func init() {
-	maxReleaseTimeSamples = maxReleaseTimeMs * config.MainConfig.SampleRate / 1000
-	minZeroedTimeSamples = minZeroedTimeMs * config.MainConfig.SampleRate / 1000
+	maxReleaseTimeSamples = config.MainConfig.MaxReleaseTimeMs * config.MainConfig.SampleRate / 1000
+	minZeroedTimeSamples = config.MainConfig.MinZeroedTimeMs * config.MainConfig.SampleRate / 1000
 }
 
 type Event struct {
@@ -71,7 +67,7 @@ func (e *Event) GetSamples(absoluteTime uint64, numSamples int, handicap float32
 		if rand.Float32() > handicap || idx == 0 || idx == numSamples-1 {
 			val := generators.GetValue(e.Generator, t+uint64(idx), r)
 			eventSamples[idx] = val
-			if math.Abs(float64(val)) > zeroThreshold {
+			if math.Abs(float64(val)) > float64(config.MainConfig.ZeroSampleThreshold) {
 				zeroed = false
 			}
 			if lastIdxCalculated != idx-1 {

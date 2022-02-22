@@ -16,11 +16,6 @@ import (
 	"github.com/rbren/midi/pkg/input"
 )
 
-const maxSampleRateHandicap = 0.9
-const sampleRateHandicapJump = .01
-const sampleRateRatioMin = .3
-const sampleRateRatioMax = .7
-
 type Sequence struct {
 	lock               *sync.Mutex
 	Instrument         generators.Generator
@@ -124,15 +119,17 @@ func (s *Sequence) AdjustSampleRateHandicap(numSamples int, duration time.Durati
 	durationMs := float32(duration.Microseconds()) / 1000
 	ratio := durationMs / float32(msPerSprint)
 
-	if ratio > sampleRateRatioMax {
-		if s.SampleRateHandicap >= maxSampleRateHandicap {
+	if ratio > config.MainConfig.SampleRateRatioMax {
+		if s.SampleRateHandicap >= config.MainConfig.MaxSampleRateHandicap {
 			logrus.Errorf("FULLY DOWNSAMPLED: with %d generators, ratio was %f", len(s.Events), ratio)
 		}
-		s.SampleRateHandicap = float32(math.Min(maxSampleRateHandicap, float64(s.SampleRateHandicap+sampleRateHandicapJump)))
-	} else if s.SampleRateHandicap != 0.0 && ratio < sampleRateRatioMin {
-		s.SampleRateHandicap = float32(math.Max(0, float64(s.SampleRateHandicap-sampleRateHandicapJump)))
+		s.SampleRateHandicap = float32(math.Min(
+			float64(config.MainConfig.MaxSampleRateHandicap),
+			float64(s.SampleRateHandicap+config.MainConfig.SampleRateHandicapJump)))
+	} else if s.SampleRateHandicap != 0.0 && ratio < config.MainConfig.SampleRateRatioMin {
+		s.SampleRateHandicap = float32(math.Max(0, float64(s.SampleRateHandicap-config.MainConfig.SampleRateHandicapJump)))
 	}
-	if rand.Float32() < sampleRateHandicapJump*5 {
+	if rand.Float32() < config.MainConfig.SampleRateHandicapJump*5 {
 		logrus.Infof("with %d generators, took %.02f ms to compute %d ms. Ratio was %.02f, sample handicap is %.02f",
 			len(s.Events), durationMs, msPerSprint, ratio, s.SampleRateHandicap)
 	}

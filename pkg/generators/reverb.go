@@ -20,7 +20,7 @@ func (r Reverb) SubGenerators() []Generator {
 
 func (r Reverb) Initialize(group string) Generator {
 	var maxDelay float32 = 1000.0
-	maxRepeats := float32(math.Floor(float64(historyMs-1) / float64(maxDelay)))
+	maxRepeats := float32(math.Floor(float64(config.MainConfig.HistoryMs-1) / float64(maxDelay)))
 	if r.Input == nil {
 		panic("Reverb has no input")
 	}

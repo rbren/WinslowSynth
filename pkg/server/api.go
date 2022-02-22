@@ -15,14 +15,14 @@ import (
 	"github.com/rbren/midi/pkg/music"
 )
 
-var sendIntervalMs = 50
-var sendInterval = time.Duration(sendIntervalMs) * time.Millisecond
+var sendInterval time.Duration
 var samplesPerSend int
 
 func init() {
-	msPerSend := sendIntervalMs
+	msPerSend := config.MainConfig.ServerSendIntervalMs
 	samplesPerMs := config.MainConfig.SampleRate / 1000
 	samplesPerSend = samplesPerMs * msPerSend
+	sendInterval = time.Duration(msPerSend) * time.Millisecond
 }
 
 var upgrader = websocket.Upgrader{} // use default options

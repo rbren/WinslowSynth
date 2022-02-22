@@ -11,9 +11,6 @@ import (
 	"github.com/rbren/midi/pkg/output"
 )
 
-const msPerSampleTick = 10
-const msPerClearTick = 250
-
 type MusicPlayer struct {
 	Sequence       Sequence
 	Output         *output.CircularAudioBuffer
@@ -25,7 +22,7 @@ type MusicPlayer struct {
 func NewMusicPlayer(out *output.CircularAudioBuffer) MusicPlayer {
 	samplesPerSec := config.MainConfig.SampleRate
 	samplesPerMs := samplesPerSec / 1000
-	samplesPerTick := samplesPerMs * msPerSampleTick
+	samplesPerTick := samplesPerMs * config.MainConfig.InstrumentSampleMs
 	logrus.Info("samples per Ms", samplesPerMs)
 	logrus.Info("samples per tick", samplesPerTick)
 	logrus.Info("output", out.GetCapacity())
@@ -53,7 +50,7 @@ func (m *MusicPlayer) startSampling() {
 			logger.Recover("player tick", e)
 		}
 	}()
-	ticker := time.NewTicker(msPerSampleTick * time.Millisecond)
+	ticker := time.NewTicker(time.Duration(config.MainConfig.InstrumentSampleMs) * time.Millisecond)
 	for {
 		select {
 		case <-ticker.C:
@@ -84,7 +81,7 @@ func (m *MusicPlayer) startClearingSequence() {
 			logger.Recover("player tick", e)
 		}
 	}()
-	ticker := time.NewTicker(msPerClearTick * time.Millisecond)
+	ticker := time.NewTicker(time.Duration(config.MainConfig.InstrumentClearEventsMs) * time.Millisecond)
 	for {
 		select {
 		case <-ticker.C:
