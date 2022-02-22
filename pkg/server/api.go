@@ -34,14 +34,15 @@ type MessageIn struct {
 }
 
 type MessageOut struct {
-	Time          uint64
-	Frequency     float32
-	Instrument    generators.Generator
-	HistoryUpdate []float32
-	Frequencies   []float32
-	Instruments   []string
-	Constants     []generators.Constant
-	Config        config.Config
+	Time               uint64
+	Frequency          float32
+	Instrument         generators.Generator
+	HistoryUpdate      []float32
+	Frequencies        []float32
+	Instruments        []string
+	Constants          []generators.Constant
+	Config             config.Config
+	SampleRateHandicap float32
 }
 
 type Server struct {
@@ -161,13 +162,14 @@ func (s *Server) startWriteLoop() {
 			}
 			sort.Strings(instruments)
 			msg := MessageOut{
-				Time:          s.Player.CurrentSample,
-				Instrument:    s.Player.Sequence.Instrument,
-				HistoryUpdate: s.Player.Sequence.Instrument.GetInfo().History.GetOrdered(samplesPerSend),
-				Frequencies:   s.Player.Sequence.Instrument.GetInfo().History.GetFrequencies(),
-				Instruments:   instruments,
-				Frequency:     s.Player.Sequence.LastFrequency,
-				Config:        config.MainConfig,
+				Time:               s.Player.CurrentSample,
+				Instrument:         s.Player.Sequence.Instrument,
+				HistoryUpdate:      s.Player.Sequence.Instrument.GetInfo().History.GetOrdered(samplesPerSend),
+				Frequencies:        s.Player.Sequence.Instrument.GetInfo().History.GetFrequencies(),
+				SampleRateHandicap: s.Player.Sequence.SampleRateHandicap,
+				Instruments:        instruments,
+				Frequency:          s.Player.Sequence.LastFrequency,
+				Config:             config.MainConfig,
 			}
 			err := s.connection.WriteJSON(msg)
 			if err != nil {

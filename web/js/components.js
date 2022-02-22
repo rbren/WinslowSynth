@@ -28,6 +28,18 @@ function drawStatus(ok) {
   `
 }
 
+function drawSampleRateHandicap(handicap) {
+  let color = 'success';
+  if (handicap > .25) {
+    color = 'warning';
+  } if (handicap > .5) {
+    color = 'danger';
+  }
+  return `
+  <span class="badge bg-${color}">${handicap}</span>
+  `
+}
+
 function drawInstrument(inst) {
   $('#Title').html(inst.Info?.Name || "Synthesizer");
   return "";

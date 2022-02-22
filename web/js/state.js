@@ -1,4 +1,4 @@
-const STATE_KEYS = ["Time", "Instrument", "Instruments", "Constants"];
+const STATE_KEYS = ["Time", "Instrument", "Instruments", "Constants", "SampleRateHandicap"];
 
 function setState(state) {
   window.freeze = window.freeze || {};
