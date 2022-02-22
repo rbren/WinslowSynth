@@ -81,9 +81,6 @@ func (s *Sequence) ClearOldEvents(absoluteTime uint64) {
 
 func (s *Sequence) GetSamples(absoluteTime uint64, numSamples int) []float32 {
 	start := time.Now()
-	samplesPerMs := config.MainConfig.SampleRate / 1000
-	samplesPerSprint := numSamples
-	msPerSprint := samplesPerSprint / samplesPerMs
 
 	//logrus.Infof("%d generators", len(s.Events))
 	allSamples := make([][]float32, len(s.Events))
@@ -105,12 +102,17 @@ func (s *Sequence) GetSamples(absoluteTime uint64, numSamples int) []float32 {
 	}
 	generators.AddHistory(s.Instrument, absoluteTime, output)
 	duration := time.Since(start)
-	ratio := float32(duration.Milliseconds()) / float32(msPerSprint)
-	s.AdjustSampleRateHandicap(ratio)
+	s.AdjustSampleRateHandicap(numSamples, duration)
 	return output
 }
 
-func (s *Sequence) AdjustSampleRateHandicap(ratio float32) {
+func (s *Sequence) AdjustSampleRateHandicap(numSamples int, duration time.Duration) {
+	samplesPerMs := config.MainConfig.SampleRate / 1000
+	samplesPerSprint := numSamples
+	msPerSprint := samplesPerSprint / samplesPerMs
+	durationMs := float32(duration.Microseconds()) / 1000
+	ratio := durationMs / float32(msPerSprint)
+
 	if ratio > sampleRateRatioMax {
 		if s.SampleRateHandicap >= maxSampleRateHandicap {
 			logrus.Errorf("FULLY DOWNSAMPLED: with %d generators, ratio was %f", len(s.Events), ratio)
@@ -120,6 +122,7 @@ func (s *Sequence) AdjustSampleRateHandicap(ratio float32) {
 		s.SampleRateHandicap = float32(math.Max(0, float64(s.SampleRateHandicap-sampleRateHandicapJump)))
 	}
 	if rand.Float32() < sampleRateHandicapJump*5 {
-		logrus.Infof("with %d generators, ratio was %f, sample handicap is %f", len(s.Events), ratio, s.SampleRateHandicap)
+		logrus.Infof("with %d generators, took %.02f ms to compute %d ms. Ratio was %.02f, sample handicap is %.02f",
+			len(s.Events), durationMs, msPerSprint, ratio, s.SampleRateHandicap)
 	}
 }

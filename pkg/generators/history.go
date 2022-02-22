@@ -18,13 +18,12 @@ const CopyExistingHistoryLength = -1
 const UseDefaultHistoryLength = -2
 
 var historyMs = 5000
-var numFrequencyBins int
+var numFrequencyBins = 1000
 var frequencyCoefficients []complex64
 var historyLength int
 
 func init() {
 	historyLength = historyMs * (config.MainConfig.SampleRate / 1000)
-	numFrequencyBins = 5000
 	logrus.Infof("Using %d bins by default", numFrequencyBins)
 	useHistory = os.Getenv("NO_HISTORY") == ""
 	twoPiI := 2 * math.Pi * complex(0, 1)
@@ -187,7 +186,7 @@ func (h History) GetFrequencies() []float32 {
 }
 
 func (h History) CalculateFrequencies() []float32 {
-	samples := h.GetOrdered(5000)
+	samples := h.GetOrdered(len(h.samples))
 	samples64 := make([]float64, len(samples))
 	for idx := range samples {
 		samples64[idx] = float64(samples[idx])

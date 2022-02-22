@@ -66,7 +66,7 @@ function setUpWaveFormGraph() {
 
 function setUpFrequenciesGraph() {
   if (!window.frequenciesGraph) {
-    window.frequenciesGraph = setUpGraph("#FrequenciesGraph", [0, 1000], [0.0, 500]);
+    window.frequenciesGraph = setUpGraph("#FrequenciesGraph", [0, 10000], [0.0, 100]);
   }
 }
 
