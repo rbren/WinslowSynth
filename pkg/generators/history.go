@@ -139,16 +139,6 @@ func (h *History) Add(startTime uint64, samples []float32) {
 	h.UpdateFrequencies(origPos, h.Position)
 }
 
-func (h *History) UpdateFrequency() {
-	newSample := h.samples[h.Position]
-	oldIdx := buffers.Modulus(h.Position-len(h.frequencyBins), len(h.samples))
-	oldSample := h.samples[oldIdx]
-	diff := complex64(complex(newSample-oldSample, 0))
-	for binIdx, binValue := range h.frequencyBins {
-		h.frequencyBins[binIdx] = frequencyCoefficients[binIdx] * (binValue + diff)
-	}
-}
-
 func (h *History) UpdateFrequencies(startPos, endPos int) {
 	numBins := len(h.frequencyBins)
 	if numBins == 0 {
@@ -197,14 +187,4 @@ func (h History) CalculateFrequencies() []float32 {
 		freqs[idx] = float32(cmplx.Abs(transformed[idx]))
 	}
 	return freqs
-}
-
-func (h History) GetOrderedComplex() []complex128 {
-	out := make([]complex128, len(h.samples))
-	startIdx := (h.Position + 1) % len(h.samples)
-	for i := 0; i < len(out); i++ {
-		idx := (startIdx + i) % len(h.samples)
-		out[i] = complex(float64(h.samples[idx]), 0)
-	}
-	return out
 }
