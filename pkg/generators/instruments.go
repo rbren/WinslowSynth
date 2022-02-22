@@ -13,28 +13,38 @@ func frequencyConst() Constant {
 	}
 }
 
-func BasicSine() Oscillator {
+func Sine() Oscillator {
 	return Oscillator{
 		Info: Info{
-			Name: "Basic Sine",
+			Name: "Sine",
+		},
+		Frequency:     frequencyConst(),
+		DropOnRelease: true,
+	}
+}
+
+func EnvSine() Oscillator {
+	return Oscillator{
+		Info: Info{
+			Name: "Env Sine",
 		},
 		Frequency: frequencyConst(),
 		Amplitude: GetADSR("adsr"),
 	}
 }
 
-func BasicSaw() Oscillator {
+func EnvSaw() Oscillator {
 	return Oscillator{
-		Info:      Info{Name: "Basic Saw"},
+		Info:      Info{Name: "Env Saw"},
 		Shape:     SawShape,
 		Frequency: frequencyConst(),
 		Amplitude: GetADSR("adsr"),
 	}
 }
 
-func BasicSquare() Oscillator {
+func EnvSquare() Oscillator {
 	return Oscillator{
-		Info:      Info{Name: "Basic Square"},
+		Info:      Info{Name: "Env Square"},
 		Shape:     SquareShape,
 		Frequency: frequencyConst(),
 		Amplitude: GetADSR("adsr"),
@@ -74,7 +84,7 @@ func NoisySineWave() Generator {
 		Info: Info{
 			Name: "Noisy Sine",
 		},
-		Input: BasicSine(),
+		Input: EnvSine(),
 	}
 }
 
@@ -106,7 +116,7 @@ func Warbler() Oscillator {
 }
 
 func DirtySawWave() Generator {
-	base := BasicSaw()
+	base := EnvSaw()
 	base.Amplitude = Multiply{
 		Info: Info{Name: "Dirty Saw"},
 		Generators: []Generator{
@@ -125,7 +135,7 @@ func DirtySawWave() Generator {
 }
 
 func HarmonicOscillator() Generator {
-	base := BasicSine()
+	base := EnvSine()
 	return Harmonic{
 		Info:       Info{Name: "Harmonic"},
 		Oscillator: base,
